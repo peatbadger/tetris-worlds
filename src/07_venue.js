@@ -243,7 +243,7 @@ function makeVenue(cfg) {
           }
           j.state = 'taken'; j.by = s; s.job = j;
           const tb = j.table, side = tb ? (tb.x > V.W / 2 ? -1 : 1) : 1;
-          if (j.kind === 'serve' || j.carry) { s.act = 'walk'; yield ['walk', V.X(cfg.passX ?? 0.5), V.lane()]; s.act = 'pickup'; s.actT = 0; s.face = 1; yield ['wait', 0.7]; s.carry = cfg.tray ? cfg.tray(j, V) : null; }
+          if (j.kind === 'serve' || j.carry) { s.act = 'walk'; yield ['walk', V.X(j.passX ?? (j.dish && j.dish.passX) ?? cfg.passX ?? 0.5), V.lane()]; s.act = 'pickup'; s.actT = 0; s.face = 1; yield ['wait', 0.7]; s.carry = cfg.tray ? cfg.tray(j, V) : null; }
           if (tb) { s.act = s.carry ? 'carry' : 'walk'; yield ['walk', tb.x + side * (tb.rx || 60 * V.u) * 1.05, V.lane()]; s.face = -side; s.look = tb.x; }
           else if (j.x !== undefined) { s.act = 'walk'; yield ['walk', V.X(j.x), V.lane()]; }
           if (j.kind === 'order') { s.act = 'order'; s.actT = 0; yield ['wait', 2.6]; j.state = 'done'; }

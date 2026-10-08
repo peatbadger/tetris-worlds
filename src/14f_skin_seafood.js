@@ -6,7 +6,7 @@ SKINSETS.seafood = (() => {
   function plate(x, P, t) {
     K.tile(x, P, shade(BG[t], 0.2), shade(BG[t], -0.45), 0.14);
     ellipse(x, P / 2 + P * 0.02, P / 2 + P * 0.04, P * 0.44, P * 0.44); x.fillStyle = 'rgba(0,0,0,0.3)'; x.fill();
-    ellipse(x, P / 2, P / 2, P * 0.44, P * 0.44); x.fillStyle = radial(x, P * 0.42, P * 0.38, P * 0.5, [[0, '#ffffff'], [0.7, '#eef0f2'], [1, '#b8c0c8']]); x.fill();
+    ellipse(x, P / 2, P / 2, P * 0.46, P * 0.46); x.fillStyle = radial(x, P * 0.42, P * 0.38, P * 0.5, [[0, '#ffffff'], [0.7, '#eef0f2'], [1, '#b8c0c8']]); x.fill();
     ellipse(x, P / 2, P / 2, P * 0.34, P * 0.34); x.strokeStyle = 'rgba(150,160,170,0.5)'; x.lineWidth = P * 0.01; x.stroke();
     ellipse(x, P / 2, P / 2, P * 0.42, P * 0.42); x.strokeStyle = 'rgba(200,170,90,0.6)'; x.lineWidth = P * 0.008; x.stroke(); // gilt rim
   }
@@ -14,6 +14,7 @@ SKINSETS.seafood = (() => {
   function base(x, t, P) {
     const rnd = mulberry32(t * 71 + 3), c = P / 2;
     plate(x, P, t);
+    x.save(); x.translate(c, c); x.scale(1.16, 1.16); x.translate(-c, -c);
     if (t === 1) { // oyster on the half shell over crushed ice
       for (let k = 0; k < 26; k++) { const a = rnd() * TAU, d = P * (0.28 + rnd() * 0.12); x.fillStyle = 'rgba(220,240,255,0.8)'; x.save(); x.translate(c + Math.cos(a) * d, c + Math.sin(a) * d); x.rotate(rnd() * 3); x.fillRect(-P * 0.025, -P * 0.02, P * 0.05, P * 0.04); x.restore(); }
       x.beginPath(); for (let k = 0; k <= 16; k++) { const a = k / 16 * TAU, r = P * (0.3 + Math.sin(k * 2.7) * 0.03); k ? x.lineTo(c + Math.cos(a) * r, c + Math.sin(a) * r * 0.82) : x.moveTo(c + Math.cos(a) * r, c + Math.sin(a) * r * 0.82); } x.closePath();
@@ -72,6 +73,7 @@ SKINSETS.seafood = (() => {
       });
       x.fillStyle = '#5a9a3a'; for (let k = 0; k < 6; k++) { ellipse(x, c + (rnd() - 0.5) * P * 0.45, c + (rnd() - 0.5) * P * 0.45, P * 0.012, P * 0.012); x.fill(); }
     }
+    x.restore();
     K.gloss(x, P, 0.22);
   }
   const glints = {};
