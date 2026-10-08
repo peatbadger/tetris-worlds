@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tetris Worlds — an immersive block journey</title>
+<style>
+:root { --accent: #ffb35c; --accent2: #e8c04a; --cell: 32px; --pulse: 0; --panel: rgba(8,6,14,0.58); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #000; color: #f4f1ea;
+  font-family: "Segoe UI", "Helvetica Neue", Roboto, Ubuntu, system-ui, sans-serif; user-select: none; }
+canvas { display: block; }
+#bg-wrap { position: fixed; inset: 0; }
+#bg-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 1.8s ease; }
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+#flash { position: fixed; inset: 0; pointer-events: none; z-index: 4; background: radial-gradient(circle at 50% 50%, var(--accent), transparent 70%); opacity: 0; mix-blend-mode: screen; }
+.hidden { display: none !important; }
+
+/* ---------- game layout ---------- */
+#game { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 3; }
+#play { display: flex; align-items: flex-start; gap: calc(var(--cell) * 0.7); will-change: transform; }
+.panel { width: calc(var(--cell) * 5.4); display: flex; flex-direction: column; gap: calc(var(--cell) * 0.4); margin-top: calc(var(--cell) * 0.1); }
+.box, .stats { background: var(--panel); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 12px; padding: 10px 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.45), inset 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); backdrop-filter: blur(6px); }
+.label { font-size: 11px; letter-spacing: 0.22em; color: var(--accent); font-weight: 700; opacity: 0.95; }
+.stat { display: flex; flex-direction: column; margin-bottom: 8px; }
+.stat .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.stat .v.big { font-size: 28px; }
+.row2 { display: flex; gap: 14px; } .row2 .stat { flex: 1; }
+.stage-info .name { font-size: 17px; font-weight: 700; margin: 2px 0 6px; }
+.bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); overflow: hidden; }
+.bar > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 0 10px var(--accent); transition: width .4s ease; }
+.small { font-size: 12px; opacity: 0.75; margin-top: 5px; }
+#combo { min-height: 18px; color: var(--accent2); font-weight: 700; letter-spacing: .08em; }
+#matrix { position: relative; width: calc(var(--cell) * 10); height: calc(var(--cell) * 20); border-radius: 6px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) calc(55% + var(--pulse) * 40%), transparent), 0 0 calc(18px + var(--pulse) * 26px) color-mix(in srgb, var(--accent) 55%, transparent), 0 20px 60px rgba(0,0,0,0.6); }
+#board { position: absolute; left: 0; top: calc(var(--cell) * -2); width: calc(var(--cell) * 10); height: calc(var(--cell) * 22); }
+#popups { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.popup { position: absolute; left: 50%; transform: translate(-50%, 0); white-space: nowrap; font-weight: 900; letter-spacing: .08em; text-align: center;
+  color: #fff; text-shadow: 0 0 10px var(--accent), 0 0 24px var(--accent), 0 2px 0 rgba(0,0,0,.6); animation: pop 1.4s ease-out forwards; }
+.popup.big { font-size: calc(var(--cell) * 1.05); } .popup.mid { font-size: calc(var(--cell) * 0.7); } .popup.sm { font-size: calc(var(--cell) * 0.5); color: var(--accent2); }
+@keyframes pop { 0% { opacity: 0; transform: translate(-50%, 20px) scale(.6); } 15% { opacity: 1; transform: translate(-50%, 0) scale(1.12); } 30% { transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -60px) scale(1); } }
+.mini-keys { font-size: 11.5px; line-height: 1.75; opacity: .85; }
+.mini-keys b { display: inline-block; min-width: 46px; color: var(--accent); font-weight: 700; }
+.icon-btn { background: var(--panel); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); color: #fff; border-radius: 10px; padding: 8px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+.icon-btn:hover { background: color-mix(in srgb, var(--accent) 25%, rgba(0,0,0,.5)); }
+.icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ---------- overlays ---------- */
+.overlay { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+#menu { background: radial-gradient(ellipse at center, rgba(0,0,0,0.25), rgba(0,0,0,0.65)); }
+.menu-inner { display: flex; gap: 48px; align-items: stretch; max-width: 1100px; padding: 0 30px; }
+.menu-left { display: flex; flex-direction: column; justify-content: center; min-width: 380px; }
+.logo { margin: 0; font-size: 76px; line-height: .95; font-weight: 900; letter-spacing: .06em;
+  background: linear-gradient(180deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 60%, transparent)) drop-shadow(0 4px 0 rgba(0,0,0,.5)); }
+.logo span { display: block; font-size: 38px; letter-spacing: .5em; margin-top: 6px; }
+.tag { opacity: .85; margin: 14px 0 26px; font-size: 16px; letter-spacing: .04em; }
+.buttons { display: flex; flex-direction: column; gap: 12px; width: 300px; }
+.btn { font: inherit; font-size: 18px; font-weight: 700; letter-spacing: .12em; padding: 14px 22px; border-radius: 12px; cursor: pointer; color: #fff; text-align: left;
+  background: rgba(10,8,18,0.6); border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); backdrop-filter: blur(6px); transition: transform .15s, background .2s, box-shadow .2s; }
+.btn:hover, .btn:focus-visible { transform: translateX(6px); background: color-mix(in srgb, var(--accent) 30%, rgba(0,0,0,.55)); box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 50%, transparent); outline: none; }
+.btn.primary { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 70%, #000), color-mix(in srgb, var(--accent2) 45%, #000)); border-color: var(--accent); }
+.btn small { display: block; font-size: 11px; font-weight: 500; letter-spacing: .08em; opacity: .8; margin-top: 3px; }
+.audio-row { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+input[type=range] { accent-color: var(--accent); width: 170px; }
+.best { margin-top: 14px; font-size: 13px; opacity: .8; letter-spacing: .08em; }
+.card { background: rgba(8,6,14,0.62); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 16px; padding: 22px 26px; backdrop-filter: blur(8px); box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+.card h3 { margin: 0 0 12px; letter-spacing: .25em; font-size: 13px; color: var(--accent); }
+.controls { border-collapse: collapse; font-size: 14px; }
+.controls td { padding: 5px 10px 5px 0; vertical-align: middle; }
+kbd { display: inline-block; min-width: 26px; padding: 3px 7px; margin: 1px 2px; border-radius: 6px; text-align: center; font-family: inherit; font-size: 12px; font-weight: 700;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-bottom-width: 3px; }
+.worldlist { margin-top: 14px; font-size: 12.5px; opacity: .85; line-height: 1.7; }
+.worldlist i { font-style: normal; color: var(--accent); }
+.hint { position: fixed; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 13px; opacity: .7; letter-spacing: .08em; }
+#stage-select { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: rgba(0,0,0,0.35); }
+#stage-select h2 { margin: 0; letter-spacing: .3em; font-size: 22px; }
+.stage-grid { display: grid; grid-template-columns: repeat(3, 300px); gap: 16px; }
+.stage-card { cursor: pointer; border-radius: 14px; overflow: hidden; background: rgba(8,6,14,.7); border: 1px solid rgba(255,255,255,.15); transition: transform .15s, box-shadow .2s, border-color .2s; text-align: left; color: #fff; font: inherit; padding: 0; }
+.stage-card:hover, .stage-card:focus-visible { transform: translateY(-4px); border-color: var(--c); box-shadow: 0 0 30px color-mix(in srgb, var(--c) 50%, transparent); outline: none; }
+.stage-card .sw { height: 92px; position: relative; }
+.stage-card .sw canvas.thumb { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stage-card .sw span { z-index: 1; }
+.stage-card .sw span { position: absolute; left: 14px; bottom: 8px; font-weight: 900; font-size: 13px; letter-spacing: .25em; text-shadow: 0 1px 4px #000; }
+.stage-card .tx { padding: 10px 14px 14px; }
+.stage-card .nm { font-size: 17px; font-weight: 800; color: var(--c); }
+.stage-card .ds { font-size: 12px; opacity: .8; margin-top: 4px; line-height: 1.45; }
+#pause, #over { background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); }
+.dialog { text-align: center; min-width: 360px; }
+.dialog h2 { margin: 0 0 6px; font-size: 44px; letter-spacing: .2em; color: #fff; text-shadow: 0 0 20px var(--accent); }
+.dialog .btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; align-items: center; }
+.dialog .btn { width: 260px; text-align: center; }
+.over-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px; margin-top: 14px; text-align: left; font-size: 15px; }
+.over-stats b { color: var(--accent); }
+
+/* ---------- stage title card ---------- */
+#titlecard { position: fixed; inset: 0; z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; opacity: 0; }
+#titlecard.show { animation: tc 2.7s ease forwards; }
+#titlecard .band { position: absolute; left: 0; right: 0; height: 190px; top: 50%; transform: translateY(-50%) scaleY(0); background: linear-gradient(90deg, transparent, rgba(0,0,0,0.7) 20%, rgba(0,0,0,0.7) 80%, transparent); }
+#titlecard.show .band { animation: band 2.7s ease forwards; }
+#titlecard .n { position: relative; font-size: 15px; letter-spacing: .6em; color: var(--accent); font-weight: 700; }
+#titlecard .t { position: relative; font-size: 64px; font-weight: 900; letter-spacing: .12em; margin: 6px 0; text-shadow: 0 0 30px var(--accent), 0 0 60px var(--accent); }
+#titlecard .s { position: relative; font-size: 16px; letter-spacing: .3em; opacity: .85; }
+@keyframes tc { 0% { opacity: 0; letter-spacing: .5em; } 18% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes band { 0% { transform: translateY(-50%) scaleY(0); } 15% { transform: translateY(-50%) scaleY(1); } 85% { transform: translateY(-50%) scaleY(1); } 100% { transform: translateY(-50%) scaleY(0); } }
+@media (max-height: 700px) { .logo { font-size: 56px; } .logo span { font-size: 28px; } .tag { margin: 8px 0 14px; } }
+</style>
+</head>
+<body>
+<div id="bg-wrap"><canvas id="bgA"></canvas><canvas id="bgB" style="opacity:0"></canvas></div>
+<div id="flash"></div>
+<div id="game" class="hidden">
+  <div id="play">
+    <div class="panel">
+      <div class="box"><div class="label">HOLD</div><canvas id="hold"></canvas></div>
+      <div class="stats">
+        <div class="stat"><span class="label">SCORE</span><span id="score" class="v big">0</span></div>
+        <div class="row2">
+          <div class="stat"><span class="label">LEVEL</span><span id="level" class="v">1</span></div>
+          <div class="stat"><span class="label">LINES</span><span id="lines" class="v">0</span></div>
+        </div>
+        <div class="stage-info">
+          <span class="label">WORLD <span id="stagenum">1</span> / 6</span>
+          <div id="stagename" class="name">Kaiten Sushi</div>
+          <div class="bar"><div id="stagebar"></div></div>
+          <div id="stageleft" class="small">12 lines to next world</div>
+        </div>
+        <div id="combo" class="small"></div>
+      </div>
+    </div>
+    <div id="matrix"><canvas id="board"></canvas><div id="popups"></div></div>
+    <div class="panel">
+      <div class="box"><div class="label">NEXT</div><canvas id="next"></canvas></div>
+      <div class="box mini-keys">
+        <div><b>← →</b>move</div><div><b>↓</b>soft drop</div><div><b>Space</b>hard drop</div>
+        <div><b>↑ / X</b>rotate ⟳</div><div><b>Z</b>rotate ⟲</div><div><b>C / Shift</b>hold</div><div><b>P / Esc</b>pause</div><div><b>M</b>mute</div>
+      </div>
+      <button class="icon-btn mute-btn" title="Mute (M)"></button>
+    </div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<div id="titlecard"><div class="band"></div><div class="n" id="tc-n">WORLD 1</div><div class="t" id="tc-t">KAITEN SUSHI</div><div class="s" id="tc-s">CONVEYOR-BELT IZAKAYA AT DUSK</div></div>
+
+<div id="menu" class="overlay">
+  <div class="menu-inner" id="menu-main">
+    <div class="menu-left">
+      <h1 class="logo">TETRIS<span>WORLDS</span></h1>
+      <div class="tag">A synesthetic block journey through six living worlds</div>
+      <div class="buttons">
+        <button class="btn primary" id="btn-play">▶&nbsp; JOURNEY<small>Start in Kaiten Sushi · new world every 12 lines</small></button>
+        <button class="btn" id="btn-select">◆&nbsp; STAGE SELECT<small>Begin your journey in any world</small></button>
+      </div>
+      <div class="audio-row">
+        <button class="icon-btn mute-btn" title="Mute (M)"></button>
+        <input type="range" id="vol" min="0" max="100" value="70" aria-label="Volume">
+      </div>
+      <div class="best" id="best">BEST SCORE 0</div>
+    </div>
+    <div class="card">
+      <h3>CONTROLS</h3>
+      <table class="controls">
+        <tr><td><kbd>←</kbd><kbd>→</kbd></td><td>Move</td></tr>
+        <tr><td><kbd>↓</kbd></td><td>Soft drop</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>Hard drop</td></tr>
+        <tr><td><kbd>↑</kbd><kbd>X</kbd></td><td>Rotate clockwise</td></tr>
+        <tr><td><kbd>Z</kbd><kbd>Ctrl</kbd></td><td>Rotate counter-clockwise</td></tr>
+        <tr><td><kbd>C</kbd><kbd>Shift</kbd></td><td>Hold piece</td></tr>
+        <tr><td><kbd>P</kbd><kbd>Esc</kbd></td><td>Pause / resume</td></tr>
+        <tr><td><kbd>M</kbd></td><td>Mute / unmute</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Start journey</td></tr>
+      </table>
+      <div class="worldlist" id="worldlist"></div>
+    </div>
+  </div>
+  <div id="stage-select" class="hidden">
+    <h2>CHOOSE YOUR WORLD</h2>
+    <div class="stage-grid" id="stage-grid"></div>
+    <button class="btn" id="btn-back" style="width:200px;text-align:center">← BACK</button>
+  </div>
+  <div class="hint" id="hint">Sound starts after your first click or key press · press <b>Enter</b> to begin</div>
+</div>
+
+<div id="pause" class="overlay hidden"><div class="card dialog">
+  <h2>PAUSED</h2><div class="small" id="pause-info"></div>
+  <div class="btns"><button class="btn primary" id="btn-resume">RESUME</button><button class="btn" id="btn-restart">RESTART</button><button class="btn" id="btn-quit">MAIN MENU</button></div>
+</div></div>
+<div id="over" class="overlay hidden"><div class="card dialog">
+  <h2>GAME OVER</h2><div class="small" id="over-world"></div>
+  <div class="over-stats" id="over-stats"></div>
+  <div class="btns"><button class="btn primary" id="btn-retry">PLAY AGAIN</button><button class="btn" id="btn-menu">MAIN MENU</button></div>
+</div></div>
+<script>
+/*__SCRIPT__*/
+</script>
+</body>
+</html>
