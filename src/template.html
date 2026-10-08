@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tetris Worlds — an immersive block journey</title>
+<title>Delicious Tetris — a world tour of food, one line at a time</title>
 <style>
 :root { --accent: #ffb35c; --accent2: #e8c04a; --cell: 32px; --pulse: 0; --panel: rgba(8,6,14,0.58); }
 * { box-sizing: border-box; }
@@ -71,21 +71,28 @@ input[type=range] { accent-color: var(--accent); width: 170px; }
 .controls td { padding: 5px 10px 5px 0; vertical-align: middle; }
 kbd { display: inline-block; min-width: 26px; padding: 3px 7px; margin: 1px 2px; border-radius: 6px; text-align: center; font-family: inherit; font-size: 12px; font-weight: 700;
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-bottom-width: 3px; }
-.worldlist { margin-top: 14px; font-size: 12.5px; opacity: .85; line-height: 1.7; }
+.worldlist { margin-top: 14px; font-size: 12px; opacity: .85; line-height: 1.6; columns: 2; column-gap: 18px; max-height: 30vh; overflow-y: auto; scrollbar-width: thin; }
+.worldlist div { break-inside: avoid; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .worldlist i { font-style: normal; color: var(--accent); }
 .hint { position: fixed; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 13px; opacity: .7; letter-spacing: .08em; }
 #stage-select { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: rgba(0,0,0,0.35); }
 #stage-select h2 { margin: 0; letter-spacing: .3em; font-size: 22px; }
-.stage-grid { display: grid; grid-template-columns: repeat(3, 300px); gap: 16px; }
+.stage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px, 1fr)); gap: 14px; width: min(1240px, 92vw); max-height: min(68vh, calc(100vh - 190px)); overflow-y: auto; padding: 10px 14px 18px; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); }
+.stage-grid::-webkit-scrollbar { width: 8px; } .stage-grid::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+.sel-head { display: flex; align-items: baseline; gap: 18px; } .sel-head small { opacity: .7; letter-spacing: .15em; font-size: 12px; }
+.sel-tabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.sel-tabs button { font: inherit; font-size: 12px; letter-spacing: .15em; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: rgba(8,6,14,.6); color: #fff; cursor: pointer; }
+.sel-tabs button.on { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent); }
 .stage-card { cursor: pointer; border-radius: 14px; overflow: hidden; background: rgba(8,6,14,.7); border: 1px solid rgba(255,255,255,.15); transition: transform .15s, box-shadow .2s, border-color .2s; text-align: left; color: #fff; font: inherit; padding: 0; }
 .stage-card:hover, .stage-card:focus-visible { transform: translateY(-4px); border-color: var(--c); box-shadow: 0 0 30px color-mix(in srgb, var(--c) 50%, transparent); outline: none; }
-.stage-card .sw { height: 92px; position: relative; }
+.stage-card .sw { height: 112px; position: relative; }
 .stage-card .sw canvas.thumb { position: absolute; inset: 0; width: 100%; height: 100%; }
 .stage-card .sw span { z-index: 1; }
 .stage-card .sw span { position: absolute; left: 14px; bottom: 8px; font-weight: 900; font-size: 13px; letter-spacing: .25em; text-shadow: 0 1px 4px #000; }
 .stage-card .tx { padding: 10px 14px 14px; }
 .stage-card .nm { font-size: 17px; font-weight: 800; color: var(--c); }
-.stage-card .ds { font-size: 12px; opacity: .8; margin-top: 4px; line-height: 1.45; }
+.stage-card .ds { font-size: 11.5px; opacity: .8; margin-top: 4px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.stage-card .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #pause, #over { background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); }
 .dialog { text-align: center; min-width: 360px; }
 .dialog h2 { margin: 0 0 6px; font-size: 44px; letter-spacing: .2em; color: #fff; text-shadow: 0 0 20px var(--accent); }
@@ -121,7 +128,7 @@ kbd { display: inline-block; min-width: 26px; padding: 3px 7px; margin: 1px 2px;
           <div class="stat"><span class="label">LINES</span><span id="lines" class="v">0</span></div>
         </div>
         <div class="stage-info">
-          <span class="label">WORLD <span id="stagenum">1</span> / 6</span>
+          <span class="label">WORLD <span id="stagenum">1</span> / <span id="stagetot">6</span></span>
           <div id="stagename" class="name">Kaiten Sushi</div>
           <div class="bar"><div id="stagebar"></div></div>
           <div id="stageleft" class="small">12 lines to next world</div>
@@ -146,7 +153,7 @@ kbd { display: inline-block; min-width: 26px; padding: 3px 7px; margin: 1px 2px;
 <div id="menu" class="overlay">
   <div class="menu-inner" id="menu-main">
     <div class="menu-left">
-      <h1 class="logo">TETRIS<span>WORLDS</span></h1>
+      <h1 class="logo">DELICIOUS<span>TETRIS</span></h1>
       <div class="tag">A synesthetic block journey through six living worlds</div>
       <div class="buttons">
         <button class="btn primary" id="btn-play">▶&nbsp; JOURNEY<small>Start in Kaiten Sushi · new world every 12 lines</small></button>
@@ -175,7 +182,8 @@ kbd { display: inline-block; min-width: 26px; padding: 3px 7px; margin: 1px 2px;
     </div>
   </div>
   <div id="stage-select" class="hidden">
-    <h2>CHOOSE YOUR WORLD</h2>
+    <div class="sel-head"><h2>CHOOSE YOUR WORLD</h2><small id="sel-count"></small></div>
+    <div class="sel-tabs" id="sel-tabs"></div>
     <div class="stage-grid" id="stage-grid"></div>
     <button class="btn" id="btn-back" style="width:200px;text-align:center">← BACK</button>
   </div>
@@ -187,7 +195,7 @@ kbd { display: inline-block; min-width: 26px; padding: 3px 7px; margin: 1px 2px;
   <div class="btns"><button class="btn primary" id="btn-resume">RESUME</button><button class="btn" id="btn-restart">RESTART</button><button class="btn" id="btn-quit">MAIN MENU</button></div>
 </div></div>
 <div id="over" class="overlay hidden"><div class="card dialog">
-  <h2>GAME OVER</h2><div class="small" id="over-world"></div>
+  <h2>GAME OVER</h2><div class="small" id="over-world"></div><div class="small" style="opacity:.7;margin-top:4px">Thanks for dining with Delicious Tetris.</div>
   <div class="over-stats" id="over-stats"></div>
   <div class="btns"><button class="btn primary" id="btn-retry">PLAY AGAIN</button><button class="btn" id="btn-menu">MAIN MENU</button></div>
 </div></div>

@@ -1,8 +1,16 @@
 /* ================= Stage: Kaiten Sushi (showcase scene) ================= */
+const MENU = [['鮪', '一〇〇'], ['サーモン', '一〇〇'], ['鯛', '一五〇'], ['海老', '一〇〇'], ['いくら', '二〇〇'], ['玉子', '一〇〇'], ['穴子', '二〇〇'],
+  ['烏賊', '一〇〇'], ['蛸', '一〇〇'], ['鰤', '一五〇'], ['雲丹', '三〇〇'], ['河童巻', '一〇〇'], ['鉄火巻', '一五〇'], ['中とろ', '二五〇'], ['鯖', '一〇〇'],
+  ['帆立', '二〇〇'], ['甘海老', '一五〇'], ['稲荷', '一〇〇'], ['赤貝', '二〇〇'], ['鰻', '二五〇'], ['茶碗蒸し', '二〇〇'], ['味噌汁', '一五〇'], ['鯵', '一〇〇']];
+const SPECIAL = ['本日のおすすめ', '大将のおすすめ', '回転寿司', '一皿百円より', '酒', 'お茶無料'];
+const LANTERN_WORDS = ['寿司', '祭', '回転', '酒', '寿', '鮨'];
+const SUSHI_FOR = { '鮪': 'maguro', 'サーモン': 'salmon', '鯛': 'tai', '海老': 'ebi', 'いくら': 'g-ikura', '玉子': 'tamago', '穴子': 'unagi', '烏賊': 'ika', '蛸': 'tako',
+  '鰤': 'hamachi', '雲丹': 'g-uni', '河童巻': 'm-kappa', '鉄火巻': 'm-tekka', '中とろ': 'chutoro', '鯖': 'saba', '帆立': 'hotate', '稲荷': 'inari', '鰻': 'unagi' };
+const KANJI_NUM = (k) => Number([...k].map((c) => '〇一二三四五六七八九'.indexOf(c)).join(''));
 function makeSushiStage() {
   let W, H, D, u, M;
   let wall, chefCounter, nearCounter, vignette, emblem, fgLeft, fgRight;
-  let lanterns = [], nearSprites = [], farSprites = [], nearItems = [], farItems = [], farDiners = [], steamSpots = [], motes = [];
+  let manekiTxt = null, norenChars = [], lanterns = [], nearSprites = [], farSprites = [], nearItems = [], farItems = [], farDiners = [], steamSpots = [], motes = [];
   let nearOff = 0, farOff = 0;
   const X = (f) => f * W;
 
@@ -36,9 +44,10 @@ function makeSushiStage() {
       ctx.fillRect(x - lw / 2, ly, lw, lh);
       ctx.strokeStyle = lt < 0.6 ? 'rgba(120,90,50,0.6)' : '#c9a24a'; ctx.lineWidth = 0.8 * u; ctx.strokeRect(x - lw / 2 + 1.5 * u, ly + 1.5 * u, lw - 3 * u, lh - 3 * u);
       const gc = lt < 0.6 ? '#151010' : lt < 0.8 ? '#e9d08a' : '#fff4e0';
-      const gs = Math.min(lw * 0.62, lh / 3.2);
-      for (let i = 0; i < 3; i++) drawGlyph(ctx, x - gs / 2, ly + 3 * u + i * gs * 1.02, gs, rnd, gc, 0.1);
-      if (lt < 0.6) { ctx.fillStyle = '#c0282c'; ctx.fillRect(x + lw * 0.18, ly + lh - lw * 0.32, lw * 0.22, lw * 0.22); }
+      const word = pick2(rnd, ['純米', '大吟醸', '清酒', '吟醸', '本醸造', '原酒', '辛口', '生酒']);
+      const n = [...word].length, gs = Math.min(lw * 0.72, (lh - 6 * u) / n);
+      Ink.text(ctx, word, x, ly + 3 * u, gs, { D, rnd, color: gc.startsWith('#') ? gc : '#151010', bleed: 0.04, dry: 0.5 });
+      if (lt < 0.6) Ink.hanko(ctx, x + lw * 0.3, ly + lh - lw * 0.2, lw * 0.3, pick2(rnd, ['酒', '旨', '蔵']), { D, rnd });
     } else if (type < 0.7) { // tokkuri flask (ceramic)
       const h = maxH * (0.45 + rnd() * 0.15), w = h * 0.62;
       const col = pick2(rnd, ['#f1ece0', '#2a3e6e', '#7a4a2a', '#d9d2c0']);
@@ -62,7 +71,7 @@ function makeSushiStage() {
       ctx.fillStyle = shade(glass, -0.2); ctx.fillRect(x - w * 0.14, base - h, w * 0.28, h * 0.22);
       ctx.fillStyle = '#d4af37'; ctx.fillRect(x - w * 0.17, base - h - 2 * u, w * 0.34, 5 * u);
       ctx.fillStyle = '#0f0c0a'; ctx.fillRect(x - w * 0.42, base - h * 0.65, w * 0.84, h * 0.45);
-      drawGlyph(ctx, x - w * 0.3, base - h * 0.6, w * 0.6, rnd, '#f2f0ea', 0.13);
+      Ink.text(ctx, '焼酎', x, base - h * 0.63, Math.min(w * 0.6, h * 0.2), { D, rnd, color: '#f2f0ea', bleed: 0.03, dry: 0.4 });
       ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(x - w * 0.36, base - h * 0.78, w * 0.05, h * 0.76);
     } else if (type < 0.92) { drawBottle(ctx, x, base, maxH, () => rnd() * 0.84); } else { // masu cups stack
       const s = maxH * 0.18;
@@ -70,7 +79,7 @@ function makeSushiStage() {
         const bx = x - s * 1.5 + c * s + r * s * 0.5, by = base - (r + 1) * s * 0.92;
         ctx.fillStyle = linear(ctx, bx, by, bx + s, by + s, [[0, '#ecd29a'], [1, '#bf9a58']]); ctx.fillRect(bx, by, s * 0.94, s * 0.9);
         ctx.strokeStyle = 'rgba(90,60,20,0.6)'; ctx.lineWidth = 0.8 * u; ctx.strokeRect(bx, by, s * 0.94, s * 0.9);
-        drawGlyph(ctx, bx + s * 0.25, by + s * 0.2, s * 0.45, rnd, 'rgba(60,30,10,0.8)', 0.12);
+        Ink.text(ctx, '酒', bx + s * 0.47, by + s * 0.12, s * 0.5, { D, rnd, color: '#3c1e0a', bleed: 0.03, dry: 0.3 });
       }
     }
   }
@@ -125,7 +134,7 @@ function makeSushiStage() {
     ctx.fillStyle = 'rgba(255,210,150,0.35)'; ctx.fillRect(0, H * 0.047, WW, 1 * u);
     // menu plaques (fuda)
     const py = H * 0.07, ph = H * 0.165, pwid = 38 * u, gap = 7 * u;
-    let i = 0;
+    let i = 0, mi = 0, sp = 0;
     for (let x = 6 * u; x < WW - pwid; x += pwid + gap, i++) {
       const kind = rnd(); const pic = i % 4 === 1;
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 8 * u; ctx.shadowOffsetY = 4 * u;
@@ -138,23 +147,41 @@ function makeSushiStage() {
       ctx.strokeStyle = lac === 'wood' ? 'rgba(90,55,20,0.5)' : '#d4af37'; ctx.lineWidth = 1 * u; ctx.strokeRect(x + 2 * u, py + 2 * u, pwid - 4 * u, ph - 4 * u);
       // brass pins
       [x + pwid * 0.25, x + pwid * 0.75].forEach((px) => { ellipse(ctx, px, py + 4 * u, 1.8 * u, 1.8 * u); ctx.fillStyle = radial(ctx, px - 0.5 * u, py + 3.5 * u, 2 * u, [[0, '#fff2b0'], [1, '#8a6a1a']]); ctx.fill(); });
-      const gc = lac === 'wood' ? '#17100c' : lac === 'red' ? '#ffe9b0' : '#efe8da';
-      const gs = pwid * 0.58;
-      let gy = py + 8 * u;
-      if (pic) { SushiArt.food(ctx, pick2(rnd, SushiArt.KINDS), x + pwid / 2, py + ph * 0.3, pwid / 64, rnd); gy = py + ph * 0.36; }
-      const ng = pic ? 2 : 3;
-      for (let g = 0; g < ng; g++) drawGlyph(ctx, x + (pwid - gs) / 2, gy + g * gs * 1.05, gs, rnd, gc, 0.1);
-      // price tag
-      const ty = py + ph - 19 * u;
-      roundRect(ctx, x + 3 * u, ty, pwid - 6 * u, 15 * u, 3 * u);
-      ctx.fillStyle = lac === 'red' ? '#f6ecd6' : '#b3221b'; ctx.fill();
-      ctx.fillStyle = lac === 'red' ? '#8a1414' : '#fff6e6';
-      ctx.font = `bold ${10 * u}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(pick2(rnd, ['120', '150', '180', '220', '280', '330', '380', '480']), x + pwid / 2 - 3 * u, ty + 7.8 * u);
-      drawGlyph(ctx, x + pwid - 13 * u, ty + 3.5 * u, 8 * u, rnd, ctx.fillStyle, 0.12);
+      const gc = lac === 'wood' ? '#17100c' : lac === 'red' ? '#f6d68a' : '#f1ebdf';
+      const special = lac !== 'wood' || i % 7 === 3;
+      if (special) {
+        const word = SPECIAL[sp++ % SPECIAL.length];
+        const n = [...word].length, gs = Math.min(pwid * 0.66, (ph - 16 * u) / n);
+        Ink.text(ctx, word, x + pwid / 2, py + 9 * u + (ph - 16 * u - gs * n) / 2, gs, { D, rnd, color: lac === 'wood' ? '#17100c' : gc, bleed: 0.05, heavy: true });
+        if (n <= 2) Ink.hanko(ctx, x + pwid / 2, py + ph - 16 * u, 13 * u, pick2(rnd, ['旨', '鮨', '寿']), { D, rnd });
+      } else {
+        const [name, price] = MENU[mi++ % MENU.length];
+        let top = py + 9 * u;
+        if (pic) { SushiArt.food(ctx, SUSHI_FOR[name] || pick2(rnd, SushiArt.KINDS), x + pwid / 2, py + ph * 0.24, pwid / 70, rnd); top = py + ph * 0.3; }
+        const n = [...name].length, area = py + ph * (pic ? 0.8 : 0.7) - top;
+        const gs = Math.min(pwid * (n === 1 ? 0.78 : 0.66), area / n);
+        Ink.text(ctx, name, x + pwid / 2, top + (area - gs * n) / 2, gs, { D, rnd, color: gc, bleed: 0.06, heavy: n <= 2 });
+        if (pic) { // red price tag with arabic numerals
+          const ty = py + ph - 19 * u;
+          roundRect(ctx, x + 3 * u, ty, pwid - 6 * u, 15 * u, 3 * u); ctx.fillStyle = '#b3221b'; ctx.fill();
+          Ink.text(ctx, String(KANJI_NUM(price)) + '円', x + pwid / 2, ty + 7.8 * u, 9.5 * u, { D, rnd, vertical: false, align: 'center', color: '#fff6e6', bleed: 0.02, dry: 0.2 });
+        } else {
+          const pr = price + '円', pn = [...pr].length, ps = Math.min(pwid * 0.34, (ph * 0.3 - 8 * u) / pn);
+          Ink.text(ctx, pr, x + pwid / 2, py + ph * 0.7 + 2 * u, ps, { D, rnd, color: '#7a1810', bleed: 0.04, dry: 0.4 });
+          if (i % 5 === 2) Ink.hanko(ctx, x + pwid * 0.24, py + ph * 0.78, 9 * u, '旨', { D, rnd });
+        }
+      }
     }
+    // ---- kanban over the kitchen door: 江戸前寿司 ----
+    { const kx0 = Xw(0.035) - 12 * u, kx1 = Xw(0.29) + 12 * u, ky = H * 0.247, kh = H * 0.046;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 10 * u; ctx.shadowOffsetY = 5 * u;
+      ctx.fillStyle = linear(ctx, 0, ky, 0, ky + kh, [[0, '#4a2a14'], [0.5, '#2e180a'], [1, '#1a0c04']]); ctx.fillRect(kx0, ky, kx1 - kx0, kh); ctx.restore();
+      hGrain(ctx, kx0, ky, kx1 - kx0, kh, rnd, 'rgba(0,0,0,0.3)', 'rgba(255,200,140,0.07)', 12);
+      ctx.strokeStyle = '#a8842e'; ctx.lineWidth = 1.2 * u; ctx.strokeRect(kx0 + 3 * u, ky + 3 * u, kx1 - kx0 - 6 * u, kh - 6 * u);
+      Ink.text(ctx, '江戸前寿司', (kx0 + kx1) / 2, ky + kh / 2, kh * 0.62, { D, rnd, vertical: false, align: 'center', color: '#e9c766', spacing: 1.35, bleed: 0.12, dry: 0.3, heavy: true });
+      Ink.hanko(ctx, kx1 - 16 * u, ky + kh / 2, kh * 0.5, '大将', { D, rnd, rot: 0 }); }
     // ---- kitchen doorway (left) ----
-    const dx0 = Xw(0.035), dx1 = Xw(0.29), dy0 = H * 0.275, dy1 = WH;
+    const dx0 = Xw(0.035), dx1 = Xw(0.29), dy0 = H * 0.305, dy1 = WH;
     ctx.fillStyle = linear(ctx, 0, dy0, 0, dy1, [[0, '#0b0604'], [0.6, '#1c120a'], [1, '#3a2412']]); ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
     // kitchen interior hints
     ctx.fillStyle = radial(ctx, Xw(0.2), H * 0.5, 160 * u, [[0, 'rgba(255,170,90,0.28)'], [1, 'rgba(255,170,90,0)']]); ctx.fillRect(dx0, dy0, dx1 - dx0, dy1 - dy0);
@@ -176,8 +203,8 @@ function makeSushiStage() {
     ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(sx - 120 * u, H * 0.27, 240 * u, H * 0.32);
     ctx.fillStyle = '#5a4a3a'; ctx.fillRect(sx - sw2 / 2 - 6 * u, H * 0.28, sw2 + 12 * u, H * 0.28);
     ctx.fillStyle = '#efe6d0'; ctx.fillRect(sx - sw2 / 2, H * 0.3, sw2, H * 0.24);
-    drawGlyph(ctx, sx - 16 * u, H * 0.32, 32 * u, rnd, '#1a1410', 0.12); drawGlyph(ctx, sx - 16 * u, H * 0.32 + 36 * u, 32 * u, rnd, '#1a1410', 0.12);
-    ctx.fillStyle = '#b8242a'; ctx.fillRect(sx + 14 * u, H * 0.5, 8 * u, 8 * u);
+    Ink.text(ctx, '一期一会', sx, H * 0.31, H * 0.044, { D, rnd, color: '#141010', bleed: 0.08, heavy: true });
+    Ink.hanko(ctx, sx + 22 * u, H * 0.52, 11 * u, '寿', { D, rnd });
     // ---- sake shelves (right) ----
     const shx0 = Xw(0.695), shx1 = Xw(0.985), shy0 = H * 0.25, shy1 = H * 0.535;
     ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 14 * u;
@@ -204,7 +231,7 @@ function makeSushiStage() {
     ellipse(ctx, dmx, dmy - 14 * u, 13 * u, 15 * u); ctx.fillStyle = radial(ctx, dmx - 4 * u, dmy - 20 * u, 18 * u, [[0, '#ff5a4a'], [1, '#8a0a0a']]); ctx.fill();
     ellipse(ctx, dmx, dmy - 18 * u, 7.5 * u, 6.5 * u); ctx.fillStyle = '#f6e8d6'; ctx.fill();
     ctx.fillStyle = '#111'; ellipse(ctx, dmx - 3 * u, dmy - 18 * u, 1.8 * u, 1.8 * u); ctx.fill();
-    ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 1 * u; ctx.beginPath(); ctx.arc(dmx, dmy - 8 * u, 6 * u, 0.3, Math.PI - 0.3); ctx.stroke();
+    Ink.text(ctx, '福', dmx, dmy - 11 * u, 8 * u, { D, rnd, color: '#f2cf6a', bleed: 0.03, dry: 0.2 });
     // wainscot with seigaiha band
     ctx.fillStyle = '#1a0d06'; ctx.fillRect(0, H * 0.54, WW, WH - H * 0.54);
     seigaiha(ctx, 0, H * 0.55, WW, H * 0.06, 11 * u, '#1d2d55', '#d9d2bd');
@@ -229,9 +256,9 @@ function makeSushiStage() {
       ctx.beginPath(); ctx.ellipse(cx, y, hw, hw * 0.1, 0, 0, Math.PI); ctx.strokeStyle = red ? 'rgba(70,0,0,0.35)' : 'rgba(110,70,20,0.3)'; ctx.lineWidth = 1 * u * s; ctx.stroke();
     }
     for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(cx, cy, Math.abs(i) * w * 0.12 + 0.1, bh / 2, 0, -Math.PI / 2, Math.PI / 2, i < 0); ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1 * u; ctx.stroke(); }
-    const gs = w * 0.42;
-    drawGlyph(ctx, cx - gs / 2, cy - gs * 1.05, gs, rnd, red ? '#160606' : '#b3161a', 0.12);
-    drawGlyph(ctx, cx - gs / 2, cy + gs * 0.05, gs, rnd, red ? '#160606' : '#b3161a', 0.12);
+    const word = LANTERN_WORDS[seed % LANTERN_WORDS.length], n = [...word].length;
+    const gs = n === 1 ? w * 0.62 : w * 0.4;
+    Ink.text(ctx, word, cx, cy - (gs * n) / 2, gs, { D, rnd, color: red ? '#140404' : '#b3161a', bleed: 0.05, heavy: true, dry: 0.6 });
     ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = radial(ctx, cx, cy + bh * 0.05, w * 0.45, [[0, 'rgba(255,200,120,0.45)'], [1, 'rgba(255,200,120,0)']]); ctx.fillRect(0, 0, SW, SH);
     ctx.restore();
@@ -335,7 +362,7 @@ function makeSushiStage() {
     ctx.beginPath(); ctx.moveTo(x - w / 2, base - h); ctx.lineTo(x - w * 0.46, base); ctx.ellipse(x, base, w * 0.46, r * 0.9, 0, Math.PI, 0, true); ctx.lineTo(x + w / 2, base - h); ctx.closePath();
     ctx.fillStyle = linear(ctx, x - w / 2, 0, x + w / 2, 0, [[0, shade(glaze, -0.45)], [0.3, shade(glaze, 0.2)], [0.6, glaze], [1, shade(glaze, -0.55)]]); ctx.fill(); ctx.restore();
     ctx.save(); ctx.beginPath(); ctx.moveTo(x - w / 2, base - h); ctx.lineTo(x - w * 0.46, base); ctx.ellipse(x, base, w * 0.46, r * 0.9, 0, Math.PI, 0, true); ctx.lineTo(x + w / 2, base - h); ctx.closePath(); ctx.clip();
-    if (style === 0) { for (let c = 0; c < 3; c++) for (let g = 0; g < 4; g++) drawGlyph(ctx, x - w * 0.36 + c * w * 0.26, base - h + 5 * u + g * 7 * u, 5.5 * u, rnd, '#1a1410', 0.12); }
+    if (style === 0) { ['鮪鯛鰤鮭', '鯖鰻蛸鯵', '鰯鰹鱈鮃'].forEach((col, c) => Ink.text(ctx, col, x + w * 0.28 - c * w * 0.28, base - h + 3 * u, 6.2 * u, { D, rnd, color: '#1a1410', bleed: 0.02, dry: 0.2 })); }
     if (style === 2) { ctx.fillStyle = '#d9c8a8'; ctx.beginPath(); ctx.moveTo(x - w, base - h); for (let k = 0; k <= 8; k++) ctx.lineTo(x - w / 2 + k * w / 8, base - h + (6 + (k % 2) * 6 + rnd() * 4) * u); ctx.lineTo(x + w, base - h); ctx.fill(); }
     if (style === 3) { ctx.strokeStyle = 'rgba(230,235,250,0.8)'; ctx.lineWidth = 1 * u; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(x - w * 0.15 + k * 6 * u, base - h * 0.45, 4 * u, Math.PI, 0); ctx.stroke(); } }
     ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(x - w * 0.3, base - h + 3 * u, 2 * u, h - 6 * u);
@@ -351,7 +378,7 @@ function makeSushiStage() {
     ctx.fillStyle = linear(ctx, x - 4 * u, 0, x + 4 * u, 0, [[0, '#777'], [0.5, '#eee'], [1, '#555']]); ctx.fillRect(x - 3 * u, y + 18 * u, 6 * u, 12 * u);
     ellipse(ctx, x, y + 30 * u, 4 * u, 1.6 * u); ctx.fillStyle = '#333'; ctx.fill();
     roundRect(ctx, x - 7 * u, y + 3 * u, 14 * u, 7 * u, 3 * u); ctx.fillStyle = radial(ctx, x - 2 * u, y + 5 * u, 9 * u, [[0, '#ff7a6a'], [1, '#a0100c']]); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = `bold ${5 * u}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('HOT', x, y + 14.5 * u);
+    Ink.text(ctx, 'お湯', x, y + 14.5 * u, 5.5 * u, { D, vertical: false, align: 'center', color: '#ffffff', bleed: 0.02, dry: 0 });
   }
   function soyBottle(ctx, x, base) {
     const w = 22 * u, h = 44 * u;
@@ -384,7 +411,7 @@ function makeSushiStage() {
     for (let i = 0; i < 26; i++) { ellipse(ctx, -w / 2 + rnd() * w, -h - rnd() * d - 2 * u, 5 * u, 2.5 * u, rnd() * 3); ctx.fillStyle = `rgba(${245 + rnd() * 10},${185 + rnd() * 25},${190 + rnd() * 20},0.9)`; ctx.fill(); ctx.strokeStyle = 'rgba(220,130,140,0.6)'; ctx.lineWidth = 0.5 * u; ctx.stroke(); }
     ctx.restore();
     ctx.strokeStyle = '#c9a040'; ctx.lineWidth = 1 * u; ctx.strokeRect(-w / 2 + 2 * u, -h + 2 * u, w - 4 * u, h - 4 * u);
-    drawGlyph(ctx, -5 * u, -h + 3 * u, 10 * u, rnd, '#e9d08a', 0.12);
+    Ink.text(ctx, 'がり', 0, -h + h / 2, 7 * u, { D, rnd, vertical: false, align: 'center', color: '#e9d08a', bleed: 0.02, dry: 0.2 });
     ctx.restore();
   }
   function chopBox(ctx, x, base, rnd) {
@@ -401,7 +428,7 @@ function makeSushiStage() {
     roundRect(ctx, -w / 2, -h, w, h, 3 * u); ctx.fillStyle = linear(ctx, -w / 2, 0, w / 2, 0, [[0, '#050404'], [0.3, '#2e2a28'], [1, '#050404']]); ctx.fill();
     ctx.shadowColor = 'transparent';
     ctx.fillStyle = '#b81c1c'; ctx.fillRect(-w / 2, -h, w, 3 * u);
-    drawGlyph(ctx, -6 * u, -h + 7 * u, 12 * u, rnd, '#d9b25a', 0.12);
+    Ink.text(ctx, '箸', 0, -h + 6 * u, 12 * u, { D, rnd, color: '#d9b25a', bleed: 0.03, dry: 0.3 });
     ctx.restore();
   }
   function soyDish(ctx, x, y, rnd) {
@@ -422,7 +449,9 @@ function makeSushiStage() {
     ctx.save(); ctx.translate(x, y); ctx.rotate(-0.05);
     roundRect(ctx, -26 * u, -20 * u, 52 * u, 36 * u, 4 * u); ctx.fillStyle = '#111'; ctx.fill();
     ctx.fillStyle = linear(ctx, 0, -17 * u, 0, 13 * u, [[0, '#ffe7c0'], [1, '#f2b46a']]); ctx.fillRect(-23 * u, -17 * u, 46 * u, 30 * u);
-    for (let i = 0; i < 6; i++) { const s = SushiArt.KINDS[Math.floor(rnd() * 12)]; ctx.save(); SushiArt.food(ctx, s, -15 * u + (i % 3) * 15 * u, -6 * u + Math.floor(i / 3) * 13 * u, 0.22 * u, rnd); ctx.restore(); }
+    ctx.fillStyle = '#b3221b'; ctx.fillRect(-23 * u, -17 * u, 46 * u, 6 * u);
+    Ink.text(ctx, 'ご注文', 0, -14 * u, 4.6 * u, { D, rnd, vertical: false, align: 'center', color: '#ffffff', bleed: 0, dry: 0 });
+    for (let i = 0; i < 6; i++) { const s = SushiArt.KINDS[Math.floor(rnd() * 12)]; ctx.save(); SushiArt.food(ctx, s, -15 * u + (i % 3) * 15 * u, -3 * u + Math.floor(i / 3) * 12 * u, 0.2 * u, rnd); ctx.restore(); }
     ctx.restore();
   }
   function buildNearCounter() {
@@ -506,9 +535,11 @@ function makeSushiStage() {
       const g = ctx.createLinearGradient(px - 6 * u, 0, px + pw + 6 * u, 0);
       for (let k = 0; k <= 6; k++) { const v = Math.sin(t * 1.2 + k * 1.7 + ph); g.addColorStop(k / 6, v > 0 ? `rgba(160,190,255,${v * 0.13})` : `rgba(0,0,10,${-v * 0.3})`); }
       ctx.fillStyle = g; ctx.fillRect(px - 10 * u, y0, pw + 20 * u, len + 10 * u);
-      // emblem slice
-      const ed = disp(len * 0.42, ph);
-      ctx.drawImage(emblem, x0 + totalW / 2 - emblem.cssW / 2 + ed, y0 + len * 0.42 - emblem.cssH / 2, emblem.cssW, emblem.cssH);
+      // brushed character for this panel (回 転 寿 司)
+      const ed = disp(len * 0.5, ph), ch = norenChars[i];
+      if (ch) ctx.drawImage(ch, px + pw / 2 - ch.cssW / 2 + ed, y0 + len * 0.52 - ch.cssH / 2, ch.cssW, ch.cssH);
+      // small crest near the top
+      ellipse(ctx, px + pw / 2 + disp(len * 0.12, ph), y0 + len * 0.13, pw * 0.09, pw * 0.09); ctx.strokeStyle = 'rgba(240,232,214,0.7)'; ctx.lineWidth = 1.2 * u; ctx.stroke();
       // weave texture lines
       ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 1;
       for (let yy = 4 * u; yy < len; yy += 4 * u) { ctx.beginPath(); ctx.moveTo(px - 10 * u, y0 + yy); ctx.lineTo(px + pw + 10 * u, y0 + yy); ctx.stroke(); }
@@ -537,7 +568,7 @@ function makeSushiStage() {
     ctx.fillStyle = '#e88'; ellipse(ctx, 0, -37 * s, 1.5 * s, 1 * s); ctx.fill();
     ctx.fillStyle = '#c0282c'; ctx.fillRect(-11 * s, -31 * s, 22 * s, 3 * s);
     ellipse(ctx, 0, -27 * s, 3 * s, 3 * s); ctx.fillStyle = '#e8c04a'; ctx.fill();
-    ctx.fillStyle = '#e8b040'; roundRect(ctx, -7 * s, -18 * s, 14 * s, 9 * s, 2 * s); ctx.fill(); drawGlyph(ctx, -3.5 * s, -17 * s, 7 * s, mulberry32(5), '#6a1a0a', 0.14);
+    ctx.fillStyle = '#e8b040'; roundRect(ctx, -7 * s, -18 * s, 14 * s, 9 * s, 2 * s); ctx.fill(); if (manekiTxt) ctx.drawImage(manekiTxt, -manekiTxt.cssW / 2, -18.5 * s, manekiTxt.cssW, manekiTxt.cssH);
     ctx.save(); ctx.translate(10 * s, -30 * s); ctx.rotate(-0.4 + Math.sin(t * 3.2) * 0.45);
     roundRect(ctx, -4 * s, -16 * s, 8 * s, 18 * s, 4 * s); ctx.fillStyle = '#f6f2ea'; ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 0.6 * s; ctx.stroke();
     ctx.restore();
@@ -707,6 +738,8 @@ function makeSushiStage() {
     chefCounter = buildChefCounter();
     nearCounter = buildNearCounter();
     emblem = buildEmblem(H * 0.2);
+    manekiTxt = Ink.sprite('千万両', 3.4 * u, { D, rnd: mulberry32(9), color: '#6a1a0a', vertical: false, bleed: 0.02, dry: 0 });
+    norenChars = [...'回転寿司'].map((c, k) => Ink.sprite(c, H * 0.085, { D, rnd: mulberry32(70 + k), color: '#f3ecdc', bleed: 0.05, dry: 1.2, heavy: true }));
     fgLeft = buildFg(false); fgRight = buildFg(true);
     farDiners = [0, 1, 2, 3].map((i) => ({ c: buildFarDiner(100 + i), x: [0.715, 0.795, 0.87, 0.945][i], ph: i * 1.7 }));
     lanterns = [[0.055, 0.1, 1.0, true], [0.19, 0.06, 0.82, false], [0.33, 0.13, 1.05, true], [0.67, 0.12, 1.0, true], [0.81, 0.05, 0.85, false], [0.95, 0.1, 1.0, true]]
@@ -731,7 +764,7 @@ function makeSushiStage() {
     const wx = -M + P(0.15);
     ctx.drawImage(wall, wx, 0, wall.cssW, wall.cssH);
     // noren in doorway
-    drawNoren(ctx, wx + M + X(0.035), H * 0.272, X(0.29) - X(0.035), H * 0.2, t);
+    drawNoren(ctx, wx + M + X(0.035), H * 0.302, X(0.29) - X(0.035), H * 0.178, t);
     drawManeki(ctx, wx + M + X(0.955), H * 0.43, t);
     // 2. far diners (right), behind far belt
     farDiners.forEach((d, i) => {
@@ -791,7 +824,10 @@ function makeSushiStage() {
       const ax = X(0.06) + 70 * u + fg, ay = H * 1.0;
       const ex = ax + 40 * u + reach * 30 * u, ey = ay - 50 * u - reach * 40 * u;
       const hx = ax + 30 * u + reach * 85 * u, hy = ay - 60 * u - reach * 120 * u;
-      ctx.save(); ctx.filter = `blur(${1.2 * u}px)`; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      // soft (out-of-focus) edge: a faint wider stroke under the solid one instead of a costly ctx.filter blur
+      ctx.strokeStyle = 'rgba(12,13,20,0.35)'; ctx.lineWidth = 33 * u; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.lineWidth = 23 * u; ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
       ctx.strokeStyle = '#0c0d14'; ctx.lineWidth = 30 * u; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.stroke();
       ctx.lineWidth = 20 * u; ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
       ctx.strokeStyle = 'rgba(255,150,70,0.35)'; ctx.lineWidth = 2 * u; ctx.beginPath(); ctx.moveTo(ax + 12 * u, ay - 10 * u); ctx.lineTo(ex + 8 * u, ey - 8 * u); ctx.lineTo(hx + 6 * u, hy - 6 * u); ctx.stroke();

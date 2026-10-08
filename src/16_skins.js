@@ -1,4 +1,5 @@
 /* ================= Themed block skins (pre-rendered per stage & cell size) ================= */
+
 const Skins = (() => {
   const cache = {};
   function sushiTex(x, s, t, col) {
@@ -55,9 +56,8 @@ const Skins = (() => {
   function draw(style, col, t, s) {
     const c = makeCanvas(s, s), x = c.getContext('2d');
     const P = s; // pixel size
-    if (style === 'sushi') {
-      roundRect(x, 0.5, 0.5, P - 1, P - 1, P * 0.16); x.fillStyle = linear(x, 0, 0, P, P, [[0, '#2a120a'], [1, '#0a0302']]); x.fill();
-      sushiTex(x, P, t, col);
+    if (SKINSETS[style]) {
+      SKINSETS[style].base(x, t, P, col);
     } else if (style === 'glass') {
       roundRect(x, 1, 1, P - 2, P - 2, P * 0.2);
       x.fillStyle = linear(x, 0, 0, P, P, [[0, rgba(shade(col, 0.45), 0.92)], [0.5, rgba(col, 0.7)], [1, rgba(shade(col, -0.45), 0.85)]]); x.fill();
@@ -105,5 +105,6 @@ const Skins = (() => {
     if (!cache[key]) cache[key] = [null].concat(stage.palette.map((col, i) => draw(stage.skin, col, i + 1, px)));
     return cache[key];
   }
-  return { get };
+  function live(stage) { const ss = SKINSETS[stage.skin]; return ss && ss.live ? ss.live : null; }
+  return { get, live };
 })();

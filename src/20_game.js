@@ -98,7 +98,7 @@ class Game {
   rotate(dir) {
     if (this.state !== 'playing' || !this.piece) return false;
     const cur = this.piece;
-    if (cur.type === 'O') { this.h.onRotate && this.h.onRotate(true); return true; }
+    if (cur.type === 'O') { this.h.onRotate && this.h.onRotate(true, dir); return true; }
     const to = (cur.rot + dir + 4) % 4;
     const kicks = (cur.type === 'I' ? KICK_I : KICK_JLSTZ)['' + cur.rot + to];
     for (let i = 0; i < kicks.length; i++) {
@@ -107,7 +107,7 @@ class Game {
         this.piece = p; this.lastRot = true; this.lastKick = i;
         if (p.y > this.lowestY) { this.lowestY = p.y; this.resets = 0; }
         this.afterManip();
-        this.h.onRotate && this.h.onRotate(true);
+        this.h.onRotate && this.h.onRotate(true, dir);
         return true;
       }
     }
@@ -128,7 +128,7 @@ class Game {
     if (dist > 0) { this.piece = { ...this.piece, y: gy }; this.lastRot = false; }
     this.score += dist * 2;
     this.h.onHardDrop && this.h.onHardDrop(this.cellsOf(this.piece), dist, this.piece.type);
-    this.lock();
+    this.hardFlag = true; this.lock(); this.hardFlag = false;
   }
   holdPiece() {
     if (this.state !== 'playing' || !this.piece || !this.canHold) return;
@@ -179,7 +179,7 @@ class Game {
     if (n === 4) this.stats.tetris++;
     if (ts && n) this.stats.tspin++;
     this.stats.maxCombo = Math.max(this.stats.maxCombo, this.combo);
-    const info = { n, rows: full, tspin: ts, label, b2b: b2bBonus, combo: this.combo, pc, pts, cells, type: p.type };
+    const info = { n, rows: full, tspin: ts, label, b2b: b2bBonus, combo: this.combo, pc, pts, cells, type: p.type, hard: !!this.hardFlag };
     if (n > 0) {
       this.state = 'clearing'; this.clearRows = full; this.clearT = 0;
       this.h.onClear && this.h.onClear(info);

@@ -424,3 +424,5 @@ function makeCosmicStage() {
 }
 
 const STAGE_FACTORIES = { ocean: makeOceanStage, sushi: makeSushiStage, desert: makeDesertStage, neon: makeNeonStage, aurora: makeAuroraStage, cosmic: makeCosmicStage };
+// food worlds register themselves (see 2x_stage_*.js)
+const registerStage = (id, fn) => { STAGE_FACTORIES[id] = fn; };
