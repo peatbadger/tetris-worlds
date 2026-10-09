@@ -184,3 +184,9 @@ Shared engine (new):
 - Blocks: flat body (no per-cell gradients → no seams), one soft spatula swipe per cell, sparse real inclusions (stracciatella shards, chopped pistachio, berry ripples), scooped crest on exposed tops, form shading; real melt drips (tongue + heavy bulb, drawn unclipped via new FoodMass `post` hook, padK 0.3) instead of pins. Garnish 1.45× larger. Strawberry "eye" ellipses removed.
 - Kid's striped shirt → knit (same in Dim Sum).
 - Shots: screenshot-geo-gelato-day.png (15:00), -night.png (21:30 rain).
+
+## Dim Sum redo (QA step 5) — `src/44_geo_dimsum.js` + `src/45_food_dimsum.js`
+- Blocks rebuilt seamless (flat bodies + exposed-side form lighting only). Char siu: brighter lacquer red, honey-glaze top highlight + specular line, orange rim light on the lit side, charred dark edges → reads on the dark board. Taro: purple spirals removed (smooth lavender dough, fine flecks, domed highlight). Har gow: shrimp glows through translucent skin, soft pleats. Siu mai: pleated wavy wrapper edges + roe cap. Bao: three short splits at the crown instead of the lens slit. Steam: soft occasional puffs instead of hook squiggles.
+- Dragon & phoenix relief behind the board → plain lacquer panel with a quiet gold ring.
+- Waiter home moved 940 → 1035 (and towel spot to the right of the urn) so nobody stands behind NEXT.
+- Shots: screenshot-geo-dimsum-day.png (11:00), -night.png (21:00 rain).

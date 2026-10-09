@@ -81,7 +81,7 @@ function makeGeoDimsumStage() {
   /* ---------- staff ---------- */
   function mkStaff() {
     may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 262, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
-    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 940, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
+    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1035, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
     may.think = mayThink; lau.think = lauThink; fillTrolley();
   }
   const trolleyAt = (a) => { trolley.x = a.hx + a.f * 50; };
@@ -129,13 +129,13 @@ function makeGeoDimsumStage() {
     const lid = TABLES.find((tb) => tb.pot.lid && !tb.pot.held);
     if (lid) return refill(a, lid);
     if (!TB.party && (TB.baskets.length || TB.empties)) return clearB(a);
-    if (night && K.cooled(a, 'sweep', 10)) return K.start(a, 'sweep', [K.ph(0, (s) => { s.walkTo = rand(940, 1060); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(4, 6), (s, u, t) => { s.hold.N = H.broom(); s.carryUp = false; s.tgN = [s.hx + s.f * 10 + Math.sin(t * 4) * 16, s.hy - 30]; s.tgF = [s.hx + s.f * 4 + Math.sin(t * 4) * 12, s.hy - 60]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; s.carryUp = true; swept++; } })], { onAbort: (s) => { s.hold.N = null; s.carryUp = true; } });
+    if (night && K.cooled(a, 'sweep', 10)) return K.start(a, 'sweep', [K.ph(0, (s) => { s.walkTo = rand(1030, 1060); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(4, 6), (s, u, t) => { s.hold.N = H.broom(); s.carryUp = false; s.tgN = [s.hx + s.f * 10 + Math.sin(t * 4) * 16, s.hy - 30]; s.tgF = [s.hx + s.f * 4 + Math.sin(t * 4) * 12, s.hy - 60]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; s.carryUp = true; swept++; } })], { onAbort: (s) => { s.hold.N = null; s.carryUp = true; } });
     const r = Math.random();
-    if (r < 0.3) return K.start(a, 'towel', [K.ph(0, (s) => { s.walkTo = URN.x - 44; }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(2.5, 4), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [URN.x - 8 + Math.sin(t * 6) * 14, URN.top - 4]; s.leanT = 0.15; s.lxT = 0.8; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.3) return K.start(a, 'towel', [K.ph(0, (s) => { s.walkTo = URN.x + 40; }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(2.5, 4), (s, u, t) => { s.f = -1; s.hold.N = H.cloth(); s.tgN = [URN.x + 8 + Math.sin(t * 6) * 14, URN.top - 4]; s.leanT = 0.15; s.lxT = 0.8; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     return K.start(a, 'idle', [K.ph(rand(2, 3.5), (s) => { s.tgN = [s.hx + s.f * 6, s.hy - 20]; s.tgF = [s.hx - s.f * 4, s.hy - 22]; s.lxT = pick([-0.7, 0.5]); })]);
   }
   function refill(a, tb) {
-    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 940;
+    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1035;
     p.held = 1;
     K.start(a, 'refill', [K.ph(0, (s) => { s.walkTo = bx; }, { until: (s) => !s.walking, max: 30 }),
       K.ph(0.5, (s) => { s.f = potX(tb) < s.hx ? -1 : 1; s.tgN = [potX(tb), tb.top - 10]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = H.pot(p); p.away = 1; } }),
@@ -152,7 +152,7 @@ function makeGeoDimsumStage() {
       K.ph(0.6, (s) => { s.f = tb === TA ? -1 : 1; s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; tb.folder = 1; K.say(a, pick(['Thank you!', 'Mm goi!']), 1.1); if (tb.party) tb.party.bill = 3; } }),
       K.ph(rand(2.5, 3.5), (s) => { s.leanT = 0; s.look = { x: () => tb.x, until: K.simT + 0.3 }; }, { until: () => !tb.party || tb.party.bill >= 4, max: 8 }),
       K.ph(0.5, (s) => { s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { tb.folder = 0; s.hold.N = H.folder(); K.say(a, 'icon:heart', 0.8); } }),
-      K.ph(0, (s) => { s.walkTo = 940; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
+      K.ph(0, (s) => { s.walkTo = 1035; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
   }
   function clearB(a) {
     const tb = TB, n = tb.baskets.length + (tb.empties || 0);
@@ -299,26 +299,10 @@ function makeGeoDimsumStage() {
     for (let x = -60; x < 1340; x += 160) { c.fillStyle = P.wall2; c.fillRect(x + 12, 100, 136, 330); c.strokeStyle = rgba(P.gold2, 0.5); c.lineWidth = 2; c.strokeRect(x + 18, 106, 124, 318); }
     // red lacquer wainscot with gold rail
     c.fillStyle = P.red; c.fillRect(-60, 430, 1400, 210); c.fillStyle = P.red2; for (let x = -60; x < 1340; x += 90) c.fillRect(x + 8, 446, 74, 150); c.fillStyle = P.gold; c.fillRect(-60, 428, 1400, 5); c.fillRect(-60, 600, 1400, 3);
-    // the dragon & phoenix wall (centre, calm): gold relief on red, double medallion
-    const cx = 640; c.fillStyle = P.gold2; c.fillRect(470, 104, 340, 330); c.fillStyle = P.red; c.fillRect(480, 114, 320, 310);
-    c.strokeStyle = rgba(P.gold, 0.45); c.lineWidth = 2; c.strokeRect(492, 126, 296, 286);
-    c.fillStyle = P.gold; c.beginPath(); c.arc(cx, 268, 58, 0, TAU); c.fill(); c.fillStyle = P.red; c.beginPath(); c.arc(cx, 268, 50, 0, TAU); c.fill(); c.fillStyle = P.gold; c.beginPath(); c.arc(cx, 268, 14, 0, TAU); c.fill(); // pearl
-    // dragon (left): a sinuous scaled body sampled along a curve, dorsal spines, claws, horned head facing the pearl
-    { const bz = (u) => { const p0 = [500, 400], p1 = [470, 300], p2 = [620, 360], p3 = [560, 250], q1 = [520, 170], q2 = [600, 160], q3 = [600, 228]; const seg = u < 0.55, v = seg ? u / 0.55 : (u - 0.55) / 0.45, A = seg ? [p0, p1, p2, p3] : [p3, [p3[0] * 2 - p2[0], p3[1] * 2 - p2[1]], q2, q3]; void q1; const m = 1 - v; return [m * m * m * A[0][0] + 3 * m * m * v * A[1][0] + 3 * m * v * v * A[2][0] + v * v * v * A[3][0], m * m * m * A[0][1] + 3 * m * m * v * A[1][1] + 3 * m * v * v * A[2][1] + v * v * v * A[3][1]]; };
-      const N = 40, pts = []; for (let i = 0; i <= N; i++) pts.push(bz(i / N));
-      for (let i = 1; i < N; i += 2) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i + 1], dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l, w = 4 + 6 * Math.sin((i / N) * Math.PI); c.fillStyle = P.gold; K.poly(c, [pts[i][0] + nx * w, pts[i][1] + ny * w, pts[i][0] + nx * (w + 9), pts[i][1] + ny * (w + 9) - 2, pts[i + 1][0] + nx * w, pts[i + 1][1] + ny * w]); c.fill(); }
-      c.strokeStyle = P.gold; c.lineCap = 'round'; for (let i = 0; i < N; i++) { c.lineWidth = 4 + 12 * Math.sin(((i + 0.5) / N) * Math.PI) + (i > N - 4 ? 4 : 0); c.beginPath(); c.moveTo(pts[i][0], pts[i][1]); c.lineTo(pts[i + 1][0], pts[i + 1][1]); c.stroke(); }
-      c.strokeStyle = P.red2; c.lineWidth = 1.6; for (let i = 3; i < N - 3; i += 2) { c.beginPath(); c.arc(pts[i][0], pts[i][1], 3.2, 0.2, Math.PI - 0.2); c.stroke(); }
-      for (const k of [10, 24]) { const [x, y] = pts[k]; c.strokeStyle = P.gold; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 12, y + 14); c.stroke(); c.lineWidth = 2; for (let j = -1; j <= 1; j++) { c.beginPath(); c.moveTo(x + 12, y + 14); c.lineTo(x + 16 + j * 4, y + 20); c.stroke(); } }
-      const [hx, hy] = pts[N]; c.fillStyle = P.gold; K.poly(c, [hx - 10, hy - 10, hx + 14, hy - 8, hx + 30, hy + 2, hx + 26, hy + 6, hx + 12, hy + 4, hx + 26, hy + 14, hx + 8, hy + 14, hx - 8, hy + 10]); c.fill();
-      c.fillStyle = P.red2; c.beginPath(); c.arc(hx + 6, hy - 2, 2.6, 0, TAU); c.fill();
-      c.strokeStyle = P.gold; c.lineWidth = 2.5; c.beginPath(); c.moveTo(hx - 4, hy - 9); c.lineTo(hx - 14, hy - 26); c.lineTo(hx - 8, hy - 30); c.moveTo(hx - 14, hy - 26); c.lineTo(hx - 22, hy - 28); c.moveTo(hx + 24, hy + 4); c.quadraticCurveTo(hx + 40, hy + 10, hx + 36, hy + 26); c.moveTo(hx + 22, hy - 4); c.quadraticCurveTo(hx + 40, hy - 16, hx + 30, hy - 30); c.stroke(); }
-    c.lineWidth = 9; c.beginPath(); c.moveTo(770, 390); c.bezierCurveTo(780, 330, 720, 320, 700, 280); c.stroke(); c.fillStyle = P.gold; c.beginPath(); c.arc(696, 272, 9, 0, TAU); c.fill(); K.poly(c, [688, 270, 676, 266, 688, 276]); c.fill();
-    for (let i = 0; i < 5; i++) { c.strokeStyle = P.gold; c.lineWidth = 3; c.beginPath(); c.moveTo(704, 288); c.quadraticCurveTo(740 + i * 8, 300 + i * 18, 780 - i * 4, 340 + i * 14); c.stroke(); c.fillStyle = P.gold; ellipse(c, 780 - i * 4, 340 + i * 14, 6, 4, 0.6); c.fill(); c.fillStyle = P.red2; c.beginPath(); c.arc(780 - i * 4, 340 + i * 14, 2, 0, TAU); c.fill(); }
-    c.fillStyle = P.gold; K.poly(c, [712, 300, 760, 250, 790, 262, 744, 300]); c.fill(); K.poly(c, [712, 300, 748, 232, 770, 236, 736, 296]); c.fill(); c.strokeStyle = P.gold; c.lineWidth = 2; c.beginPath(); c.moveTo(698, 264); c.quadraticCurveTo(700, 246, 712, 240); c.moveTo(694, 264); c.quadraticCurveTo(690, 244, 698, 236); c.stroke();
-    c.lineWidth = 1; c.lineCap = 'butt';
-    cloud(c, 530, 150, 1, rgba(P.gold, 0.5)); cloud(c, 752, 160, 1.1, rgba(P.gold, 0.5)); cloud(c, 700, 400, 0.9, rgba(P.gold, 0.4));
-    { const g = 0.5 + 0.5 * Math.sin(t * 0.4); c.fillStyle = rgba('#ffffff', 0.05 * g); K.poly(c, [560 + g * 60, 114, 600 + g * 60, 114, 520 + g * 60, 424, 480 + g * 60, 424]); c.fill(); }
+    // centre wall behind the board: one plain lacquer panel with a thin gold frame and a quiet ring — nothing busy to read through the well
+    c.fillStyle = P.gold2; c.fillRect(470, 104, 340, 330); c.fillStyle = P.red; c.fillRect(480, 114, 320, 310);
+    c.strokeStyle = rgba(P.gold, 0.35); c.lineWidth = 2; c.strokeRect(492, 126, 296, 286);
+    c.strokeStyle = rgba(P.gold, 0.4); c.lineWidth = 3; c.beginPath(); c.arc(640, 268, 54, 0, TAU); c.stroke();
     // left tall lattice window
     { const { x0, y0, x1, y1 } = LWIN; c.fillStyle = P.wood; c.fillRect(x0 - 8, y0 - 8, x1 - x0 + 16, y1 - y0 + 16); c.save(); c.beginPath(); c.rect(x0, y0, x1 - x0, y1 - y0); c.clip(); K.sky(c, x0, y0, x1, y1, { noSun: 1, sunR: 10 }); c.fillStyle = P.city; c.fillRect(x0, y0 + 120, 40, 200); c.fillRect(x0 + 60, y0 + 90, 50, 200); c.fillStyle = P.city2; c.fillRect(x0 + 34, y0 + 150, 34, 200);
       if (P.night > 0.3) { c.fillStyle = rgba('#ffd890', P.night); for (let i = 0; i < 8; i++) c.fillRect(x0 + 8 + (i % 3) * 32, y0 + 130 + Math.floor(i / 3) * 28, 8, 10); }
