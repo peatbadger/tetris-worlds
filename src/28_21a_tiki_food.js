@@ -2,9 +2,9 @@
    I acai (deep purple, blueberries) · O dragon fruit (magenta, black seeds) · T watermelon (red, seeds, rind on the real bottom)
    · S kiwi (green, seed rays along a pale core) · Z papaya (orange, seed channel) · J pineapple (golden chunks) · L coconut (white flesh, shell on exposed edges) */
 const TikiFood = remakeFood('tiki', {
-  premiumOpts: { desatAll: 0.12, desat: { watermelon: 0.2, dragon: 0.16 }, lift: { papaya: 'brightness(0.98) contrast(1.06)', dragon: 'contrast(1.08) brightness(0.97)', watermelon: 'brightness(1.04) contrast(1.06)' } }, // muted, adult palette (QA r3)
+  premiumOpts: { desatAll: 0.07, desat: { watermelon: 0.04, papaya: 0.03, dragon: 0.14 }, lift: { papaya: 'brightness(0.88) contrast(1.08) saturate(1.05)', dragon: 'contrast(1.08) brightness(0.97)', watermelon: 'brightness(1.02) contrast(1.08) saturate(1.06)' } }, // muted, adult palette (QA r3)
   FOOD: [null, 'acai', 'dragon', 'watermelon', 'kiwi', 'papaya', 'pineapple', 'coconut'],
-  MAIN: [null, '#4a1e4a', '#c85088', '#b23e46', '#5a9620', '#de7250', '#e8cc5a', '#f4f0e6'],
+  MAIN: [null, '#4a1e4a', '#c85088', '#c8364a', '#5a9620', '#e8843a', '#e8cc5a', '#f4f0e6'],
   soft: { acai: 1.4, dragon: 1.1, watermelon: 1.1, kiwi: 1.1, papaya: 1.1, pineapple: 1.0, coconut: 0.9 },
   boardBg: 'rgba(14,30,40,0.93)', grid: 'rgba(200,250,255,0.06)',
   paint(x, food, Q) {
@@ -31,10 +31,11 @@ const TikiFood = remakeFood('tiki', {
             for (let k = 0; k < 3; k++) { const f = (k + 0.5 + (M.H(k, 41) - 0.5) * 0.3) / 3; if (!(mask & N)) sc(l + (r - l) * f, t + sk * 0.55, 0); if (!(mask & S)) sc(l + (r - l) * f, b - sk * 0.55, Math.PI); if (!(mask & W)) sc(l + sk * 0.55, t + (b - t) * f, -Math.PI / 2); if (!(mask & E)) sc(r - sk * 0.55, t + (b - t) * f, Math.PI / 2); } }
           x.restore(); }
         M.form('rgba(255,255,255,0.18)', 'rgba(90,20,50,0.3)'); break; }
-      case 'watermelon': { M.fill('#b23e46'); M.piece(() => {
-        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(235,130,130,0.22)'], [1, 'rgba(90,10,20,0.25)']]); M.all(x.fillStyle);
-        for (const [u, v, i] of M.pts(A * 6, 13, 0.05)) { x.fillStyle = 'rgba(240,150,150,0.14)'; M.blob(u, v, P * 0.18, i, 7); x.fill(); }
+      case 'watermelon': { M.fill('#c8364a'); M.piece(() => {
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(255,130,150,0.24)'], [1, 'rgba(110,0,24,0.26)']]); M.all(x.fillStyle);
+        for (const [u, v, i] of M.pts(A * 6, 13, 0.05)) { x.fillStyle = 'rgba(255,150,165,0.16)'; M.blob(u, v, P * 0.18, i, 7); x.fill(); }
         for (const [u, v, i] of M.pts(A * 3, 17, 0.18)) { x.save(); x.translate(u, v); x.rotate((H(i, 19) - 0.5) * 0.8); x.fillStyle = '#2a1410'; x.beginPath(); x.moveTo(0, -P * 0.06); x.quadraticCurveTo(P * 0.04, 0, 0, P * 0.05); x.quadraticCurveTo(-P * 0.04, 0, 0, -P * 0.06); x.fill(); x.restore(); }
+        if (!small) for (const [u, v, i] of M.pts(A * 2, 41, 0.15)) { x.fillStyle = 'rgba(255,235,240,0.32)'; ellipse(x, u, v, P * (0.14 + H(i, 42) * 0.08), P * 0.035, -0.45); x.fill(); x.fillStyle = 'rgba(255,255,255,0.55)'; x.beginPath(); x.arc(u + P * 0.12, v - P * 0.04, P * 0.022, 0, TAU); x.fill(); } // juicy wet sheen
         for (const [a, c] of M.bots()) { const sy = (c + 1) * P; x.fillStyle = '#e4e2c4'; x.fillRect(a * P - 1, sy - P * 0.26, P + 2, P * 0.1); x.fillStyle = '#4a8a3c'; x.fillRect(a * P - 1, sy - P * 0.17, P + 2, P * 0.17); x.fillStyle = '#2a6a2a'; for (let k = 0; k < 4; k++) x.fillRect(a * P + k * P * 0.25 + P * 0.05, sy - P * 0.17, P * 0.08, P * 0.17); } });
         M.form('rgba(255,200,200,0.2)', 'rgba(80,0,10,0.35)'); break; }
       case 'kiwi': { M.fill('#5a9620'); M.piece(() => {
@@ -44,10 +45,10 @@ const TikiFood = remakeFood('tiki', {
         x.strokeStyle = '#eef4c8'; x.lineWidth = P * 0.15; x.beginPath(); for (const [a, b, c2, d] of sk) { x.moveTo(a, b); x.lineTo(c2, d); } x.stroke();
         sk.forEach(([a, b, c2, d], k) => { const dx = Math.sign(c2 - a), dy = Math.sign(d - b); for (let i = 0; i < 7; i++) { const u = (i + 0.5) / 7, px = a + (c2 - a) * u, py = b + (d - b) * u; for (const sd of [-1, 1]) { const o = P * (0.17 + H(k * 9 + i, sd + 3) * 0.05); x.fillStyle = '#1a1a10'; ellipse(x, px - dy * sd * o, py + dx * sd * o, P * (dy ? 0.034 : 0.016), P * (dy ? 0.016 : 0.034), 0); x.fill(); } } }); });
         M.form('rgba(230,255,190,0.2)', 'rgba(20,50,0,0.4)'); break; }
-      case 'papaya': { M.fill('#de7250'); M.piece(() => { // salmon-coral papaya flesh (pinker than the lemon pineapple)
-        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(250,170,130,0.32)'], [1, 'rgba(170,60,40,0.3)']]); M.all(x.fillStyle);
+      case 'papaya': { M.fill('#e8843a'); M.piece(() => { // warm orange papaya flesh (deeper than the lemon pineapple)
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(255,190,120,0.34)'], [1, 'rgba(180,70,20,0.3)']]); M.all(x.fillStyle);
         const sk = M.skel(); x.lineCap = 'round';
-        x.strokeStyle = '#eea08a'; x.lineWidth = P * 0.36; x.beginPath(); for (const [a, b, c2, d] of sk) { x.moveTo(a, b); x.lineTo(c2, d); } x.stroke();
+        x.strokeStyle = '#f4ae72'; x.lineWidth = P * 0.36; x.beginPath(); for (const [a, b, c2, d] of sk) { x.moveTo(a, b); x.lineTo(c2, d); } x.stroke();
         sk.forEach(([a, b, c2, d], k) => { for (let i = 0; i < 9; i++) { const u = (i + 0.5) / 9, px = a + (c2 - a) * u + (H(k * 11 + i, 5) - 0.5) * P * 0.12, py = b + (d - b) * u + (H(k * 11 + i, 6) - 0.5) * P * 0.12; x.fillStyle = '#2a1a14'; x.beginPath(); x.arc(px, py, P * 0.05, 0, TAU); x.fill(); x.fillStyle = 'rgba(255,255,255,0.35)'; x.beginPath(); x.arc(px - P * 0.015, py - P * 0.015, P * 0.014, 0, TAU); x.fill(); } }); });
         M.form('rgba(255,220,170,0.22)', 'rgba(110,40,0,0.35)'); break; }
       case 'pineapple': { M.fill('#c8a434'); M.piece(() => { // pale lemon pineapple chunks with fibrous grain
