@@ -23,9 +23,9 @@ const PizPal = GeoKit.palette({
 }, [[6, 'night'], [9, 'noon'], [15, 'noon'], [17, 'after'], [19, 'dusk'], [21, 'night'], [30, 'night'], [33, 'noon']], { label: (h) => { h = ((h % 24) + 24) % 24; return h < 6 ? 'Notte' : h < 15.5 ? 'Pranzo' : h < 18 ? 'Pomeriggio' : h < 20 ? 'Aperitivo' : h < 23 ? 'Cena' : 'Chiusura'; } });
 
 function makeGeoPizzeriaStage() {
-  const OVEN = { x: 104, mouthY: 452, top: 252, base: 478 }, BENCH = { x0: 150, x1: 456, top: 512 }, WORK = 318, READY = 420, TRAY = 200, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
-  const TB = { x: 1128, top: 566, seats: [{ x: 1052, f: 1, occ: null }, { x: 1204, f: -1, occ: null }] };
-  const WIN = { x0: 330, y0: 100, x1: 950, y1: 468 }, RACK = { x: 1000 }, LHOME = 1012;
+  const OVEN = { x: 44, mouthY: 452, top: 252, base: 478 }, BENCH = { x0: 112, x1: 300, top: 512 }, WORK = 190, READY = 248, TRAY = 140, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
+  const TB = { x: 1150, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1226, f: -1, occ: null }] };
+  const WIN = { x0: 330, y0: 100, x1: 950, y1: 468 }, RACK = { x: 1040 }, LHOME = 1072;
   const PIES = [{ n: 'Margherita', top: ['#fbf4e2'], basil: 1 }, { n: 'Diavola', top: ['#fbf4e2', '#a8201a'] }, { n: 'Marinara', top: [], basil: 0, garlic: 1 }, { n: 'Capricciosa', top: ['#fbf4e2', '#e8909a', '#3a2a2a'] }, { n: 'Quattro formaggi', top: ['#fbf4e2', '#f2d070', '#f8f0d8'] }];
   let K, sal, luca, pz = null, oven = { heat: 0.5, flare: 0, door: 0 }, orders = [], ready = null, flour = 0, dough = 6, table = { pie: null, glasses: [{ lv: 0 }, { lv: 0 }], candle: 0, menu: 0, dessert: null, folder: 0, stream: null, stretch: null }, ape = null, nextApe = 50, cat = null, nextCat = 30, busker = null, nextBusker = 30, nextArrive = 2, nextTake = 25, sign = 1;
   const L = (h) => K.L(h), B = GeoKit.body;
@@ -74,27 +74,27 @@ function makeGeoPizzeriaStage() {
   };
   /* ---------- Salvatore (pizzaiolo) ---------- */
   function mkStaff() {
-    sal = K.mk(B({ T: 244, hw: 70, headR: 29, torso: 'round', pattern: 'chef', top: 'white', pants: 'dark', hat: 'chef', hatCol: 'white', hairStyle: 'short', hair: 'dark' }), { role: 'pizzaiolo', staff: 1, hx: 250, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
+    sal = K.mk(B({ T: 244, hw: 70, headR: 29, torso: 'round', pattern: 'chef', top: 'white', pants: 'dark', hat: 'chef', hatCol: 'white', hairStyle: 'short', hair: 'dark' }), { role: 'pizzaiolo', staff: 1, hx: 160, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
     luca = K.mk(B({ T: 250, hw: 60, headR: 28, pattern: 'apron', top: 'dark', top2: 'white', shirt: 'white', pants: 'dark', hairStyle: 'short' }), { role: 'waiter', staff: 1, hx: LHOME, f: -1, floorY: SF + 4, sc: SSC * 0.96, faceDir: -0.5, speed: 1.15 });
     sal.think = salThink; luca.think = lucaThink;
   }
   const BT = BENCH.top;
   function salThink(a) {
     if (per() === 4 && !orders.length && !pz) {
-      if (!oven.door) return K.start(a, 'close', [K.ph(0, (s) => { s.walkTo = 200; }, { until: (s) => !s.walking, max: 10 }), K.ph(2.4, (s, u, t) => { s.f = -1; s.hold.N = H.rake(); s.tgN = [s.hx - 30 + Math.sin(t * 4) * 16, OVEN.mouthY - 6]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; } }), K.ph(0.8, (s) => { s.tgN = [OVEN.x + 30, OVEN.mouthY - 20]; s.tgF = [OVEN.x + 10, OVEN.mouthY - 20]; }, { exit: () => { oven.door = 1; K.fx('puff', OVEN.x, OVEN.mouthY - 30, { life: 1.2, col: '#888888' }); } })], { onAbort: (s) => { s.hold.N = null; } });
-      return K.start(a, 'wipe', [K.ph(0, (s) => { s.walkTo = 250; }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(2, 3), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [WORK + Math.sin(t * 5) * 40, BT - 8]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; flour = Math.max(0, flour - 0.5); } })], { onAbort: (s) => { s.hold.N = null; } });
+      if (!oven.door) return K.start(a, 'close', [K.ph(0, (s) => { s.walkTo = 116; }, { until: (s) => !s.walking, max: 10 }), K.ph(2.4, (s, u, t) => { s.f = -1; s.hold.N = H.rake(); s.tgN = [s.hx - 30 + Math.sin(t * 4) * 16, OVEN.mouthY - 6]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; } }), K.ph(0.8, (s) => { s.tgN = [OVEN.x + 30, OVEN.mouthY - 20]; s.tgF = [OVEN.x + 10, OVEN.mouthY - 20]; }, { exit: () => { oven.door = 1; K.fx('puff', OVEN.x, OVEN.mouthY - 30, { life: 1.2, col: '#888888' }); } })], { onAbort: (s) => { s.hold.N = null; } });
+      return K.start(a, 'wipe', [K.ph(0, (s) => { s.walkTo = 160; }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(2, 3), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [WORK + Math.sin(t * 5) * 40, BT - 8]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; flour = Math.max(0, flour - 0.5); } })], { onAbort: (s) => { s.hold.N = null; } });
     }
     if (per() !== 4 && oven.door) oven.door = 0;
     if (orders.length && !pz && !ready) return makePizza(a, orders.shift());
     const r = Math.random();
-    if (r < 0.3 && K.cooled(a, 'wood', 25)) return K.start(a, 'wood', [K.ph(0, (s) => { s.walkTo = 196; }, { until: (s) => !s.walking, max: 10 }), K.ph(0.7, (s) => { s.f = -1; s.tgN = [OVEN.x + 30, 600]; s.tgF = [OVEN.x + 16, 602]; s.leanT = 0.35; }), K.ph(0.7, (s) => { s.tgN = [OVEN.x + 34, OVEN.mouthY - 8]; s.tgF = [OVEN.x + 24, OVEN.mouthY - 8]; s.leanT = 0.2; }, { exit: () => { oven.flare = 1; oven.heat = Math.min(1, oven.heat + 0.3); K.fx('spark', OVEN.x, OVEN.mouthY - 10, { life: 0.5, col: '#ffb040' }); } }), K.ph(0.4, (s) => { s.leanT = 0; })]);
-    if (r < 0.55) return K.start(a, 'flour', [K.ph(0, (s) => { s.walkTo = 250; }, { until: (s) => !s.walking, max: 10 }), K.ph(1.6, (s, u, t) => { s.f = 1; s.tgN = [WORK + Math.sin(t * 7) * 30, BT - 8]; s.tgF = [WORK - 20 - Math.sin(t * 7) * 20, BT - 6]; s.leanT = 0.15; if (Math.random() < 0.05) K.fx('puff', WORK, BT - 10, { life: 0.8, col: '#ffffff' }); }, { exit: () => { flour = 1; } })]);
-    return K.start(a, 'idle', [K.ph(0, (s) => { s.walkTo = 250; }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 30, BT - 6]; s.tgF = [s.hx + 14, BT - 6]; s.lxT = pick([0.6, 0.2, -0.4]); })]);
+    if (r < 0.3 && K.cooled(a, 'wood', 25)) return K.start(a, 'wood', [K.ph(0, (s) => { s.walkTo = 120; }, { until: (s) => !s.walking, max: 10 }), K.ph(0.7, (s) => { s.f = -1; s.tgN = [OVEN.x + 30, 600]; s.tgF = [OVEN.x + 16, 602]; s.leanT = 0.35; }), K.ph(0.7, (s) => { s.tgN = [OVEN.x + 34, OVEN.mouthY - 8]; s.tgF = [OVEN.x + 24, OVEN.mouthY - 8]; s.leanT = 0.2; }, { exit: () => { oven.flare = 1; oven.heat = Math.min(1, oven.heat + 0.3); K.fx('spark', OVEN.x, OVEN.mouthY - 10, { life: 0.5, col: '#ffb040' }); } }), K.ph(0.4, (s) => { s.leanT = 0; })]);
+    if (r < 0.55) return K.start(a, 'flour', [K.ph(0, (s) => { s.walkTo = 160; }, { until: (s) => !s.walking, max: 10 }), K.ph(1.6, (s, u, t) => { s.f = 1; s.tgN = [WORK + Math.sin(t * 7) * 30, BT - 8]; s.tgF = [WORK - 20 - Math.sin(t * 7) * 20, BT - 6]; s.leanT = 0.15; if (Math.random() < 0.05) K.fx('puff', WORK, BT - 10, { life: 0.8, col: '#ffffff' }); }, { exit: () => { flour = 1; } })]);
+    return K.start(a, 'idle', [K.ph(0, (s) => { s.walkTo = 160; }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 30, BT - 6]; s.tgF = [s.hx + 14, BT - 6]; s.lxT = pick([0.6, 0.2, -0.4]); })]);
   }
   function makePizza(a, ord) {
     const kind = ord.kind; pz = { st: 'ball', size: 0.4, sauce: 0, cheese: 0, basil: 0, baked: 0, kind, x: WORK, ord, hidden: 1 };
     const flop = Math.random() < 0.12;
-    const ph = [K.ph(0, (s) => { s.walkTo = 250; }, { until: (s) => !s.walking, max: 10 }),
+    const ph = [K.ph(0, (s) => { s.walkTo = 160; }, { until: (s) => !s.walking, max: 10 }),
       K.ph(0.5, (s) => { s.f = 1; s.tgF = [TRAY, BT - 8]; s.leanT = 0.2; s.farFront = true; }, { exit: (s) => { s.hold.F = H.ball(); dough = Math.max(0, dough - 1); } }),
       K.ph(0.5, (s) => { s.tgF = [WORK, BT - 8]; }, { exit: (s) => { s.hold.F = null; s.farFront = false; pz.hidden = 0; } }),
       K.ph(1.4, (s, u, t) => { const p = Math.abs(Math.sin(t * 9)); s.tgN = [WORK + 10, BT - 10 - p * 8]; s.tgF = [WORK - 10, BT - 10 - (1 - p) * 8]; s.leanT = 0.25; pz.st = 'disc'; pz.size = lerp(0.4, 0.75, u); }),
@@ -103,19 +103,19 @@ function makeGeoPizzeriaStage() {
     if (flop) ph.push(K.ph(1.0, (s) => { s.hold.N = null; s.flying = 0; s.flop = 1; s.tgN = [s.R.cx + 10, s.R.cy - 30]; s.tgF = [s.R.cx - 10, s.R.cy - 30]; }, { enter: (s) => { K.fx('puff', s.R.cx, s.R.cy - s.R.R, { life: 1.2, col: '#ffffff' }); K.say(a, 'Mamma mia!', 1.4); K.say(luca, 'icon:laugh', 1.4); for (const g of guests()) K.say(g, 'icon:laugh', 1.2); }, exit: (s) => { s.flop = 0; s.hold.N = H.disc(false); } }), K.ph(0.6, (s) => { s.tgN = [s.hx + 30, BT - 30]; s.tgF = [s.hx + 20, BT - 30]; }, { enter: () => K.say(a, 'Ancora!', 1) }));
     ph.push(K.ph(0.5, (s) => { s.carryUp = false; s.tgN = [WORK + 4, BT - 10]; s.tgF = [WORK - 4, BT - 10]; }, { exit: (s) => { s.hold.N = null; pz.hidden = 0; pz.size = 1; pz.st = 'base'; } }));
     ph.push(K.ph(1.6, (s, u, t) => { s.hold.N = H.ladle(); const rr = 22 * (1 - u); s.tgN = [WORK + Math.cos(t * 10) * rr, BT - 26 + Math.sin(t * 10) * rr * 0.3]; s.leanT = 0.2; pz.sauce = u; }, { exit: (s) => { s.hold.N = null; } }));
-    ph.push(K.ph(1.6, (s, u, t) => { const k = Math.floor(t * 4) % 2; s.hold.N = k ? H.pinch(kind.top[0] || '#f4f0e0') : null; s.tgN = [k ? 412 : WORK + Math.sin(t * 13) * 18, BT - (k ? 14 : 12)]; s.tgF = [WORK - 30, BT - 6]; pz.cheese = u; }, { exit: (s) => { s.hold.N = null; } }));
+    ph.push(K.ph(1.6, (s, u, t) => { const k = Math.floor(t * 4) % 2; s.hold.N = k ? H.pinch(kind.top[0] || '#f4f0e0') : null; s.tgN = [k ? 236 : WORK + Math.sin(t * 13) * 18, BT - (k ? 14 : 12)]; s.tgF = [WORK - 30, BT - 6]; pz.cheese = u; }, { exit: (s) => { s.hold.N = null; } }));
     if (kind.basil) ph.push(K.ph(0.7, (s) => { s.hold.N = H.pinch('#2e8a2a'); s.tgN = [WORK + 6, BT - 16]; }, { exit: (s) => { s.hold.N = null; pz.basil = 1; } }));
     ph.push(K.ph(0.6, (s) => { s.tgN = [WORK - 10, BT - 6]; s.tgF = [WORK - 30, BT - 6]; s.leanT = 0.2; }, { exit: (s) => { pz.hidden = 1; s.f = -1; s.hold.N = H.peel(pz); } }));
-    ph.push(K.ph(0, (s) => { s.walkTo = 236; }, { until: (s) => !s.walking, max: 10 }));
+    ph.push(K.ph(0, (s) => { s.walkTo = 124; }, { until: (s) => !s.walking, max: 10 }));
     ph.push(K.ph(0.8, (s, u) => { s.f = -1; s.tgN = [s.hx - 30 - u * 30, OVEN.mouthY + 2]; s.tgF = [s.hx - 10 - u * 20, OVEN.mouthY + 4]; s.leanT = 0.2 * u; }, { exit: (s) => { s.hold.N = H.peel(null); pz.st = 'oven'; oven.flare = 1; K.fx('spark', OVEN.x + 10, OVEN.mouthY - 12, { life: 0.5, col: '#ffb040' }); } }));
     ph.push(K.ph(1.6, (s) => { s.f = -1; s.tgN = [s.hx - 20, OVEN.mouthY + 4]; s.tgF = [s.hx - 4, OVEN.mouthY + 6]; s.leanT = 0.05; s.look = { x: () => OVEN.x, until: K.simT + 0.3 }; }, { exit: () => { pz.baked = 0.5; } }));
     ph.push(K.ph(0.8, (s, u, t) => { s.tgN = [s.hx - 50 + Math.sin(t * 8) * 6, OVEN.mouthY + 2]; s.leanT = 0.18; }, { enter: () => K.say(a, 'icon:clock', 0.8) }));
     ph.push(K.ph(1.4, (s) => { s.tgN = [s.hx - 20, OVEN.mouthY + 4]; s.leanT = 0.05; }, { exit: (s) => { pz.baked = 1; pz.st = 'out'; s.hold.N = H.peel(pz); } }));
-    ph.push(K.ph(0, (s) => { s.walkTo = 300; }, { until: (s) => !s.walking, max: 10 }));
-    ph.push(K.ph(0.6, (s) => { s.f = 1; s.hold.N = H.peel(pz); s.tgN = [READY - 92, BT - 6]; }, { exit: (s) => { s.hold.N = null; pz.st = 'ready'; pz.x = READY; pz.hidden = 0; ready = pz; } }));
+    ph.push(K.ph(0, (s) => { s.walkTo = 196; }, { until: (s) => !s.walking, max: 10 }));
+    ph.push(K.ph(0.6, (s) => { s.f = 1; s.hold.N = H.peel(pz); s.tgN = [READY - 22, BT - 6]; }, { exit: (s) => { s.hold.N = null; pz.st = 'ready'; pz.x = READY; pz.hidden = 0; ready = pz; } }));
     ph.push(K.ph(1.2, (s, u, t) => { s.hold.N = H.cutter(); s.tgN = [READY - 26 + Math.sin(t * 9) * 26, BT - 22]; s.leanT = 0.18; if (u > 0.5) ready.slices = 1; }, { exit: (s) => { s.hold.N = null; pz = null; ready.done = 1; K.say(a, ord.take ? 'Pronta! Da asporto!' : 'Pronta! Tavolo uno!', 1.3); } }));
     if (ord.take) ph.push(K.ph(1.0, (s) => { s.tgN = [READY - 8, BT - 10]; s.tgF = [READY - 20, BT - 10]; }, { exit: () => { if (ready) ready.boxed = 1; } }));
-    ph.push(K.ph(0, (s) => { s.walkTo = 250; }, { until: (s) => !s.walking, max: 10 }));
+    ph.push(K.ph(0, (s) => { s.walkTo = 160; }, { until: (s) => !s.walking, max: 10 }));
     K.start(a, 'pizza', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.flying = 0; s.flop = 0; s.carryUp = false; s.farFront = false; const q = pz || ready; if (q) { Object.assign(q, { baked: 1, st: 'ready', hidden: 0, x: READY, size: 1, sauce: 1, cheese: 1, basil: 1, slices: 1, done: 1 }); if (ord.take) q.boxed = 1; ready = q; pz = null; } } });
   }
   /* ---------- Luca (waiter) ---------- */
@@ -151,7 +151,7 @@ function makeGeoPizzeriaStage() {
   }
   function servePie(a, p) {
     const pie = ready; p.stage = 'serving';
-    K.start(a, 'serve', [K.ph(0, (s) => { s.walkTo = BENCH.x1 + 40; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.6, (s) => { s.f = -1; s.tgN = [READY + 14, BT - 8]; s.tgF = [READY + 26, BT - 8]; s.leanT = 0.2; }, { exit: (s) => { ready = null; s.hold.N = H.pie(pie); s.carryUp = true; } }),
+    K.start(a, 'serve', [K.ph(0, (s) => { s.walkTo = 212; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.6, (s) => { s.f = 1; s.tgN = [READY - 8, BT - 8]; s.tgF = [READY + 6, BT - 8]; s.leanT = 0.2; }, { exit: (s) => { ready = null; s.hold.N = H.pie(pie); s.carryUp = true; } }),
       K.ph(0, (s) => { s.carryUp = true; s.tgN = [s.hx + s.f * 10, s.hy - 120]; s.walkTo = TB.x + 6; }, { until: (s) => !s.walking, max: 30 }),
       K.ph(0.7, (s) => { s.f = -1; s.carryUp = false; s.tgN = [TB.x + 10, TB.top - 30]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; table.pie = Object.assign(pie, { eaten: 0 }); p.stage = 'eating'; K.fx('puff', TB.x + 18, TB.top - 30, { life: 1, col: '#ffffff' }); K.say(a, 'Buon appetito!', 1.2); for (const m of p.members) if (Math.random() < 0.7) K.say(m, pick(['Che profumo!', 'icon:heart', 'Wow']), 1.1); } }), home()],
       { onAbort: (s) => { s.hold.N = null; s.carryUp = false; if (p.stage === 'serving') { table.pie = Object.assign(pie, { eaten: 0 }); p.stage = 'eating'; } } });
@@ -172,7 +172,7 @@ function makeGeoPizzeriaStage() {
   function reset(a) { K.start(a, 'reset', [atTable(), K.ph(0.6, (s) => { s.f = -1; s.tgN = [glassX(0), TB.top - 10]; s.tgF = [glassX(1), TB.top - 10]; s.leanT = 0.2; s.farFront = true; }, { exit: (s) => { table.glasses = [{ lv: 0 }, { lv: 0 }]; table.pie = null; table.dessert = null; table.menu = 0; s.farFront = false; } }), K.ph(1.4, (s, u, t) => { s.hold.N = H.cloth(); s.tgN = [TB.x + Math.sin(t * 6) * 40, TB.top - 6]; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; s.farFront = false; } }); }
   function handBox(a, g) {
     g.phase = 'gettingBox';
-    K.start(a, 'box', [K.ph(0, (s) => { s.walkTo = BENCH.x1 + 40; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.6, (s) => { s.f = -1; s.tgN = [READY + 10, BT - 8]; s.leanT = 0.2; }, { exit: (s) => { ready = null; s.hold.N = H.box(); } }),
+    K.start(a, 'box', [K.ph(0, (s) => { s.walkTo = 212; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.6, (s) => { s.f = 1; s.tgN = [READY - 6, BT - 8]; s.leanT = 0.2; }, { exit: (s) => { ready = null; s.hold.N = H.box(); } }),
       K.ph(0, (s) => { s.carryUp = true; s.walkTo = g.hx + 70; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.7, (s) => { s.carryUp = false; s.f = -1; s.tgN = [s.hx - 34, s.hy - 60]; s.leanT = 0.1; }, { exit: (s) => { s.hold.N = null; g.hold.N = H.box(); g.carryUp = true; K.say(a, 'Ecco — calda calda!', 1.2); } }),
       K.ph(0.8, (s) => { s.tgN = [s.hx - 30, s.hy - 56]; }, { enter: () => { g.hold.F = H.coin(); g.tgF = [g.hx + 30, g.hy - 56]; }, exit: () => { g.hold.F = null; g.phase = 'leave'; K.say(g, pick(['Grazie!', 'icon:heart']), 1); } }), home()], { onAbort: (s) => { s.hold.N = null; g.phase = 'leave'; } });
   }
@@ -217,7 +217,8 @@ function makeGeoPizzeriaStage() {
       if (g.lv > 0.08 && r < 0.75) return K.start(a, 'sip', [K.ph(0.5, (s) => { s.tgF = [glassX(gi), TB.top - 12]; s.farFront = true; }, { exit: (s) => { s.hold.F = H.glass(gi); g.held = 1; } }), K.ph(0.5, (s) => { s.tgF = [s.R.cx + s.f * s.R.R * 0.8, s.R.cy + s.R.R * 0.2]; }), K.ph(0.8, (s, u) => { s.cupTilt = Math.sin(u * Math.PI) * 0.6; }, { exit: (s) => { g.lv = Math.max(0, g.lv - rand(0.1, 0.18)); s.cupTilt = 0; } }), K.ph(0.5, (s) => { s.tgF = [glassX(gi), TB.top - 12]; }, { exit: (s) => { s.hold.F = null; g.held = 0; s.farFront = false; } })], { onAbort: (s) => { s.hold.F = null; g.held = 0; s.farFront = false; s.cupTilt = 0; } });
       if (mate && g.lv > 0.1 && r < 0.82 && K.cooled(a, 'toast', 25)) { const mg = TB.seats.indexOf(mate.seat); K.abort(mate); const clink = (who, i) => K.start(who, 'toast', [K.ph(0.5, (s) => { s.tgF = [glassX(i), TB.top - 12]; s.farFront = true; }, { exit: (s) => { s.hold.F = H.glass(i); table.glasses[i].held = 1; } }), K.ph(0.7, (s) => { s.tgF = [TB.x + s.f * -8, TB.top - 74]; }, { exit: () => { if (who === a) { K.fx('spark', TB.x, TB.top - 80, { life: 0.4, col: '#fff2c0' }); K.say(a, 'Cin cin!', 1); } } }), K.ph(0.6, (s) => { s.tgF = [glassX(i), TB.top - 12]; }, { exit: (s) => { s.hold.F = null; table.glasses[i].held = 0; s.farFront = false; } })], { onAbort: (s) => { s.hold.F = null; table.glasses[i].held = 0; s.farFront = false; } }); clink(mate, mg); return clink(a, gi); }
       if (mate && r < 0.92 && K.cooled(a, 'chat', 6)) { K.say(a, pick(a.T0.words), 1.4); K.after(1.2, () => K.say(mate, pick(mate.T0.words), 1.3)); return K.start(a, 'chat', [K.ph(2.2, (s, u, t) => { s.look = { x: () => mate.hx, until: K.simT + 0.3 }; s.tgN = [s.hx + s.f * 30 + Math.sin(t * 4) * 6, TB.top - 30]; })]); }
-      return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.look = { x: () => 640, until: K.simT + 0.3 }; })]);
+      if (r < 0.95 && K.cooled(a, 'lean', 9)) return K.start(a, 'lean', [K.ph(rand(2.4, 3.6), (s, u, t) => { s.leanT = 0.14; s.tgN = [s.R.cx + s.f * s.R.R * 0.35, s.R.cy + s.R.R * 0.75]; s.tgF = [TB.x - s.f * 40 + Math.sin(t * 0.9) * 4, TB.top - 10]; s.headDy = 1.5 + Math.sin(t * 1.3); s.look = { x: () => (mate ? mate.hx : TB.x), until: K.simT + 0.3 }; }, { exit: (s) => { s.leanT = 0; s.headDy = 0; } })]); // elbow on the table, chin in hand, listening
+      return K.start(a, 'idle', [K.ph(rand(1.8, 3), (s, u, t) => { s.tgN = [TB.x - s.f * 30 + Math.sin(t * 1.1) * 6, TB.top - 8]; s.tgF = [TB.x - s.f * 52 + Math.sin(t * 0.8 + 1) * 4, TB.top - 6]; s.look = { x: () => (u < 0.5 && mate ? mate.hx : pick2(a, [1150, 1300, TB.x])), until: K.simT + 0.3 }; })]); // hands resting on the cloth, glancing at the street / the sign / the mate
     }
     if (a.phase === 'leave') { if (a.state === 'seated') { K.standUp(a); return; } if (a.seat) { a.seat.occ = null; a.seat = null; } a.floorY = FL - 6; a.phase = 'out'; a.walkTo = 1330; if (P && P.members.every((m) => m.phase === 'out')) table.party = null; return; }
     if (a.phase === 'out') { if (!a.walking) a.fade = -2; else if (a.hx > 1260) a.fade = -1.5; }
@@ -307,7 +308,7 @@ function makeGeoPizzeriaStage() {
     c.fillStyle = P.wood; c.fillRect(x0, top + 13, x1 - x0, 150); c.fillStyle = P.woodDk; for (let x = x0 + 14; x < x1 - 30; x += 74) c.fillRect(x, top + 30, 60, 112); c.fillStyle = P.check; c.fillRect(x0, top + 13, x1 - x0, 6);
     if (flour > 0) { c.fillStyle = rgba('#ffffff', 0.5 * Math.min(1, flour)); ellipse(c, WORK, top + 1, 46, 4); c.fill(); }
     c.fillStyle = L('#c8ccd0'); c.fillRect(TRAY - 40, top - 8, 80, 8); for (let i = 0; i < dough; i++) pizza(c, TRAY - 26 + (i % 3) * 26, top - 4 - Math.floor(i / 3) * 7, 0.85, { st: 'ball' });
-    [['#c8301c', 0], ['#fbf4e2', 1], ['#2e8a2a', 2]].forEach(([col, i]) => { const bx = 388 + i * 26; c.fillStyle = L('#e8e4dc'); K.poly(c, [bx - 12, top - 12, bx + 12, top - 12, bx + 9, top, bx - 9, top]); c.fill(); c.fillStyle = L(col); ellipse(c, bx, top - 12, 11, 3); c.fill(); });
+    [['#c8301c', 0], ['#fbf4e2', 1], ['#2e8a2a', 2]].forEach(([col, i]) => { const bx = 214 + i * 22; c.fillStyle = L('#e8e4dc'); K.poly(c, [bx - 12, top - 12, bx + 12, top - 12, bx + 9, top, bx - 9, top]); c.fill(); c.fillStyle = L(col); ellipse(c, bx, top - 12, 11, 3); c.fill(); });
     if (pz && !pz.hidden && pz.st !== 'oven' && pz.st !== 'out' && pz.st !== 'ready') pizza(c, WORK, top - 2, 1.25, pz);
     if (ready) { if (ready.boxed) { c.fillStyle = L('#f4ecd8'); c.fillRect(READY - 34, top - 14, 68, 14); c.fillStyle = L('#c8302a'); c.fillRect(READY - 16, top - 10, 32, 3); c.fillStyle = L('#3a8a3a'); c.fillRect(READY - 16, top - 6, 32, 3); } else { c.fillStyle = L('#a8aeb4'); ellipse(c, READY, top - 2, 36, 7); c.fill(); pizza(c, READY, top - 4, 1.15, ready); } }
   }
@@ -337,12 +338,12 @@ function makeGeoPizzeriaStage() {
     c.fillStyle = P.woodDk; c.fillRect(1090, 150, 120, 90); c.fillStyle = L('#7ab8e0'); c.fillRect(1098, 158, 104, 74); c.fillStyle = L('#3a7aa0'); c.fillRect(1098, 204, 104, 28); c.fillStyle = L('#8aa0b8'); K.poly(c, [1110, 204, 1150, 172, 1190, 204]); c.fill();
     const nl = sign && P.night > 0.4; if (nl) K.glow(c, 1150, 96, 110, '#ffc870', 0.35 * P.night); c.fillStyle = !sign ? L('#5a5a5a') : nl ? '#fff0c8' : P.green; c.font = '700 24px Georgia, serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('Trattoria', 1150, 84); c.fillStyle = !sign ? L('#5a5a5a') : nl ? '#ffb0a0' : P.red; c.font = 'italic 700 14px Georgia, serif'; c.fillText('pizza · vino · amore', 1150, 110);
     const open = per() !== 4; c.fillStyle = L(open ? '#3a8a3a' : '#a83a2a'); roundRect(c, 1113, 252, 74, 26, 4); c.fill(); c.fillStyle = '#fff'; c.font = '700 12px sans-serif'; c.fillText(open ? 'APERTO' : 'CHIUSO', 1150, 265);
-    for (let i = 0; i < 2; i++) { const gx = 236 + i * 30; c.strokeStyle = rgba(P.ink, 0.5); c.lineWidth = 1; c.beginPath(); c.moveTo(gx, 38); c.lineTo(gx, 150); c.stroke(); for (let k = 0; k < 6; k++) { c.fillStyle = L(i ? '#d8301c' : '#f4ecd8'); if (i) { K.poly(c, [gx - 4, 58 + k * 16, gx + 4, 58 + k * 16, gx, 72 + k * 16]); c.fill(); } else { c.beginPath(); c.arc(gx, 64 + k * 16, 6, 0, TAU); c.fill(); } } }
+    for (let i = 0; i < 2; i++) { const gx = 176 + i * 30; c.strokeStyle = rgba(P.ink, 0.5); c.lineWidth = 1; c.beginPath(); c.moveTo(gx, 38); c.lineTo(gx, 150); c.stroke(); for (let k = 0; k < 6; k++) { c.fillStyle = L(i ? '#d8301c' : '#f4ecd8'); if (i) { K.poly(c, [gx - 4, 58 + k * 16, gx + 4, 58 + k * 16, gx, 72 + k * 16]); c.fill(); } else { c.beginPath(); c.arc(gx, 64 + k * 16, 6, 0, TAU); c.fill(); } } }
   }
   function draw(c, t) {
     const P = K.P;
     drawRoom(c, t);
-    { const x = 1128; c.strokeStyle = P.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, 26); c.lineTo(x, 300); c.stroke(); c.fillStyle = L('#2a5a3a'); c.beginPath(); c.arc(x, 316, 18, Math.PI, TAU); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 316, 13, 3); c.fill(); K.glow(c, x, 326, 170, P.glow, P.glowA); }
+    { const x = 1150; c.strokeStyle = P.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, 26); c.lineTo(x, 300); c.stroke(); c.fillStyle = L('#2a5a3a'); c.beginPath(); c.arc(x, 316, 18, Math.PI, TAU); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 316, 13, 3); c.fill(); K.glow(c, x, 326, 170, P.glow, P.glowA); }
     c.fillStyle = P.floor; c.fillRect(-60, 640, 1400, 100 + K.extraB); c.fillStyle = P.floor2; for (let r = 0; r < 4; r++) { c.fillRect(-60, 640 + r * 30, 1400, 2); for (let i = 0; i < 26; i++) c.fillRect(-60 + i * 56 + (r % 2) * 28, 640 + r * 30, 2, 30); }
     drawOven(c, t);
     K.drawBody(c, sal, true);
@@ -358,6 +359,7 @@ function makeGeoPizzeriaStage() {
     K.drawEffects(c);
     for (const a of K.actors) K.drawBubble(c, a);
   }
+  function pick2(a, arr) { if (!a._pk || K.simT > a._pkT) { a._pk = arr[Math.floor(Math.random() * arr.length)]; a._pkT = K.simT + 1.2; } return a._pk; }
   function onGone(Kk, a) { if (a.seat) a.seat.occ = null; if (busker && busker.a === a) busker = null; orders = orders.filter((o) => o.a !== a); }
   return GeoKit.stage({ id: 'pizzeria', pal: PizPal, startHour: 12, span: 11.5, build, sim, draw, onClear, onGone, font: '700 15px Georgia, serif', vign: 'rgba(30,12,6,0.35)',
     debug: () => ({ table: table.party ? table.party.members.map((m) => m.type).join('+') + ':' + table.party.stage + (table.party.bday ? ' bday' : '') : '-', pie: table.pie ? table.pie.kind.n + ' ' + table.pie.eaten + '/8' : '-', pz: pz ? pz.st : '-', ready: ready ? (ready.ord.take ? 'take' : 'table') + (ready.done ? '!' : '') : '-', orders: orders.length, glasses: table.glasses.map((g) => g.lv.toFixed(2)).join(' '), candle: table.candle, oven: oven.door ? 'closed' : oven.heat.toFixed(2), busker: !!busker, ape: !!ape, cat: !!cat, dessert: table.dessert ? table.dessert.frac.toFixed(1) : '-' }) });

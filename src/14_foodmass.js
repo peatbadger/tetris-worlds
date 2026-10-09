@@ -27,34 +27,41 @@ function FoodMass(spec) {
       X.translate(n / 2, n / 2); X.scale(1, 0.35); X.translate(-n / 2, -n / 2); X.fillRect(0, 0, n, n); o.glint = c; }
     spr.set(P, o); return o;
   }
-  function paint(x, v, P, pad, mask, cut, vr, small, dk = -1) {
+  function paint(x, v, P, pad, mask, cut, vr, small, dk = -1, rot = 0) {
     const food = FOOD[v], g = Math.max(1, Math.round(P * gapK)), R = P * (spec.radius ? spec.radius(food) : RK);
     const [l, t, r, b] = massBox(P, pad, mask, g), rd = radii(mask, cut, R), C = (u) => pad + u * P;
     if (!(mask & S) && !spec.noShadow) { rrect(x, l + 1, t + P * 0.05, r - 1, b + P * 0.05, rd); x.fillStyle = 'rgba(0,0,0,0.35)'; x.fill(); }
     rrect(x, l, t, r, b, rd); x.save(); x.clip();
     const band = (y0, h, col) => { x.fillStyle = col; x.fillRect(l - 2, y0, r - l + 4, h); };
-    spec.paint(x, food, { dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, P, pad, mask, cut, vr, small, l, t, r, b, rd, C, band, hash, poly, rrect, radii, sprites: () => sprites(P), N, E, S, W, v });
+    spec.paint(x, food, { rot, shape: CELLS[TYPES[v - 1]] ? CELLS[TYPES[v - 1]][rot] : null, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, P, pad, mask, cut, vr, small, l, t, r, b, rd, C, band, hash, poly, rrect, radii, sprites: () => sprites(P), N, E, S, W, v });
     if (cut) { x.fillStyle = spec.cutCol || 'rgba(255,240,225,0.35)'; const k = Math.max(1, P * 0.035); if (cut & N) x.fillRect(l, t, r - l, k); if (cut & S) x.fillRect(l, b - k, r - l, k); }
     if (!spec.noPlanes) { if (!(mask & W)) { x.fillStyle = 'rgba(255,255,255,0.1)'; x.fillRect(l, t, P * 0.06, b - t); } if (!(mask & E)) { x.fillStyle = 'rgba(0,0,0,0.1)'; x.fillRect(r - P * 0.06, t, P * 0.06, b - t); } }
     x.restore();
+    if (spec.diag) { // concave corners: cut the gap square that the two overlapping neighbours would otherwise leave filled
+      const q0 = pad + g, q1 = pad + P - g, e = P + 2 * pad, cutR = (x0, y0, x1, y1) => { x.save(); x.globalCompositeOperation = 'destination-out'; x.fillStyle = '#000'; x.fillRect(x0, y0, x1 - x0, y1 - y0); x.restore(); };
+      if ((mask & N) && (mask & W) && !(mask & 128)) cutR(0, 0, q0, q0);
+      if ((mask & N) && (mask & E) && !(mask & 16)) cutR(q1, 0, e, q0);
+      if ((mask & S) && (mask & W) && !(mask & 64)) cutR(0, q1, q0, e);
+      if ((mask & S) && (mask & E) && !(mask & 32)) cutR(q1, q1, e, e);
+    }
     if (spec.post) spec.post(x, food, { P, pad, mask, cut, vr, small, l, t, r, b, C, hash, N, E, S, W, v }); // unclipped extras (drips hanging below the mass)
   }
   const caches = new Map();
   const vkOf = spec.vkey || ((food, vr) => vr % 4);
-  function pre(v, P, mask, cut, vr, small, dk = -1) {
+  function pre(v, P, mask, cut, vr, small, dk = -1, rot = 0) {
     let m = caches.get(P); if (!m) { if (caches.size > 8) caches.delete(caches.keys().next().value); m = new Map(); caches.set(P, m); }
-    const vk = vkOf(FOOD[v], vr), key = v + ':' + mask + ':' + cut + ':' + vk + (small ? 's' : '') + (spec.depth ? ':' + dk : '');
+    const vk = vkOf(FOOD[v], vr), key = v + ':' + mask + ':' + cut + ':' + vk + (small ? 's' : '') + (spec.depth ? ':' + dk : '') + (spec.shape ? ':r' + rot : '');
     let c = m.get(key); if (c) return c;
     const pad = Math.max(2, Math.ceil(P * (spec.padK || 0.08))); c = makeCanvas(P + 2 * pad, P + 2 * pad); c.pad = pad;
-    paint(c.getContext('2d'), v, P, pad, mask, cut, spec.vpaint ? spec.vpaint(FOOD[v], vk) : vk * 13 + 1, !!small, spec.depth ? dk : -1); m.set(key, c); return c;
+    paint(c.getContext('2d'), v, P, pad, mask, cut, spec.vpaint ? spec.vpaint(FOOD[v], vk) : vk * 13 + 1, !!small, spec.depth ? dk : -1, spec.shape ? rot : 0); m.set(key, c); return c;
   }
   const isSmall = (s) => s < 18;
   const GL = spec.glisten || {};
-  function cell(c, v, s, d, mask, cut, vr, seed, T, wob, alpha, gx = 0, gy = 0, dk = -1) {
-    const P = Math.max(4, Math.round(s * d)), cv = pre(v, P, mask, cut, vr, isSmall(s), dk), k = s / P, pad = cv.pad * k;
+  function cell(c, v, s, d, mask, cut, vr, seed, T, wob, alpha, gx = 0, gy = 0, dk = -1, rot = 0) {
+    const P = Math.max(4, Math.round(s * d)), cv = pre(v, P, mask, cut, vr, isSmall(s), dk, rot), k = s / P, pad = cv.pad * k;
     c.drawImage(cv, -s / 2 - pad, -s / 2 - pad, s + 2 * pad, s + 2 * pad);
     const food = FOOD[v];
-    if (spec.live) spec.live(c, food, { dk, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, s, P, k, mask, cut, vr, seed, T, wob, alpha: alpha ?? 1, spr: sprites(P), small: isSmall(s), hash, gx, gy, v });
+    if (spec.live) spec.live(c, food, { rot, shape: CELLS[TYPES[v - 1]] ? CELLS[TYPES[v - 1]][rot] : null, dk, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, s, P, k, mask, cut, vr, seed, T, wob, alpha: alpha ?? 1, spr: sprites(P), small: isSmall(s), hash, gx, gy, v });
     if (isSmall(s)) return;
     const gs = GL[food];
     if (gs) { const ph = (T * 0.3 + seed * 0.137) % 2.4; if (ph < 1) { const g = sprites(P).glint, a = Math.sin(ph * Math.PI); c.globalAlpha = (alpha ?? 1) * a * gs; c.globalCompositeOperation = 'lighter'; c.drawImage(g, (ph - 0.5) * s * 0.7 - s * 0.36, -s * 0.42 + ph * s * 0.15, s * 0.72, s * 0.72); c.globalCompositeOperation = 'source-over'; c.globalAlpha = alpha ?? 1; } }
@@ -106,7 +113,7 @@ function FoodMass(spec) {
         if (m) { cx += (x + 0.5 - m.pcx) * s * (sx - 1); cy += (y + 0.5 - m.pby) * s * (sy - 1); }
         if (isClr) { const kq = clamp(ct / 0.25, 0, 1); if (kq >= 1) continue; c.save(); c.translate(cx, cy); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.6 * (1 - kq); c.fillStyle = spec.flash || '#fff4dc'; roundRect(c, -s / 2, -s / 2, s, s, s * 0.25); c.fill(); c.restore(); continue; }
         c.save(); c.translate(cx, cy); c.scale(sx, sy); c.globalAlpha = al;
-        cell(c, v, s, d, mask, m ? m.cut || 0 : 0, m ? (m.lx & 3) + 4 * (m.ly & 3) : x & 1, m ? m.pid * 3.7 + x + y * 2 : x * 1.7 + y * 3.1, T, pw.wob + Math.abs(w.k) * 0.5, al, x, y, dkAt(m, y));
+        cell(c, v, s, d, mask, m ? m.cut || 0 : 0, m ? (m.lx & 3) + 4 * (m.ly & 3) : x & 1, m ? m.pid * 3.7 + x + y * 2 : x * 1.7 + y * 3.1, T, pw.wob + Math.abs(w.k) * 0.5, al, x, y, dkAt(m, y), m && m.rot ? m.rot : 0);
         c.restore();
       }
       if (isClr) { c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rgba(st.accent, 0.35 * (1 - ct)); c.fillRect(0, y * s - s * 0.3 * ct, 10 * s, s * (1 + 0.6 * ct)); c.restore(); }
@@ -119,8 +126,8 @@ function FoodMass(spec) {
       const wob = Math.min(1, Math.abs(pf.rot) * 2 + Math.abs(pf.sx - 1) * 10);
       c.save(); c.translate(mx + pf.ox * s, my + pf.oy * s + (1 - pf.sy) * s); c.rotate(pf.rot + Math.sin(T * 38) * Math.abs(pf.rot) * 0.15); c.scale(pf.sx, pf.sy); c.translate(-mx, -my);
       c.shadowColor = rgba(col, 0.45); c.shadowBlur = s * 0.45;
-      for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); cell(c, v, s, d, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), (p.x + qx) * 1.7 + qy * 3.1 + 50, T, wob, 1, p.x + qx, p.y + qy, dkCells(cells, qy)); c.restore(); if (c.shadowBlur) c.shadowBlur = 0; }
-      if (g.grounded()) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = (g.lockTimer / LOCK_DELAY) * 0.35; for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); const P = Math.round(s * d), cv = pre(v, P, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), isSmall(s), dkCells(cells, qy)), kk = s / P, pad = cv.pad * kk; c.drawImage(cv, -s / 2 - pad, -s / 2 - pad, s + 2 * pad, s + 2 * pad); c.restore(); } }
+      for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); cell(c, v, s, d, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), (p.x + qx) * 1.7 + qy * 3.1 + 50, T, wob, 1, p.x + qx, p.y + qy, dkCells(cells, qy), p.rot); c.restore(); if (c.shadowBlur) c.shadowBlur = 0; }
+      if (g.grounded()) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = (g.lockTimer / LOCK_DELAY) * 0.35; for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); const P = Math.round(s * d), cv = pre(v, P, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), isSmall(s), dkCells(cells, qy), p.rot), kk = s / P, pad = cv.pad * kk; c.drawImage(cv, -s / 2 - pad, -s / 2 - pad, s + 2 * pad, s + 2 * pad); c.restore(); } }
       c.restore();
     }
   }

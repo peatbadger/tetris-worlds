@@ -284,3 +284,15 @@ Concept / look-alike leaks (to fix in each world's turn)
   refracting clear ice, world-space bead streams (irregular), slosh kept inside the walls. Removed: mint-leaf
   clip-art, champagne/honey sparkle dots, tilde twist, chevron fracture; negroni re-toned ruby; martini silver-clear.
 - Compare: /workspace/shots/cmp-speakeasy.png (before: cmp-speakeasy-before.png). tools/cmp.js resets the board first.
+
+## Step 2 — Trattoria remake
+- Blocks v2 (51_food_pizza): I spaghetti al pomodoro (strands along the piece, one sauce pool + basil + parmigiano),
+  O margherita (whole-surface pizza, cornicione only on exposed rim), T risotto alla milanese, S gnocchi burro e
+  salvia, Z penne all'arrabbiata (replaces the salmon-like prosciutto), J lasagne (side view, bubbling gratin),
+  L focaccia (dimples, oil, rosemary, cherry tomato/olive). No tiramisu (Mike's owns it).
+- FoodMass: optional `shape` (piece rotation → CELLS, stored as meta.rot in the game) so patterns are centred on the
+  whole piece; `diag` now also cuts the concave-corner gap square in the engine.
+- Scene: kitchen remapped into the left strip (oven 44, bench 112–300, Sal 116–196, pass at 248; Luca picks up at
+  212), waiter home 1072, rack 1040, table 1150 (seats 1074/1226); seated guests gain elbow-on-table/chin-in-hand
+  and hands-on-cloth idles that glance at mate/street/sign instead of staring at the board. Gutter: clean.
+- Compare: /workspace/shots/cmp-pizzeria.png

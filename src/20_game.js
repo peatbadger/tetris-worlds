@@ -156,7 +156,7 @@ class Game {
     let above = true;
     const pid = ++this.pidN, loc = CELLS[p.type][p.rot]; let pcx = 0, pby = 0; cells.forEach(([x, y]) => { pcx += x + 0.5; pby = Math.max(pby, y + 1); }); pcx /= 4;
     const born = typeof performance !== 'undefined' ? performance.now() / 1000 : 0;
-    for (let i = 0; i < cells.length; i++) { const [x, y] = cells[i]; if (y >= 0) { this.board[y][x] = tIdx; if (this.meta) this.meta[y][x] = { pid, lx: loc[i][0], ly: loc[i][1], pcx, pby, born, cut: 0 }; } if (y >= HIDDEN) above = false; }
+    for (let i = 0; i < cells.length; i++) { const [x, y] = cells[i]; if (y >= 0) { this.board[y][x] = tIdx; if (this.meta) this.meta[y][x] = { pid, lx: loc[i][0], ly: loc[i][1], pcx, pby, born, cut: 0, rot: p.rot }; } if (y >= HIDDEN) above = false; }
     this.piece = null; this.canHold = true;
     if (above) return this.gameOver();
     const full = [];
