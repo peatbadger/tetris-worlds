@@ -296,3 +296,20 @@ Concept / look-alike leaks (to fix in each world's turn)
   212), waiter home 1072, rack 1040, table 1150 (seats 1074/1226); seated guests gain elbow-on-table/chin-in-hand
   and hands-on-cloth idles that glance at mate/street/sign instead of staring at the board. Gutter: clean.
 - Compare: /workspace/shots/cmp-pizzeria.png
+
+## Step 3 — Boba (in progress, 14:05)
+- New GeoKit stage src/57_geo_boba.js (assembled from wip/bb/a–e.js): Yuki builds cups on the left (sealer 34, pearl
+  pot 84, cup 128, urn 168, wall ticket printer 200, pickup shelf 204; pickup spot 214), Ben at the register (1068),
+  flavour board 1092–1268, window centre with rain. Queue slots 1238/1290. Not yet pushed.
+- 15:30 resource rules adopted: tools/cap.sh (flock → one headless browser at a time, `timeout 300`, pkill after);
+  gw/cmp/gutter close the browser in `finally`. Iterate small (960x600, warm 8 s), final shots full size.
+- Boba blocks v2 (55_food_boba): matte pearls (no specular dot), no wall/film glints, strawberry milk → lychee oolong
+  (no longer echoes the Golden Arches shake), honeydew/coconut "diamonds" → winter melon + rounded grass-jelly cubes.
+  Scene board updated to match (Lychee oolong 烏龍). Umbrella prop is now a real canopy.
+- Boba blocks v2 final: depth-graded body (lighter at the lid, deeper at the base), exposed-edge rim, Thai tea is
+  layered (milk cloud on top fading into orange — the striped version read as salmon, rejected), matcha milk
+  marbling (thin), shaken oolong = darker amber with a fine foam head (lychee pieces read as eyes, rejected),
+  winter melon with grass jelly settled at the bottom. Compare: /workspace/shots/cmp-boba.png (v1–v5 kept).
+- Scene: guest pays, waits at the register (keeps Yuki's build line visible), walks over when the bell calls the
+  number, stabs the straw, two sips, leaves. Queue 1222, order 1146. Gutter: only walkers crossing to the pickup
+  (transient). Shots: shots/boba-c3.png (19:00 rain), boba-mobile.png.

@@ -21,8 +21,9 @@ async function grab(b, id, file) {
   await pg.close(); return errs;
 }
 (async () => {
-  const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
-  const e1 = await grab(b, world, '/tmp/cmp_a.png'), e2 = await grab(b, 'sushi', '/tmp/cmp_b.png'); await b.close();
+  const b = await chromium.launch({ timeout: 120000, executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] }); let __ok = false; try {
+  const e1 = await grab(b, world, '/tmp/cmp_a.png'), e2 = await grab(b, 'sushi', '/tmp/cmp_b.png'); var E1 = e1, E2 = e2; __ok = true; } finally { await b.close().catch(() => {}); }
+  const e1 = E1, e2 = E2;
   execFileSync('python3', ['-c', `
 from PIL import Image, ImageDraw
 a=Image.open('/tmp/cmp_a.png').convert('RGB'); b=Image.open('/tmp/cmp_b.png').convert('RGB')
@@ -31,4 +32,4 @@ d=ImageDraw.Draw(im); d.text((10,15),'${world} (4x)',fill=(255,255,255)); d.text
 im.save('${out}'); im.resize((im.width//4, im.height//4)).save('${out}'.replace('.png','-small.png'))
 `]);
   console.log('ok', out, 'errs', JSON.stringify([e1, e2]));
-})();
+})().catch((e) => { console.error(e); process.exitCode = 1; });

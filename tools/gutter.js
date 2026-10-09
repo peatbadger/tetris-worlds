@@ -4,7 +4,7 @@ const path = require('path');
 const [world = 'mikes', secs = '40'] = process.argv.slice(2);
 const VPS = [[1024, 594], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]];
 (async () => {
-  const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+  const b = await chromium.launch({ timeout: 120000, executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] }); let __ok = false; try {
   const out = {};
   for (const [w, h] of VPS) {
     const pg = await b.newPage({ viewport: { width: w, height: h } }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
@@ -21,5 +21,5 @@ const VPS = [[1024, 594], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]];
     out[w + 'x' + h] = { zone, gutter: Object.fromEntries(Object.entries(bad).map(([k, v]) => [k, [...v].sort((p, q) => p - q).slice(0, 8).join(',')])), errs: errs.length };
     await pg.close();
   }
-  console.log(JSON.stringify(out, null, 1)); await b.close();
-})();
+  console.log(JSON.stringify(out, null, 1)); __ok = true; } finally { await b.close().catch(() => {}); }
+})().catch((e) => { console.error(e); process.exitCode = 1; });

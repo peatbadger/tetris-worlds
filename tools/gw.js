@@ -5,10 +5,10 @@ const { chromium } = require('/usr/local/lib/pnpm/5/.pnpm/playwright-core@1.59.1
 const path = require('path');
 const [world = 'mikes', out = 'gw.png', hour = '', weather = '', warm = '20', w = '1440', h = '900', sceneOnly = '0', mobile = '0', stack = '1'] = process.argv.slice(2);
 (async () => {
-  const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+  const b = await chromium.launch({ timeout: 120000, executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--use-gl=swiftshader', '--enable-unsafe-swiftshader'] }); let __ok = false; try {
   const opts = +mobile ? { viewport: { width: +w, height: +h }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } : { viewport: { width: +w, height: +h } };
   const pg = await b.newPage(opts); const errs = []; pg.on('pageerror', (e) => errs.push(e.message + ' ' + (e.stack || '').split('\n').slice(1, 4).join('|'))); pg.on('console', (c) => { if (c.type() === 'error') errs.push(c.text()); });
-  await pg.goto('file://' + path.resolve(__dirname, '../index.html')); await pg.waitForTimeout(1200);
+  await pg.goto('file://' + path.resolve(__dirname, '../index.html'), { timeout: 240000 }); pg.setDefaultTimeout(240000); await pg.waitForTimeout(1200);
   await pg.evaluate(([world, weather]) => { const i = STAGES.findIndex((s) => s.id === world); window.__tw.startGame(i); if (weather) Amb.force(world, weather); }, [world, weather]);
   await pg.waitForTimeout(3300);
   await pg.evaluate(([hour, weather, warm, stack]) => {
@@ -26,5 +26,5 @@ const [world = 'mikes', out = 'gw.png', hour = '', weather = '', warm = '20', w 
     return { fps, world: G.id, hour: +G.K.hour.toFixed(2), label: G.K.P.label, weather: G.K.weatherNow, simT: Math.round(G.K.simT), actors: G.K.actors.map((a) => (a.role || a.type || '?') + ':' + a.state + (a.act ? '/' + a.act.name : '')).join(' '), dbg: G.debug }; });
   await pg.screenshot({ path: path.resolve(out) });
   console.log(JSON.stringify(info), 'errs', JSON.stringify(errs));
-  await b.close();
-})();
+  __ok = true; } finally { await b.close().catch(() => {}); }
+})().catch((e) => { console.error(e); process.exitCode = 1; });
