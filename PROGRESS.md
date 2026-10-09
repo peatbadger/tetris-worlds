@@ -210,3 +210,9 @@ Shared engine (new):
 - Text behind the board (menus, flavour wall) in all three is now blurred + dimmed by the global ZoneMask.
 - Still open: these three worlds still use the older 3D-ish venue figures; GeoKit remakes are next.
 - Shots: screenshot-fastfood-blocks.png, screenshot-nightmarket-blocks.png, screenshot-boba-blocks.png.
+
+## Speakeasy bar spacing (QA follow-up) — `src/42_geo_speakeasy.js`
+- At most 3 figures in the bar group: two stools only (x 100 / 246, the hidden standing spot behind HOLD removed), bartender works between them (home 176; works beside the glass via `workX`, never over a guest's head).
+- Doorman moved to the door (x 30) and drawn behind the patrons; slimmer build.
+- Muted outfits: sailor in a plain navy peacoat (no stripes); the rig's dress tiers are now drawn at 30% (subtle fringe, not bands).
+- Shots: screenshot-geo-speakeasy-day.png (19:00), -night.png (22:00 rain).

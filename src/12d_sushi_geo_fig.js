@@ -102,7 +102,7 @@ const SushiFig = (() => {
       case 'vest': { polyL(c, R, [[f * -0.2, -0.02], [f * 0.6, -0.02], [f * 0.25, 0.5]]); c.fillStyle = col(P, d.shirt || 'white'); c.fill();
         polyL(c, R, [[f * 0.12, 0.0], [f * 0.38, 0.0], [f * 0.25, 0.08]]); c.fillStyle = col(P, d.tie || 'dark'); c.fill();
         polyL(c, R, [[f * 0.22, 0.08], [f * 0.3, 0.08], [f * 0.3, 1.2], [f * 0.22, 1.2]]); c.fillStyle = 'rgba(0,0,0,0.12)'; c.fill(); break; }
-      case 'dress': { c.fillStyle = c2; for (let i = 0; i < 4; i++) { polyL(c, R, [[-1.6, 0.62 + i * 0.12], [1.6, 0.62 + i * 0.12], [1.6, 0.66 + i * 0.12], [-1.6, 0.66 + i * 0.12]]); c.fill(); }
+      case 'dress': { c.fillStyle = c2; c.save(); c.globalAlpha *= 0.3; for (let i = 0; i < 4; i++) { polyL(c, R, [[-1.6, 0.62 + i * 0.12], [1.6, 0.62 + i * 0.12], [1.6, 0.66 + i * 0.12], [-1.6, 0.66 + i * 0.12]]); c.fill(); } c.restore();
         polyL(c, R, [[f * -0.05, -0.05], [f * 0.45, -0.05], [f * 0.2, 0.22]]); c.fillStyle = skinOf(P, a); c.fill(); break; }
       case 'polo': { polyL(c, R, [[f * -0.1, -0.03], [f * 0.5, -0.03], [f * 0.35, 0.1], [f * 0.2, 0.06], [f * 0.05, 0.1]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[f * 0.18, 0.05], [f * 0.24, 0.05], [f * 0.24, 0.3], [f * 0.18, 0.3]]); c.fillStyle = 'rgba(0,0,0,0.15)'; c.fill(); break; }
       case 'qipao': { polyL(c, R, [[f * -0.15, -0.03], [f * 0.5, -0.03], [f * 0.75, 0.28], [f * 0.66, 0.32], [f * 0.35, 0.08]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[-1.5, 0.0], [1.5, 0.0], [1.5, 0.06], [-1.5, 0.06]]); c.fill(); break; }

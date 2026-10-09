@@ -20,8 +20,8 @@ const SpeakPal = GeoKit.palette({
 function makeGeoSpeakeasyStage() {
   const BAR = { x0: 92, x1: 470, top: 488, base: 652 };
   const BT_FLOOR = 612, BT_SC = 0.86, FL = 712, SC = 0.84;
-  const STOOLS = [{ x: 150, occ: null }, { x: 262, occ: null }];
-  const STANDS = [{ x: 372, occ: null }];
+  const STOOLS = [{ x: 100, occ: null }, { x: 246, occ: null }];
+  const STANDS = []; // max 2 patrons at the bar (+ bartender) so the left strip stays readable
   const STAGE = { x0: 950, top: 616 };
   const MIC_X = 972;
   const WINDOW = { x0: 104, y0: 92, x1: 300, y1: 150 };
@@ -38,7 +38,7 @@ function makeGeoSpeakeasyStage() {
     gent: { body: B({ pattern: 'suit', top: 'grey', shirt: 'white', tie: 'coral', pants: 'grey', hat: 'fedora', hatCol: 'dark', bandCol: 'coral' }), vary: { top: ['grey', 'navy', 'brown'], tie: ['coral', 'mustard', 'teal'] }, drinks: ['oldfash', 'martini', 'negroni'], words: ['Make it a double', 'Copacetic'] },
     reporter: { body: B({ pattern: 'vest', top: 'brown', shirt: 'cream', tie: 'navy', pants: 'brown', hat: 'fedora', hatCol: 'brown', bandCol: 'cream', shortSleeve: 0 }), drinks: ['beer', 'oldfash'], words: ['Off the record…', 'What a scoop'] },
     heiress: { body: B({ T: 232, hw: 54, headR: 28, pattern: 'dress', top: 'cream', top2: 'deco', hairStyle: 'bun', hat: 'cloche', hatCol: 'teal', bandCol: 'cream', skirt: 'cream' }), vary: { top: ['cream', 'teal', 'coral'] }, drinks: ['champagne', 'wine'], words: ['Darling!', 'Simply divine'] },
-    sailor: { body: B({ T: 244, hw: 64, pattern: 'stripe', top: 'navy', top2: 'white', pants: 'navy', hat: 'band', hatCol: 'white', shortSleeve: 1 }), drinks: ['beer', 'mojito'], words: ['Shore leave!', 'Another!'] },
+    sailor: { body: B({ T: 244, hw: 64, pattern: 'coat', top: 'navy', top2: 'navy', pants: 'navy', hat: 'band', hatCol: 'white' }), drinks: ['beer', 'mojito'], words: ['Shore leave!', 'Another!'] },
     cop: { body: B({ T: 246, hw: 66, torso: 'round', pattern: 'suit', top: 'navy', shirt: 'navy', tie: 'dark', pants: 'navy', hat: 'cap', hatCol: 'navy' }), drinks: ['wine', 'beer'], words: ['I saw nothing', 'Just one'] },
   };
   const PARTIES = [{ m: ['flapper'], w: [2, 3, 2, 0] }, { m: ['gent'], w: [3, 3, 2, 1] }, { m: ['reporter'], w: [1, 2, 3, 1] }, { m: ['heiress'], w: [1, 2, 1, 0] }, { m: ['sailor'], w: [1, 2, 3, 0.5] }, { m: ['cop'], w: [0, 0.6, 1, 0.5] }, { m: ['gent', 'flapper'], w: [1, 3, 2, 0] }];
@@ -68,8 +68,8 @@ function makeGeoSpeakeasyStage() {
   };
   /* ---------- cast ---------- */
   function mkStaff() {
-    eddie = K.mk(B({ T: 240, hw: 60, headR: 30, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'dark', sleeve: 'white', hairStyle: 'short', hairD: 0.02 }), { role: 'bartender', staff: 1, hx: 260, f: 1, floorY: BT_FLOOR, sc: BT_SC, faceDir: 0.6 });
-    moe = K.mk(B({ T: 256, hw: 82, headR: 31, torso: 'round', pattern: 'suit', top: 'dark', shirt: 'white', tie: 'dark', pants: 'dark', hat: 'fedora', hatCol: 'dark', bandCol: 'dark' }), { role: 'doorman', staff: 1, hx: 64, f: 1, floorY: FL - 6, sc: SC, faceDir: 0.4, posture: -0.02 });
+    eddie = K.mk(B({ T: 240, hw: 60, headR: 30, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'dark', sleeve: 'white', hairStyle: 'short', hairD: 0.02 }), { role: 'bartender', staff: 1, hx: 176, f: 1, floorY: BT_FLOOR, sc: BT_SC, faceDir: 0.6 });
+    moe = K.mk(B({ T: 256, hw: 70, headR: 30, torso: 'round', pattern: 'suit', top: 'dark', shirt: 'white', tie: 'dark', pants: 'dark', hat: 'fedora', hatCol: 'dark', bandCol: 'dark' }), { role: 'doorman', staff: 1, hx: 30, f: 1, floorY: FL - 6, sc: SC, faceDir: 0.4, posture: -0.02 });
     pianist = K.mk(B({ T: 236, hw: 60, pattern: 'vest', top: 'navy', shirt: 'cream', tie: 'coral', pants: 'dark', hairStyle: 'short' }), { role: 'pianist', staff: 1, hx: 1206, f: 1, floorY: FL - 10, sc: SC * 0.96, state: 'seated', seatY: STAGE.top - 20, faceDir: 0.9 });
     bassist = K.mk(B({ T: 250, hw: 60, pattern: 'suit', top: 'brown', shirt: 'cream', tie: 'mustard', pants: 'brown', hat: 'fedora', hatCol: 'brown', bandCol: 'dark' }), { role: 'bassist', staff: 1, hx: 1136, f: -1, floorY: STAGE.top - 6, sc: SC * 0.9, faceDir: -0.5 });
     clar = K.mk(B({ T: 238, hw: 58, pattern: 'jacket', top: 'cream', shirt: 'white', pants: 'dark', hairStyle: 'short' }), { role: 'clarinet', staff: 1, hx: 1060, f: -1, floorY: STAGE.top - 8, sc: SC * 0.88, faceDir: -0.6 });
@@ -105,7 +105,7 @@ function makeGeoSpeakeasyStage() {
     }
   }
   /* ---------- the bartender ---------- */
-  const glassX = (spot) => spot.x + 44;
+  const glassX = (spot) => spot.x + 34, workX = (gx) => (gx < 200 ? gx + 34 : gx - 40); // bartender works beside the glass, between the stools, never over the guest's head
   function eddieThink(a) {
     if (raid.on) return K.start(a, 'hide', [K.ph(1.5, (s) => { s.tgN = [s.hx + 14, BAR.top + 20]; s.tgF = [s.hx - 4, BAR.top + 20]; s.leanT = 0.2; })]);
     const want = patrons().find((p) => p.wants && !p.wants.taken);
@@ -113,42 +113,42 @@ function makeGeoSpeakeasyStage() {
     const empty = glasses.find((g) => g.level <= 0.02 && !g.held && g.done);
     if (empty) return collect(a, empty);
     const h = ((K.hour % 24) + 24) % 24;
-    if (per() === 3 && K.cooled(a, 'count', 15)) return K.start(a, 'count', [K.ph(0, (s) => { s.walkTo = 420; }, { until: (s) => !s.walking }), K.ph(3, (s, u, t) => { s.tgN = [s.hx + 16, BAR.top - 10 + Math.sin(t * 9) * 2]; s.tgF = [s.hx + 4, BAR.top - 6]; s.leanT = 0.15; })]);
+    if (per() === 3 && K.cooled(a, 'count', 15)) return K.start(a, 'count', [K.ph(0, (s) => { s.walkTo = 180; }, { until: (s) => !s.walking }), K.ph(3, (s, u, t) => { s.tgN = [s.hx + 16, BAR.top - 10 + Math.sin(t * 9) * 2]; s.tgF = [s.hx + 4, BAR.top - 6]; s.leanT = 0.15; })]);
     const r = Math.random();
-    if (r < 0.45) return K.start(a, 'polish', [K.ph(0, (s) => { s.walkTo = rand(200, 330); }, { until: (s) => !s.walking }), K.ph(rand(3, 5), (s, u, t) => { s.hold.F = s.hold.F || H.glass({ kind: pick(['martini', 'champagne', 'oldfash']), level: 0 }); s.hold.N = H.cloth(); s.tgF = [s.hx + 18, s.hy - 70]; s.tgN = [s.hx + 18 + Math.cos(t * 7) * 6, s.hy - 70 + Math.sin(t * 7) * 6]; s.lxT = 0.3; }, { exit: (s) => { s.hold.N = null; s.hold.F = null; } })], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; } });
-    if (r < 0.65) { const p = pick(patrons().filter((q) => q.state === 'seated') || []); if (p) return K.start(a, 'lean', [K.ph(0, (s) => { s.walkTo = clamp(p.hx + 40, 120, 440); }, { until: (s) => !s.walking }), K.ph(rand(2.5, 4), (s) => { s.tgN = [s.hx + 10, BAR.top - 4]; s.tgF = [s.hx - 10, BAR.top - 4]; s.leanT = 0.22; s.look = { x: () => p.hx, until: K.simT + 0.3 }; }, { enter: () => { K.say(a, pick(['What\'ll it be?', 'Keep it quiet, friend', 'Another round?', 'On the house']), 1.6); K.after(1.4, () => K.say(p, pick(p.T0.words), 1.4)); } })]); }
+    if (r < 0.45) return K.start(a, 'polish', [K.ph(0, (s) => { s.walkTo = rand(166, 190); }, { until: (s) => !s.walking }), K.ph(rand(3, 5), (s, u, t) => { s.hold.F = s.hold.F || H.glass({ kind: pick(['martini', 'champagne', 'oldfash']), level: 0 }); s.hold.N = H.cloth(); s.tgF = [s.hx + 18, s.hy - 70]; s.tgN = [s.hx + 18 + Math.cos(t * 7) * 6, s.hy - 70 + Math.sin(t * 7) * 6]; s.lxT = 0.3; }, { exit: (s) => { s.hold.N = null; s.hold.F = null; } })], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; } });
+    if (r < 0.65) { const p = pick(patrons().filter((q) => q.state === 'seated') || []); if (p) return K.start(a, 'lean', [K.ph(0, (s) => { s.walkTo = 176; }, { until: (s) => !s.walking }), K.ph(rand(2.5, 4), (s) => { s.tgN = [s.hx + 10, BAR.top - 4]; s.tgF = [s.hx - 10, BAR.top - 4]; s.leanT = 0.22; s.look = { x: () => p.hx, until: K.simT + 0.3 }; }, { enter: () => { K.say(a, pick(['What\'ll it be?', 'Keep it quiet, friend', 'Another round?', 'On the house']), 1.6); K.after(1.4, () => K.say(p, pick(p.T0.words), 1.4)); } })]); }
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.lxT = 0.5; s.tgN = [s.hx + 14, BAR.top - 6]; s.tgF = [s.hx - 2, BAR.top - 6]; s.leanT = 0.1; })]);
   }
   function makeDrink(a, p) {
     const kind = p.wants.kind, gx = glassX(p.spot), g = { kind, level: 0, x: gx, owner: p, garnish: false }, bt = pick(bottles.filter((b) => b.s === (kind === 'wine' || kind === 'champagne' ? 2 : kind === 'beer' ? 2 : rnd0() < 0.5 ? 0 : 1)));
     const shaken = SHAKEN[kind];
     const ph = [K.ph(0.5, null, { enter: () => K.say(a, pick(['Coming up', 'One ' + DRINKS[kind][0].toLowerCase(), 'You got it']), 1.3) }),
-      K.ph(0, (s) => { s.walkTo = gx - 18; }, { until: (s) => !s.walking, max: 8 }),
+      K.ph(0, (s) => { s.walkTo = workX(gx); }, { until: (s) => !s.walking, max: 8 }),
       K.ph(0.5, (s) => { s.tgN = [gx, BAR.top + 26]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = H.glass(g); } }), // glass from the rack under the bar
       K.ph(0.4, (s) => { s.tgN = [gx, BAR.top - 18]; s.leanT = 0.05; }, { exit: (s) => { s.hold.N = null; glasses.push(g); } }),
       K.ph(0, (s) => { s.walkTo = bt.x + bt.w / 2; s.lxT = -0.8; }, { until: (s) => !s.walking, max: 8 }),
       K.ph(0.55, (s) => { s.lxT = -0.9; s.tgN = [bt.x + bt.w / 2, SHELVES[bt.s] - 20]; s.tgF = [s.hx, s.hy - 60]; }, { exit: (s) => { bt.out = true; s.hold.N = H.bottle(bt); s.lxT = 0.6; } })];
     if (shaken) {
-      ph.push(K.ph(0, (s) => { s.walkTo = gx - 30; }, { until: (s) => !s.walking, max: 8 }),
+      ph.push(K.ph(0, (s) => { s.walkTo = workX(gx); }, { until: (s) => !s.walking, max: 8 }),
         K.ph(0.3, (s) => { s.tgF = [s.hx + 6, BAR.top - 30]; }, { exit: (s) => { s.hold.F = H.shaker(); } }),
         K.ph(0.9, (s, u) => { s.tgF = [s.hx + 6, BAR.top - 34]; s.tgN = [s.hx + 18, BAR.top - 74]; s.potTilt = Math.sin(u * Math.PI) * 0.9; pour = u > 0.15 && u < 0.85 ? { x0: s.hN.x + 16 * s.f, y0: s.hN.y - 8, x1: s.hF.x, y1: s.hF.y - 20, col: bt.col } : null; }, { exit: (s) => { s.potTilt = 0; pour = null; } }),
         K.ph(0.5, (s) => { s.tgN = [bt.x + bt.w / 2, SHELVES[bt.s] - 20]; s.lxT = -0.8; }, { exit: (s) => { s.hold.N = null; bt.out = false; s.lxT = 0.6; } }),
         K.ph(1.3, (s, u, t) => { const sh = Math.sin(t * 26) * 9; s.tgF = [s.hx + 18 + sh * 0.4, s.R.cy + 6 + sh]; s.tgN = [s.hx + 22 + sh * 0.4, s.R.cy - 14 + sh]; s.bob = Math.sin(t * 26) * 1.2; s.farFront = true; }, { enter: () => K.say(a, 'icon:shake', 1.2), exit: (s) => { s.bob = 0; } }),
         K.ph(0.9, (s, u) => { s.tgF = [gx - 10, BAR.top - 44]; s.tgN = [gx - 4, BAR.top - 54]; s.potTilt = 0; s.shakerTilt = u; g.level = clamp((u - 0.2) / 0.7, 0, 1) * 0.92; pour = u > 0.2 && u < 0.92 ? { x0: s.hF.x + 6, y0: s.hF.y - 20, x1: gx, y1: BAR.top - 20, col: LQ[kind] } : null; }, { exit: (s) => { pour = null; s.hold.F = null; s.farFront = false; } }));
     } else {
-      ph.push(K.ph(0, (s) => { s.walkTo = gx - 22; }, { until: (s) => !s.walking, max: 8 }));
+      ph.push(K.ph(0, (s) => { s.walkTo = workX(gx); }, { until: (s) => !s.walking, max: 8 }));
       if (kind === 'champagne') ph.push(K.ph(0.6, (s, u, t) => { s.tgF = [s.hx + 20, s.hy - 80]; s.tgN = [s.hx + 18, s.hy - 70]; }, { exit: (s) => { cork = { x: s.hN.x + 4, y: s.hN.y - 30, vx: rand(40, 90), vy: -220, t: 0 }; K.say(a, 'icon:pop', 0.8); K.fx('spark', s.hN.x, s.hN.y - 30, { col: '#fff2c0', life: 0.5 }); } }));
       ph.push(K.ph(1.1, (s, u) => { s.tgN = [gx - 6, BAR.top - 48]; s.tgF = [gx - 20, BAR.top - 20]; s.potTilt = Math.sin(clamp(u * 1.2, 0, 1) * Math.PI * 0.5) * 0.9; g.level = clamp((u - 0.15) / 0.75, 0, 1) * 0.9; pour = u > 0.15 && u < 0.9 ? { x0: s.hN.x + 14 * s.f, y0: s.hN.y - 10, x1: gx, y1: BAR.top - 18, col: LQ[kind] } : null; }, { exit: (s) => { s.potTilt = 0; pour = null; } }),
         K.ph(0, (s) => { s.walkTo = bt.x + bt.w / 2; }, { until: (s) => !s.walking, max: 8 }),
         K.ph(0.5, (s) => { s.lxT = -0.9; s.tgN = [bt.x + bt.w / 2, SHELVES[bt.s] - 20]; }, { exit: (s) => { s.hold.N = null; bt.out = false; s.lxT = 0.6; } }),
-        K.ph(0, (s) => { s.walkTo = gx - 18; }, { until: (s) => !s.walking, max: 8 }));
+        K.ph(0, (s) => { s.walkTo = workX(gx); }, { until: (s) => !s.walking, max: 8 }));
     }
     ph.push(K.ph(0.6, (s) => { s.tgN = [gx + 2, BAR.top - 36]; s.leanT = 0.15; }, { exit: () => { g.garnish = true; K.fx('spark', gx, BAR.top - 30, { life: 0.4 }); } }), // garnish
       K.ph(0.5, (s) => { s.tgN = [gx + 6, BAR.top - 16]; s.leanT = 0.22; }, { enter: () => K.say(a, pick(['There you are', 'Enjoy', 'Bottoms up', 'Mum\'s the word']), 1.3), exit: () => { g.done = true; p.wants = null; p.served = true; } }));
     K.start(a, 'make', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; pour = null; s.potTilt = 0; bt.out = false; if (!g.done) { glasses = glasses.filter((q) => q !== g); if (p.wants) p.wants.taken = false; } } });
   }
   function collect(a, g) {
-    K.start(a, 'collect', [K.ph(0, (s) => { s.walkTo = g.x - 16; }, { until: (s) => !s.walking, max: 8 }), K.ph(0.5, (s) => { s.tgN = [g.x, BAR.top - 16]; s.leanT = 0.2; }, { exit: (s) => { glasses = glasses.filter((q) => q !== g); s.hold.N = H.glass(g); } }), K.ph(0.5, (s) => { s.tgN = [s.hx + 10, BAR.top + 24]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = null; } })]);
+    K.start(a, 'collect', [K.ph(0, (s) => { s.walkTo = workX(g.x); }, { until: (s) => !s.walking, max: 8 }), K.ph(0.5, (s) => { s.tgN = [g.x, BAR.top - 16]; s.leanT = 0.2; }, { exit: (s) => { glasses = glasses.filter((q) => q !== g); s.hold.N = H.glass(g); } }), K.ph(0.5, (s) => { s.tgN = [s.hx + 10, BAR.top + 24]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = null; } })]);
   }
   /* ---------- door: knock, peephole, password ---------- */
   function moeThink(a) {
@@ -325,7 +325,7 @@ function makeGeoSpeakeasyStage() {
     for (let i = 0; i < 30; i++) { c.fillStyle = P.floor2; K.poly(c, [i * 70 - 60, 652, i * 70 - 30, 652, i * 70 - 60 + 50, 730, i * 70 - 60 + 10, 730]); c.fill(); }
     // stools + patrons (in front of the bar) + doorman
     for (const st of STOOLS) { c.fillStyle = P.brass; c.fillRect(st.x - 3, 604, 6, 104); c.fillStyle = P.curtain; ellipse(c, st.x, 602, 26, 7); c.fill(); c.fillStyle = P.brass; ellipse(c, st.x, 690, 18, 4); c.fill(); }
-    const front = K.actors.filter((a) => a.layer === 'front');
+    const front = K.actors.filter((a) => a.layer === 'front').sort((p, q) => (p === moe ? -1 : 0) - (q === moe ? -1 : 0));
     for (const a of front) { if (a.alpha > 0.05 && a.state !== 'seated') { c.fillStyle = 'rgba(0,0,0,0.18)'; ellipse(c, a.hx, a.floorY + 2, 28 * a.sc, 5); c.fill(); } K.drawBody(c, a, true); }
     // haze, light shafts from the grate, spotlight & dimming
     c.save(); c.globalAlpha = P.hazeA; c.fillStyle = P.haze; for (let i = 0; i < 3; i++) { const y = 200 + i * 120 + Math.sin(t * 0.2 + i) * 20; ellipse(c, ((t * (6 + i * 3) + i * 400) % 1600) - 160, y, 300, 26); c.fill(); } c.restore();
