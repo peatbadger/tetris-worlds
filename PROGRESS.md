@@ -139,3 +139,11 @@ Shared engine (new):
 - Customers (≤4, unique): nonna+kid, couple, tourist (photo), cyclist, dog walker + dog (Giulia hands the dog a tiny cup), suit (coppetta). They queue, order, lick (scoops shrink and drip), chat, eat at the ledge, leave through the arch. Surprise: the kid drops a scoop (splat on the floor) and gets a free one.
 - Blocks: I pistachio · O fragola · T limone · S cioccolato · Z mango · J mirtillo · L stracciatella — spatula-wave ridges, scooped mound crowns with garnish (nuts, strawberry, lemon wheel, choc curl, mango cubes, blueberries, choc stick), melt drips on exposed bottoms, melt-away clears.
 - Shots: screenshot-geo-gelato-day.png (15:00) / -night.png (21:30 rain).
+
+## Fish House (geometric restyle) — DONE
+- Scene: harbour-view seafood room — big mullioned window (pier, sailboats, gulls, lighthouse whose beam sweeps at night, sun/moon reflection), raw bar with ice display on the left, white-cloth table on the right, pass + bell at the far right.
+- Cycle: Lunch / Afternoon / Golden hour / Dinner / Closing (12:00→23:30), rain & snow on the glass; candle lit at dusk, snuffed and bar covered at closing.
+- Cast: Ana (shucks oysters onto the platter, cracks lobster with a mallet, tends ice), Henri (menus, presents & pours wine, cloche courses from the pass, clears, bill, top-ups); one bar guest at a time (slurps oysters, shells pile up) + one table party (anniversary w/ proposal, business pair, friends, critic taking notes).
+- Events: fishing boat crossing, gull landing on the sill, proposal "Yes!".
+- Blocks (src/49_food_seafood.js): I lobster, O oysters on ice, T seared scallops, S mussels, Z salmon, J seaweed salad, L octopus.
+- Shots: screenshot-geo-fishhouse-day.png (13:00 clear), -night.png (21:30 rain), -mobile.png.
