@@ -216,3 +216,8 @@ Shared engine (new):
 - Doorman moved to the door (x 30) and drawn behind the patrons; slimmer build.
 - Muted outfits: sailor in a plain navy peacoat (no stripes); the rig's dress tiers are now drawn at 30% (subtle fringe, not bands).
 - Shots: screenshot-geo-speakeasy-day.png (19:00), -night.png (22:00 rain).
+
+## Standing pose fix (all GeoKit worlds; reported on Mike's v3 day) — `src/12b_geo_kit.js`
+- Cause: standing feet were placed closer together than the hips (near foot +0.055T, near hip +0.3·hw) so the legs converged into an X, and the standing hip sat 1.5% below full leg length so the knees visibly bent.
+- Fix: standing feet now sit under the hips (slight natural A-stance, near foot a touch forward), and the standing hip height blends from 0.875T (still) to 0.865T (walking) so legs are nearly straight at rest while the gait keeps soft knees.
+- Shots: screenshot-geo-mikes-day.png (11:00, the white-shirt tourist), screenshot-geo-mikes-night.png (20:00 rain).

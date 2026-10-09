@@ -74,7 +74,7 @@ const GeoKit = (() => {
       a.lx = a.lxT = a.f; K.actors.push(a); K.settle(a); return a;
     };
     K.remove = (a) => { const i = K.actors.indexOf(a); if (i >= 0) K.actors.splice(i, 1); };
-    K.standHip = (a) => a.floorY - (a.def.adult ? 0.865 : 0.6) * a.def.T * (a.def.leg || 1) * a.sc;
+    K.standHip = (a) => a.floorY - (a.def.adult ? lerp(0.875, 0.865, a.wb || 0) : 0.6) * a.def.T * (a.def.leg || 1) * a.sc; // standing: legs nearly straight (no bent knees); walking: soft knees for the gait
     K.settle = (a) => { if (a.state === 'seated') a.hy = a.seatY; else a.hy = K.standHip(a); F.rig(a); K.basePose(a); a.hN.x = a.tgN[0]; a.hN.y = a.tgN[1]; a.hF.x = a.tgF[0]; a.hF.y = a.tgF[1]; F.rig(a); };
     K.start = (a, name, phases, o = {}) => { if (a.act) K.abort(a); a.act = Object.assign({ name, phases, i: 0, t: 0 }, o); a.hist.unshift(name); if (a.hist.length > 6) a.hist.length = 6; a.cool[name] = K.simT; return true; };
     K.endAct = (a) => { const A = a.act; a.act = null; a.shake = 0; a.headDy = 0; a.farFront = false; if (A && A.onEnd) A.onEnd(a); };
@@ -107,8 +107,9 @@ const GeoKit = (() => {
         const gait = (q) => q < 0.5 ? [A * (1 - 4 * q), 0] : [-A + 2 * A * smooth((q - 0.5) * 2), Math.sin(Math.PI * (q - 0.5) * 2) * T * 0.055];
         const gN = gait(p), gF = gait((p + 0.5) % 1), sw = Math.sin(a.t * 0.55 + a.id * 1.7);
         a.leanT = wb * 0.045 + a.posture * 0.6 + (1 - wb) * sw * 0.01; a.tiltT = 0;
-        a.fN = { x: a.hx + f * lerp(T * 0.055 + sw * T * 0.008, gN[0], wb), y: a.floorY - gN[1] * wb };
-        a.fF = { x: a.hx + f * lerp(-T * 0.035, gF[0], wb), y: a.floorY - gF[1] * wb };
+        const hw = R.hw || T * 0.25; // standing feet sit under the hips (no X-crossed or splayed legs)
+        a.fN = { x: a.hx + f * lerp(hw * 0.3 + T * 0.014 + sw * T * 0.006, gN[0], wb), y: a.floorY - gN[1] * wb };
+        a.fF = { x: a.hx + f * lerp(-hw * 0.22 + T * 0.004, gF[0], wb), y: a.floorY - gF[1] * wb };
         const st = wb * gN[0] / A; // arms counter-swing the legs
         a.tgN = [a.hx + f * T * 0.07 - st * T * 0.09 * f, a.hy + T * 0.03 - Math.abs(st) * T * 0.02]; a.tgF = [a.hx - f * T * 0.03 + st * T * 0.09 * f, a.hy + T * 0.01 - Math.abs(st) * T * 0.02];
         if (a.hold.N && (a.carryUp !== false)) a.tgN = [a.hx + f * T * 0.24, a.hy - T * 0.2];
