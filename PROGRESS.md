@@ -389,3 +389,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - ee857e0 premium dimsum: generic premium pass; chive lift toned so it separates from har gow; 0 close — shots/premium/dimsum.png
 - cfc0ab6 premium gelato: generic premium pass, keeps soft scoop radius 0.26; 0 close — shots/premium/gelato.png
 - bc26959 premium fishhouse: generic premium pass; L 43/88/108/124/157/182/200, 0 close — shots/premium/fishhouse.png
+- 3219dfd premium pizzeria: generic premium pass; focaccia/risotto lifts re-tuned to keep separation; 0 close — shots/premium/pizzeria.png
