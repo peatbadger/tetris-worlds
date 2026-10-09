@@ -340,3 +340,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Blocks v2 (src/45_food_dimsum.js, backup wip/45_pre_v2.js): glisten/steam removed; shape+diag continuous masses. Siu mai = chunky filling + prawn bits + roe cluster, yellow wrapper only at base (no frame/eyes). Har gow = pink prawn under translucent pleated skin. Bao = ragged red split. Char siu = single lacquered glaze mass with soft caramel patches + charred edge shading (slices/grain rejected as bacon/log).
 - Scene: kitchen door moved behind the board (420–500) so the restock fade is hidden; auntie home 214→198, waiter 1066→1080 — no staff standing in the HUD gutter.
 - cmp: /workspace/shots/cmp-dimsum.png (v6); screenshot-geo-dimsum-lunch.png.
+- Published 52d37af; ready.txt line added. NEXT: Gelato.
+
+## Step 7 — Gelato (round 2)
+- Blocks v2 (src/47_food_gelato.js, backup wip/47_pre_v2.js): piece-space sculpted tin — soft tonal wave ridges running across the whole piece, one continuous crest wave on real top edges, inclusions folded in (pistachio nuts, fragola sauce ripple, lemon zest specks, chocolate chips, mango sorbet specks, blueberry swirl, stracciatella shards). Garnish clip-art (lemon wheel, strawberry icon, "C" curls) and hanging drips removed. Bug fixed: per-cell phase (hash of vr) caused seams — phase now per piece.
+- Board: dark espresso (rgba(58,40,36,0.9)) so stracciatella/limone no longer vanish on pale pink.
+- Scene (backup wip/46_pre_remap.js): case 72–450 → 14–250 (7 tins at 32px pitch, scaled tins); coin tray/taster spoons moved in; Giulia clamps 40–220; window/ledge moved to 1040–1168 with seats 1076/1140; overflow party members stand right of the lead (1086–1196) instead of 930 (gutter).
+- cmp: /workspace/shots/cmp-gelato.png (v7); screenshot-geo-gelato-afternoon.png.

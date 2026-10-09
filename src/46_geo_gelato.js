@@ -18,12 +18,12 @@ const GelPal = GeoKit.palette({
 }, [[6, 'night'], [8.5, 'morning'], [11.5, 'day'], [16.5, 'day'], [19, 'dusk'], [21, 'night'], [30, 'night'], [32.5, 'morning']], { label: (h) => { h = ((h % 24) + 24) % 24; return h < 6 ? 'Late night' : h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : h < 20.5 ? 'Passeggiata' : h < 22.5 ? 'Night' : 'Closing'; } });
 
 function makeGeoGelatoStage() {
-  const CASE = { x0: 72, x1: 450, top: 486, base: 650 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
+  const CASE = { x0: 14, x1: 250, top: 486, base: 650 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
   const FLAV = [{ k: 'pistachio', n: 'Pistacchio', c: '#b8d070', g: '#6a8a2a' }, { k: 'fragola', n: 'Fragola', c: '#f47a96', g: '#e8304a' }, { k: 'limone', n: 'Limone', c: '#f8e46a', g: '#f0d020' }, { k: 'cioccolato', n: 'Cioccolato', c: '#6a3a22', g: '#2a1408' }, { k: 'mango', n: 'Mango', c: '#ffa63a', g: '#ffb820' }, { k: 'mirtillo', n: 'Mirtillo', c: '#7a5ac8', g: '#3a2a7a' }, { k: 'stracciatella', n: 'Stracciatella', c: '#f8f2e4', g: '#3a2214' }];
-  const TINS = FLAV.map((f, i) => ({ f, x: CASE.x0 + 30 + i * 54, lvl: rand(0.7, 1) }));
+  const TINS = FLAV.map((f, i) => ({ f, x: CASE.x0 + 18 + i * 32, lvl: rand(0.7, 1) }));
   const SPOTS = [{ x: 118, occ: null }, { x: 214, occ: null }], WAIT = { x: 40 };
-  const LEDGE = [{ x: 984, occ: null }, { x: 1084, occ: null }], LEDGE_Y = 548;
-  const IRON = { x: 1192, top: 520 }, WIN = { x0: 960, y0: 118, x1: 1116, y1: 470 }, ARCH = 1262;
+  const LEDGE = [{ x: 1076, occ: null }, { x: 1140, occ: null }], LEDGE_Y = 548;
+  const IRON = { x: 1192, top: 520 }, WIN = { x0: 1040, y0: 118, x1: 1168, y1: 470 }, ARCH = 1262;
   const STAND = { x: 96, n: 5 };
   let K, giulia, marco, coins = 0, splat = null, nextArrive = 2, shutter = 1, sign = 1, iron = { open: 0, batter: 0, steam: 0, cone: 0 }, rack = 2, vespa = { x: 1060, on: 1, t: 0 };
   const L = (h) => K.L(h), B = GeoKit.body;
@@ -57,14 +57,14 @@ function makeGeoGelatoStage() {
     giulia.think = giuliaThink; marco.think = marcoThink;
   }
   function giuliaThink(a) {
-    if (per() === 4) { const t = TINS.find((q) => !q.lid); if (t) return K.start(a, 'lid', [K.ph(0, (s) => { s.walkTo = clamp(t.x - 10, 100, 430); }, { until: (s) => !s.walking, max: 12 }), K.ph(0.7, (s) => { s.tgN = [t.x, CASE.top + 20]; s.hold.N = H.lid(); s.leanT = 0.25; }, { exit: (s) => { t.lid = 1; s.hold.N = null; } })]); }
+    if (per() === 4) { const t = TINS.find((q) => !q.lid); if (t) return K.start(a, 'lid', [K.ph(0, (s) => { s.walkTo = clamp(t.x - 10, 40, 220); }, { until: (s) => !s.walking, max: 12 }), K.ph(0.7, (s) => { s.tgN = [t.x, CASE.top + 20]; s.hold.N = H.lid(); s.leanT = 0.25; }, { exit: (s) => { t.lid = 1; s.hold.N = null; } })]); }
     const c0 = SPOTS[0].occ;
     if (c0 && c0.phase === 'front' && !c0.busy) { c0.busy = 1; return serve(a, c0); }
     if (STAND.n <= 1 && rack > 0 && K.cooled(a, 'call', 6)) { K.say(a, 'Marco! Coni!', 1.3); }
     const low = TINS.find((t) => t.lvl < 0.3);
-    if (low && K.cooled(a, 'smooth', 8)) return K.start(a, 'smooth', [K.ph(0, (s) => { s.walkTo = clamp(low.x - 10, 100, 430); }, { until: (s) => !s.walking, max: 12 }), K.ph(2, (s, u, t) => { s.hold.N = H.spat(null); s.tgN = [low.x + Math.sin(t * 6) * 12, CASE.top + 24]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (low && K.cooled(a, 'smooth', 8)) return K.start(a, 'smooth', [K.ph(0, (s) => { s.walkTo = clamp(low.x - 10, 40, 220); }, { until: (s) => !s.walking, max: 12 }), K.ph(2, (s, u, t) => { s.hold.N = H.spat(null); s.tgN = [low.x + Math.sin(t * 6) * 12, CASE.top + 24]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     const r = Math.random();
-    if (r < 0.35) { const t = pick(TINS.filter((q) => q.x < 300)); return K.start(a, 'sculpt', [K.ph(0, (s) => { s.walkTo = clamp(t.x - 10, 100, 300); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(2, 3.5), (s, u, tt) => { s.hold.N = H.spat(null); s.tgN = [t.x + Math.sin(tt * 4) * 14, CASE.top + 22 - Math.abs(Math.cos(tt * 4)) * 8]; s.leanT = 0.22; s.lxT = 0.5; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } }); }
+    if (r < 0.35) { const t = pick(TINS.filter((q) => q.x < 300)); return K.start(a, 'sculpt', [K.ph(0, (s) => { s.walkTo = clamp(t.x - 10, 40, 220); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(2, 3.5), (s, u, tt) => { s.hold.N = H.spat(null); s.tgN = [t.x + Math.sin(tt * 4) * 14, CASE.top + 22 - Math.abs(Math.cos(tt * 4)) * 8]; s.leanT = 0.22; s.lxT = 0.5; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } }); }
     if (r < 0.55) return K.start(a, 'wipe', [K.ph(rand(2, 3), (s, u, t) => { s.hold.N = H.cloth(); s.tgN = [s.hx + 30 + Math.sin(t * 6) * 20, CASE.top - 6]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.lxT = pick([0.7, 0.3, -0.3]); })]);
   }
@@ -72,12 +72,12 @@ function makeGeoGelatoStage() {
     const o = cu.order, mk = { sc: [], cup: o.cup }, ph = [];
     ph.push(K.ph(0, (s) => { s.walkTo = 150; }, { until: (s) => !s.walking, max: 10 }), K.ph(0.4, (s) => { s.look = { x: () => cu.hx, until: K.simT + 0.4 }; }, { enter: () => K.say(a, pick(['Buongiorno!', 'Ciao! Cosa prendi?', 'Prego!']), 1.3) }));
     ph.push(K.ph(1.2, null, { enter: () => K.after(0.3, () => K.say(cu, o.flav.map((f) => f.n).join(' + ') + (o.cup ? ', coppetta' : ''), 1.6)) }));
-    if (o.taste) { const tf = o.taste; ph.push(K.ph(0, (s) => { s.walkTo = clamp(tf.x - 10, 100, 430); }, { until: (s) => !s.walking, max: 12 }), K.ph(0.6, (s) => { s.tgN = [tf.x, CASE.top + 24]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = H.spoon(tf.f); } }), K.ph(0, (s) => { s.walkTo = 150; }, { until: (s) => !s.walking, max: 12 }),
+    if (o.taste) { const tf = o.taste; ph.push(K.ph(0, (s) => { s.walkTo = clamp(tf.x - 10, 40, 220); }, { until: (s) => !s.walking, max: 12 }), K.ph(0.6, (s) => { s.tgN = [tf.x, CASE.top + 24]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = H.spoon(tf.f); } }), K.ph(0, (s) => { s.walkTo = 150; }, { until: (s) => !s.walking, max: 12 }),
       K.ph(0.6, (s) => { s.tgN = [cu.hx + 40, CASE.top - 26]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; cu.hold.N = H.spoon(tf.f); K.abort(cu); K.start(cu, 'taste', [K.ph(0.5, (q) => { q.tgN = [q.R.cx + q.f * q.R.R * 0.8, q.R.cy + q.R.R * 0.3]; }), K.ph(0.8, (q) => { q.headDy = 1.5; }, { exit: (q) => { q.hold.N = H.spoon(null); q.headDy = 0; K.say(q, pick(['Mmm!', 'Buono!', 'icon:heart']), 1.1); } }), K.ph(0.4, null, { exit: (q) => { q.hold.N = null; } })]); } })); }
     ph.push(K.ph(0, (s) => { s.walkTo = STAND.x + 30; }, { until: (s) => !s.walking, max: 12 }));
     ph.push(K.ph(0.5, (s) => { s.tgF = [STAND.x, CASE.top - 30]; s.farFront = true; }, { exit: (s) => { if (!o.cup) STAND.n = Math.max(0, STAND.n - 1); s.hold.F = H.cone(mk); } }));
     o.flav.forEach((f) => { const t = TINS.find((q) => q.f === f) || TINS[0];
-      ph.push(K.ph(0, (s) => { s.walkTo = clamp(t.x - 6, 100, 430); }, { until: (s) => !s.walking, max: 12 }),
+      ph.push(K.ph(0, (s) => { s.walkTo = clamp(t.x - 6, 40, 220); }, { until: (s) => !s.walking, max: 12 }),
         K.ph(0.5, (s) => { s.tgN = [t.x, CASE.top + 26]; s.tgF = [s.hx + 18, s.hy - 70]; s.leanT = 0.28; s.hold.N = H.spat(null); }),
         K.ph(0.7, (s, u, tt) => { s.tgN = [t.x + Math.sin(tt * 9) * 10, CASE.top + 28 - u * 6]; }, { exit: (s) => { t.lvl = Math.max(0.08, t.lvl - 0.07); s.hold.N = H.spat(f); } }),
         K.ph(0.6, (s) => { s.tgN = [s.hF.x + 4, s.hF.y - 20]; s.leanT = 0.08; }, { exit: (s) => { s.hold.N = H.spat(null); mk.sc.push(f); } }),
@@ -154,7 +154,7 @@ function makeGeoGelatoStage() {
       return K.start(a, 'look', [K.ph(rand(1.5, 2.5), (s) => { s.look = { x: () => pick([120, 220, 300]), until: K.simT + 0.8 }; s.tgN = [s.hx + 30, CASE.top - 10]; })]); }
     if (a.phase === 'front') return K.start(a, 'point', [K.ph(rand(1.2, 2), (s, u) => { s.look = { x: () => 200, until: K.simT + 0.3 }; if (u < 0.5) s.tgN = [s.hx + 46, CASE.top - 6]; })]);
     if (a.phase === 'served') { if (a.act) return; if (a.spot) { a.spot.occ = null; a.spot = null; } const lg = LEDGE.find((q) => !q.occ); if (lg && Math.random() < 0.75) { lg.occ = a; a.ledge = lg; a.phase = 'toLedge'; a.walkTo = lg.x; } else { a.phase = 'walkEat'; a.walkTo = ARCH + 60; } return; }
-    if (a.phase === 'toLedge') { if (!a.ledge && a !== lead) { const lg = LEDGE.find((q) => !q.occ); if (lg) { lg.occ = a; a.ledge = lg; a.walkTo = lg.x; } else { a.walkTo = clamp(lead.hx - 60, 930, 1100); a.phase = 'eat'; return; } } if (a.walking) return; a.phase = 'eat'; a.f = 1; a.faceDir = 0.3; return; }
+    if (a.phase === 'toLedge') { if (!a.ledge && a !== lead) { const lg = LEDGE.find((q) => !q.occ); if (lg) { lg.occ = a; a.ledge = lg; a.walkTo = lg.x; } else { a.walkTo = clamp(lead.hx + 44, 1086, 1196); a.phase = 'eat'; return; } } if (a.walking) return; a.phase = 'eat'; a.f = 1; a.faceDir = 0.3; return; }
     if (a.phase === 'eat' || a.phase === 'walkEat') {
       const cn = a.myCone; if (a.phase === 'walkEat' && !a.walking) { a.phase = 'out'; return; }
       if (!cn) { if (a.phase === 'eat' && lead.phase === 'leave') a.phase = 'leave'; return K.start(a, 'look', [K.ph(rand(1, 2), (s) => { s.look = { x: () => (Math.random() < 0.5 ? 1060 : lead.hx), until: K.simT + 0.3 }; })]); }
@@ -249,11 +249,11 @@ function makeGeoGelatoStage() {
     const P = K.P, { x0, x1, top, base } = CASE;
     // tins (seen through the glass), sculpted mounds with garnish + a spatola
     c.fillStyle = P.steel; c.fillRect(x0 + 4, top + 34, x1 - x0 - 8, 8);
-    for (const tn of TINS) { const x = tn.x, y = top + 38, f = tn.f; c.fillStyle = L('#b8c0c4'); c.fillRect(x - 24, y - 4, 48, 10); if (tn.lid) { c.fillStyle = P.steel; c.fillRect(x - 25, y - 8, 50, 6); continue; }
+    for (const tn of TINS) { c.save(); c.translate(tn.x, 0); c.scale(0.62, 1); const x = 0, y = top + 38, f = tn.f; c.fillStyle = L('#b8c0c4'); c.fillRect(x - 24, y - 4, 48, 10); if (tn.lid) { c.fillStyle = P.steel; c.fillRect(x - 25, y - 8, 50, 6); c.restore(); continue; }
       const h = 6 + tn.lvl * 26; c.fillStyle = L(f.c); c.beginPath(); c.moveTo(x - 23, y - 2); c.quadraticCurveTo(x - 22, y - h, x - 6, y - h - 2); c.quadraticCurveTo(x + 4, y - h + 6, x + 10, y - h + 2); c.quadraticCurveTo(x + 22, y - h + 4, x + 23, y - 2); c.closePath(); c.fill();
       c.strokeStyle = 'rgba(255,255,255,0.45)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x - 16, y - h * 0.55); c.quadraticCurveTo(x, y - h * 0.8, x + 14, y - h * 0.5); c.stroke(); c.strokeStyle = 'rgba(0,0,0,0.12)'; c.beginPath(); c.moveTo(x - 18, y - h * 0.3); c.quadraticCurveTo(x, y - h * 0.5, x + 18, y - h * 0.28); c.stroke();
       c.fillStyle = L(f.g); for (let i = 0; i < 4; i++) c.fillRect(x - 8 + i * 5, y - h + 2 + (i % 2) * 3, 3, 3);
-      c.fillStyle = L('#3a2a2a'); c.save(); c.translate(x + 12, y - h + 2); c.rotate(0.5); c.fillRect(-1.5, -20, 3, 14); c.fillStyle = P.steel; c.fillRect(-2, -6, 4, 12); c.restore(); }
+      c.fillStyle = L('#3a2a2a'); c.save(); c.translate(x + 12, y - h + 2); c.rotate(0.5); c.fillRect(-1.5, -20, 3, 14); c.fillStyle = P.steel; c.fillRect(-2, -6, 4, 12); c.restore(); c.restore(); }
     // glass: curved front pane
     c.fillStyle = rgba(P.glass, 0.35); c.beginPath(); c.moveTo(x0, top + 44); c.quadraticCurveTo(x0 + 6, top - 40, x0 + 60, top - 44); c.lineTo(x1, top - 44); c.lineTo(x1, top + 44); c.closePath(); c.fill();
     c.strokeStyle = 'rgba(255,255,255,0.7)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x0, top + 44); c.quadraticCurveTo(x0 + 6, top - 40, x0 + 60, top - 44); c.lineTo(x1, top - 44); c.stroke();
@@ -261,11 +261,11 @@ function makeGeoGelatoStage() {
     // case body
     c.fillStyle = P.case; c.fillRect(x0 - 6, top + 44, x1 - x0 + 12, base - top - 44); c.fillStyle = P.case2; c.fillRect(x0 - 6, top + 44, x1 - x0 + 12, 8); c.fillStyle = P.trim; c.fillRect(x0 - 6, base - 30, x1 - x0 + 12, 5);
     c.fillStyle = P.steel; c.fillRect(x0 - 8, top - 48, x1 - x0 + 16, 5); // top ledge
-    for (let i = 0; i < 4; i++) { c.fillStyle = rgba(P.trim, 0.4); c.beginPath(); c.arc(x0 + 50 + i * 100, top + 100, 18, 0, TAU); c.fill(); }
+    for (let i = 0; i < 2; i++) { c.fillStyle = rgba(P.trim, 0.4); c.beginPath(); c.arc(x0 + 60 + i * 110, top + 100, 18, 0, TAU); c.fill(); }
     // cone stand + coin tray on top
     c.fillStyle = P.steel; c.fillRect(STAND.x - 18, top - 52, 36, 4); for (let i = 0; i < Math.min(STAND.n, 6); i++) cone(c, STAND.x - 14 + (i % 3) * 14, top - 50 - Math.floor(i / 3) * 6, 0.62, []);
-    c.fillStyle = L('#f4ecd8'); c.fillRect(214, top - 54, 30, 6); c.fillStyle = L('#e8c050'); for (let i = 0; i < Math.min(coins, 6); i++) c.fillRect(217 + (i % 3) * 8, top - 56 - Math.floor(i / 3) * 2, 6, 2);
-    c.fillStyle = L('#e8f0f0'); c.fillRect(260, top - 64, 10, 16); for (let i = 0; i < 4; i++) c.fillRect(262 + i * 1.5, top - 72, 1, 8); // taster spoons
+    c.fillStyle = L('#f4ecd8'); c.fillRect(150, top - 54, 30, 6); c.fillStyle = L('#e8c050'); for (let i = 0; i < Math.min(coins, 6); i++) c.fillRect(153 + (i % 3) * 8, top - 56 - Math.floor(i / 3) * 2, 6, 2);
+    c.fillStyle = L('#e8f0f0'); c.fillRect(204, top - 64, 10, 16); for (let i = 0; i < 4; i++) c.fillRect(206 + i * 1.5, top - 72, 1, 8); // taster spoons
   }
   function drawDog(c, d) {
     if (d.alpha < 0.02) return; c.save(); c.globalAlpha = d.alpha; const x = d.hx, y = d.floorY, f = d.f, wag = Math.sin(K.t * 14) * 0.5, st = d.walking ? Math.sin(K.t * 14) * 4 : 0;
