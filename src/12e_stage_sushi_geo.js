@@ -993,6 +993,7 @@ function makeSushiGeoStage() {
   }
   let grainPat = null, grainCtx = null, panR = 0;
   function draw(ctx, t, dt, env) {
+    GeoKit.use(SushiPal);
     if (!built) { buildBelt(); P = SushiPal.at(12, Amb.st.weather || 'clear'); SushiPal.hour = 12; initSim(); built = true; }
     dt = Math.min(dt, 0.1);
     // clock: game progress (12:00 lunch -> 08:00 next morning), or debug override / time-lapse

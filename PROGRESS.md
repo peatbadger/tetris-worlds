@@ -83,3 +83,28 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 - 30_main.js: drawBoard/drawMini delegate to SKINSETS[skin].mass when present (generic hook other worlds can adopt).
 - Tools: tools/foodstack.js (mixed stack + fps), tools/foodclip.js (landing + Tetris clip). Outputs: screenshot-sushi-food-{stack,closeup,iphone,16px}.png, sushi-food-clip.webm.
 - Fallback: git tag `fallback-original-art` (= fe70099) in peatbadger/tetris-worlds holds the full pre-restyle game (all original world art). Restore: `git checkout fallback-original-art`.
+
+## Oct 9 2026 (night) — RESTYLE ALL WORLDS in the geometric language ("same art style, different worlds")
+Shared engine (new):
+- `src/12b_geo_kit.js` **GeoKit**: `GeoKit.palette(P, KEYS)` (named slots per time of day, clock-blended, rain/snow variants),
+  `GeoKit.stage(spec)` (resize/camera/pan, clock from env.p via startHour+span, fixed-step sim, grain, vignette, debug `window.__geo`
+  {setHour, lapse, weather, timeScale, K, debug}), actor runtime on the SushiFig rig (K.mk, K.start/K.ph phases, springs, walk, sitDown/standUp,
+  hold.N/F items with their own draw(), bubbles/icons, effects), helpers K.sky / K.weather / K.shafts / K.glow.
+  SushiFig colours now go through `GeoKit.lit` (active world palette); sushi calls `GeoKit.use(SushiPal)`.
+- `src/12d_sushi_geo_fig.js`: new torso patterns vest/dress/polo/qipao/jacket/tee and hats flatcap/fedora/cloche/paper/visor/beret/kerchief/feather.
+- `src/14_foodmass.js` **FoodMass(spec)**: the sushi food-block engine generalised (paint/live/sprites/soft/glisten/clear/partDraw hooks).
+  Sushi now = `FoodMass(sushiSpec)` (pixel-identical). Each world: `SKINSETS.<skin> = XFood.skin()` → 30_main uses `.mass`.
+- Tools: `node tools/gw.js <world> out.png [hour] [weather] [warmSec] [w] [h] [sceneOnly] [mobile]` (real mixed stack + fps + actors + errors).
+- Fallback: tag `fallback-original-art` (fe70099) = whole pre-restyle game.
+
+### World 2 · Mike's Pastry (DONE) — `src/40_geo_mikes.js` + `src/41_food_pastry.js`
+- Overrides the old venue factory via registerStage('mikes'). Old 22_world_mikes.js still in the tree (unused) for the fallback.
+- Scene: pressed-tin ceiling, menu board, string spools, espresso machine, glass case with 7 trays (counts go down when picked; Tony refills),
+  mirror behind the board (calm), photo wall, window onto Hanover St (brick, fire escapes, awnings, festoon lights, lamp post, Freedom Trail tour passing),
+  door with OPEN/CLOSED sign, marble table by the window, checker floor. Palettes morning/day/dusk/night + snow; neon OPEN at dusk/night; Sal flips sign at open/close.
+- Cast: Gina boxes orders (picks from tray → box → lid → string from spool → wrap → tie → hands box over → takes cash → register drawer + ding),
+  Sal (plates + espresso from the machine for eat-in, comes round the case to serve and clear the table, wipes kid fingerprints off the glass, flips the sign),
+  Tony (fresh trays from the kitchen door). Customers (max 5, no duplicate types): tourist (map, photo), local, student, suit (dozen box), nurse, nonno (newspaper, espresso),
+  mum+kid (kid presses hands on the glass → smudge), date couple. Eat-in: bites shrink the pastry, sips empty the cup, chat lines, leave; Sal clears.
+- Blocks: I cannoli · O Boston cream pie · T strawberry cheesecake · S pistachio · Z chocolate fudge · J lavender macarons · L napoleon.
+- Shots: screenshot-geo-mikes-day.png / -night.png.

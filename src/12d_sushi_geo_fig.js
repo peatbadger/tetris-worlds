@@ -3,7 +3,7 @@
    torsos with a light & shadow half, two-bone IK arms and legs (code-posed), hands that hold props. */
 const SushiFig = (() => {
   const colCache = new Map(); let colStamp = '';
-  function col(P, v) { if (!v) return '#000'; return v[0] === '#' ? SushiPal.lit(v) : P[v] || v; }
+  function col(P, v) { if (!v) return '#000'; return v[0] === '#' ? GeoKit.lit(v) : P[v] || v; }
   function skinOf(P, a) {
     if (!a.tone) return P.skin;
     const key = P.skin + a.tone; if (colStamp !== P.skin) { colCache.clear(); colStamp = P.skin; }
@@ -77,6 +77,15 @@ const SushiFig = (() => {
       case 'hivis': { c.fillStyle = col(P, '#e8e070'); for (const v of [0.55, 0.75]) { polyL(c, R, [[-1.5, v], [1.5, v], [1.5, v + 0.05], [-1.5, v + 0.05]]); c.fill(); } break; }
       case 'chef': { polyL(c, R, [[f * -0.05, 0.02], [f * 0.5, 0.25], [f * 0.45, 0.32], [f * -0.1, 0.1]]); c.fillStyle = col(P, d.top2 || 'cream'); c.fill(); break; }
       case 'kimono': { polyL(c, R, [[f * -0.25, 0], [f * 0.1, 0], [f * 0.9, 0.7], [f * 0.6, 0.75]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[-1.5, 0.62], [1.5, 0.62], [1.5, 0.74], [-1.5, 0.74]]); c.fillStyle = c3; c.fill(); break; }
+      case 'vest': { polyL(c, R, [[f * -0.2, -0.02], [f * 0.6, -0.02], [f * 0.25, 0.5]]); c.fillStyle = col(P, d.shirt || 'white'); c.fill();
+        polyL(c, R, [[f * 0.12, 0.0], [f * 0.38, 0.0], [f * 0.25, 0.08]]); c.fillStyle = col(P, d.tie || 'dark'); c.fill();
+        polyL(c, R, [[f * 0.22, 0.08], [f * 0.3, 0.08], [f * 0.3, 1.2], [f * 0.22, 1.2]]); c.fillStyle = 'rgba(0,0,0,0.12)'; c.fill(); break; }
+      case 'dress': { c.fillStyle = c2; for (let i = 0; i < 4; i++) { polyL(c, R, [[-1.6, 0.62 + i * 0.12], [1.6, 0.62 + i * 0.12], [1.6, 0.66 + i * 0.12], [-1.6, 0.66 + i * 0.12]]); c.fill(); }
+        polyL(c, R, [[f * -0.05, -0.05], [f * 0.45, -0.05], [f * 0.2, 0.22]]); c.fillStyle = skinOf(P, a); c.fill(); break; }
+      case 'polo': { polyL(c, R, [[f * -0.1, -0.03], [f * 0.5, -0.03], [f * 0.35, 0.1], [f * 0.2, 0.06], [f * 0.05, 0.1]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[f * 0.18, 0.05], [f * 0.24, 0.05], [f * 0.24, 0.3], [f * 0.18, 0.3]]); c.fillStyle = 'rgba(0,0,0,0.15)'; c.fill(); break; }
+      case 'qipao': { polyL(c, R, [[f * -0.15, -0.03], [f * 0.5, -0.03], [f * 0.75, 0.28], [f * 0.66, 0.32], [f * 0.35, 0.08]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[-1.5, 0.0], [1.5, 0.0], [1.5, 0.06], [-1.5, 0.06]]); c.fill(); break; }
+      case 'jacket': { polyL(c, R, [[f * 0.0, -0.02], [f * 0.5, -0.02], [f * 0.4, 1.2], [f * 0.12, 1.2]]); c.fillStyle = col(P, d.shirt || 'white'); c.fill(); polyL(c, R, [[f * 0.0, -0.02], [f * 0.12, -0.02], [f * 0.3, 0.38], [f * 0.18, 0.42]]); c.fillStyle = 'rgba(0,0,0,0.18)'; c.fill(); break; }
+      case 'tee': { if (d.print) { polyL(c, R, [[-0.3, 0.3], [0.3, 0.3], [0.3, 0.55], [-0.3, 0.55]]); c.fillStyle = c2; c.fill(); } break; }
       case 'hoodie': { polyL(c, R, [[-0.6, 0.7], [0.6, 0.7], [0.5, 0.88], [-0.5, 0.88]]); c.fillStyle = 'rgba(0,0,0,0.12)'; c.fill(); break; }
     }
     if (a.scarf) { polyL(c, R, [[-1, -0.05], [1, -0.05], [1, 0.13], [-1, 0.13]]); c.fillStyle = col(P, a.scarf); c.fill(); }
@@ -116,6 +125,14 @@ const SushiFig = (() => {
     else if (d.hat === 'bucket') { c.fillStyle = col(P, d.hatCol || 'mustard'); c.beginPath(); c.moveTo(cx - r * 0.78, cy - r * 0.42); c.lineTo(cx - r * 0.6, cy - r * 1.18); c.lineTo(cx + r * 0.6, cy - r * 1.18); c.lineTo(cx + r * 0.78, cy - r * 0.42); c.closePath(); c.fill(); ellipse(c, cx, cy - r * 0.42, r * 1.32, r * 0.2); c.fill(); c.fillStyle = 'rgba(0,0,0,0.18)'; c.fillRect(cx - r * 0.72, cy - r * 0.62, r * 1.44, r * 0.14); }
     else if (d.hat === 'chef') { c.fillStyle = col(P, 'white'); c.beginPath(); c.moveTo(cx - r * 0.86, cy - r * 0.5); c.lineTo(cx - r * 0.95, cy - r * 1.72); c.lineTo(cx + r * 0.95, cy - r * 1.72); c.lineTo(cx + r * 0.86, cy - r * 0.5); c.closePath(); c.fill(); c.fillStyle = 'rgba(40,20,10,0.12)'; c.fillRect(cx - (lx < 0 ? -r * 0.1 : r * 0.95), cy - r * 1.72, r * 0.85, r * 1.22); }
     else if (d.hat === 'band') { c.fillStyle = col(P, d.hatCol || 'white'); c.save(); c.beginPath(); c.arc(cx, cy, r * 1.02, 0, TAU); c.clip(); c.fillRect(cx - r, cy - r * 0.62, r * 2, r * 0.2); c.restore(); }
+    else if (d.hat === 'flatcap') { c.fillStyle = col(P, d.hatCol || 'grey'); c.beginPath(); c.arc(cx, cy - r * 0.25, r * 1.04, Math.PI * 1.02, Math.PI * 1.98); c.closePath(); c.fill(); const fw = Math.sign(lx || a.f); c.beginPath(); c.moveTo(cx + fw * r * 0.2, cy - r * 0.32); c.lineTo(cx + fw * r * 1.35, cy - r * 0.2); c.lineTo(cx + fw * r * 0.9, cy - r * 0.45); c.closePath(); c.fill(); }
+    else if (d.hat === 'fedora') { c.fillStyle = col(P, d.hatCol || 'dark'); c.fillRect(cx - r * 1.45, cy - r * 0.62, r * 2.9, r * 0.2); c.beginPath(); c.moveTo(cx - r * 0.85, cy - r * 0.55); c.lineTo(cx - r * 0.75, cy - r * 1.35); c.quadraticCurveTo(cx, cy - r * 1.15, cx + r * 0.75, cy - r * 1.35); c.lineTo(cx + r * 0.85, cy - r * 0.55); c.closePath(); c.fill(); c.fillStyle = col(P, d.bandCol || 'coral'); c.fillRect(cx - r * 0.86, cy - r * 0.8, r * 1.72, r * 0.16); }
+    else if (d.hat === 'cloche') { c.fillStyle = col(P, d.hatCol || 'plum'); c.beginPath(); c.arc(cx, cy - r * 0.2, r * 1.1, Math.PI * 0.95, Math.PI * 2.05); c.closePath(); c.fill(); c.fillStyle = col(P, d.bandCol || 'cream'); c.fillRect(cx - r * 1.05, cy - r * 0.42, r * 2.1, r * 0.16); }
+    else if (d.hat === 'paper') { c.fillStyle = col(P, d.hatCol || 'white'); c.beginPath(); c.moveTo(cx - r * 0.95, cy - r * 0.5); c.lineTo(cx - r * 0.7, cy - r * 1.25); c.lineTo(cx + r * 0.7, cy - r * 1.25); c.lineTo(cx + r * 0.95, cy - r * 0.5); c.closePath(); c.fill(); c.fillStyle = col(P, d.bandCol || 'coral'); c.fillRect(cx - r * 0.92, cy - r * 0.72, r * 1.84, r * 0.14); }
+    else if (d.hat === 'visor') { c.fillStyle = col(P, d.hatCol || 'coral'); c.save(); c.beginPath(); c.arc(cx, cy, r * 1.04, 0, TAU); c.clip(); c.fillRect(cx - r * 1.1, cy - r * 0.78, r * 2.2, r * 0.24); c.restore(); const fw = Math.sign(lx || a.f); c.beginPath(); c.moveTo(cx + fw * r * 0.3, cy - r * 0.56); c.lineTo(cx + fw * r * 1.4, cy - r * 0.48); c.lineTo(cx + fw * r * 0.6, cy - r * 0.72); c.closePath(); c.fill(); }
+    else if (d.hat === 'beret') { c.fillStyle = col(P, d.hatCol || 'coral'); ellipse(c, cx - Math.sign(lx || a.f) * r * 0.25, cy - r * 0.78, r * 1.05, r * 0.42, -0.15 * Math.sign(lx || a.f)); c.fill(); }
+    else if (d.hat === 'kerchief') { c.fillStyle = col(P, d.hatCol || 'coral'); c.beginPath(); c.arc(cx, cy - r * 0.1, r * 1.06, Math.PI * 1.05, Math.PI * 1.95); c.closePath(); c.fill(); }
+    else if (d.hat === 'feather') { c.fillStyle = col(P, d.hatCol || 'dark'); c.save(); c.beginPath(); c.arc(cx, cy, r * 1.05, 0, TAU); c.clip(); c.fillRect(cx - r * 1.1, cy - r * 0.7, r * 2.2, r * 0.18); c.restore(); c.fillStyle = col(P, d.bandCol || 'cream'); ellipse(c, cx + r * 0.6, cy - r * 1.1, r * 0.16, r * 0.55, 0.5); c.fill(); }
     else if (d.hat === 'beanie') { c.fillStyle = col(P, d.hatCol || 'teal'); c.beginPath(); c.arc(cx, cy - r * 0.18, r * 1.03, Math.PI, TAU); c.closePath(); c.fill(); c.fillRect(cx - r * 1.05, cy - r * 0.3, r * 2.1, r * 0.2); }
   }
   function drawLegs(c, a, R, P) {
