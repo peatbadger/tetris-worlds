@@ -9,12 +9,12 @@
    · S red wine (legs) · Z mojito (crushed ice, muddled mint at the bottom, lime) · J martini (olives) · L champagne. */
 const CocktailFood = (() => {
   // surface (lit), body, depth (saturated dark)
-  const LQ = { beer: ['#ffdc6a', '#eaa81e', '#a86a06'], oldfash: ['#c47838', '#76300e', '#340e02'], negroni: ['#f06a4a', '#b0201c', '#5a0612'], wine: ['#b8466a', '#6a1230', '#2a0210'], mojito: ['#e2f6a8', '#a6d262', '#4a8628'], martini: ['#f4fbff', '#c6dcea', '#6a8ea6'], champagne: ['#fff6d2', '#f2e2a2', '#c8ac62'] };
+  const LQ = { beer: ['#e8960e', '#bc6a04', '#743802'], oldfash: ['#b0642c', '#62240a', '#2a0a02'], negroni: ['#ff7a5a', '#e2382a', '#8a1018'], wine: ['#9a3458', '#560c26', '#22020c'], mojito: ['#d4f08a', '#8cc84a', '#3e7a20'], martini: ['#f6fcff', '#d2e6f2', '#7aa0b8'], champagne: ['#fff0c0', '#f0d478', '#c0a04a'] };
   const BUB = { beer: [3, 0.5], champagne: [5, 0.6], mojito: [1, 0.3] };
   const AIR = '#2c2420', SURF = 0.22;
   const M = FoodMass({
     FOOD: [null, 'beer', 'oldfash', 'negroni', 'wine', 'mojito', 'martini', 'champagne'],
-    MAIN: [null, '#eaa81e', '#76300e', '#b0201c', '#6a1230', '#a6d262', '#c6dcea', '#f2e2a2'],
+    MAIN: [null, '#e08e0c', '#62240a', '#e2382a', '#560c26', '#8cc84a', '#d2e6f2', '#f0d478'],
     soft: { beer: 1.4, wine: 1.5, champagne: 1.4, mojito: 1.2, martini: 1.5, negroni: 1.3, oldfash: 1.1 },
     R: 0.18, cutCol: 'rgba(255,255,255,0.22)', noPlanes: true, depth: true, diag: true, padK: 0.1,
     vkey: (food, vr) => vr, vpaint: (food, vk) => vk,
