@@ -18,11 +18,11 @@ const FishPal = GeoKit.palette({
 }, [[6, 'night'], [9, 'lunch'], [14, 'lunch'], [16.5, 'after'], [18.5, 'golden'], [20.5, 'night'], [30, 'night'], [33, 'lunch']], { label: (h) => { h = ((h % 24) + 24) % 24; return h < 6 ? 'Late night' : h < 15 ? 'Lunch' : h < 17.5 ? 'Afternoon' : h < 20 ? 'Golden hour' : h < 22.5 ? 'Dinner' : 'Closing'; } });
 
 function makeGeoFishhouseStage() {
-  const BAR = { x0: 24, x1: 452, top: 500 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
+  const BAR = { x0: 24, x1: 262, top: 500 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
   const STOOLS = [{ x: 84, occ: null }, { x: 204, occ: null }];
   const TB = { x: 1148, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1222, f: -1, occ: null }] };
-  const WIN = { x0: 300, y0: 96, x1: 990, y1: 470 }, PASS = { x: 1262 }, BUCKET = { x: 1036 };
-  const DISHES = [{ n: 'Oysters', k: 'oyster', c: '#bccad2' }, { n: 'Seared scallops', k: 'scallop', c: '#e8b060' }, { n: 'Lobster thermidor', k: 'lobster', c: '#d8341e' }, { n: 'Salmon, dill', k: 'salmon', c: '#ff8a62' }, { n: 'Grilled octopus', k: 'octopus', c: '#b0607a' }, { n: 'Moules marinières', k: 'mussel', c: '#2a3050' }];
+  const WIN = { x0: 452, y0: 96, x1: 824, y1: 470 }, PASS = { x: 1262 }, BUCKET = { x: 1036 };
+  const DISHES = [{ n: 'Oysters', k: 'oyster', c: '#bccad2' }, { n: 'Seared scallops', k: 'scallop', c: '#e8b060' }, { n: 'Lobster thermidor', k: 'lobster', c: '#d8341e' }, { n: 'Grilled branzino', k: 'grillfish', c: '#9a9a84' }, { n: 'Garlic prawns', k: 'prawn', c: '#f0a48a' }, { n: 'Crab claws', k: 'crab', c: '#e2742e' }, { n: 'Moules marinières', k: 'mussel', c: '#2a3050' }];
   let K, ana, henri, platter = { n: 0, x: 0, on: false, owner: null, shells: 0 }, tray = 0, shellBucket = 0, table = { plates: [], glasses: [{ lv: 0 }, { lv: 0 }], bottle: 0, candle: 0, cloche: null, party: null, menu: 0, ring: 0 }, boat = null, gull = null, nextArrive = 2, nextBoat = 60, nextGull = 40, bell = 0, sign = 1;
   const L = (h) => K.L(h), B = GeoKit.body;
   const per = () => { const h = ((K.hour % 24) + 24) % 24; return h < 15 ? 0 : h < 17.5 ? 1 : h < 20 ? 2 : h < 22.5 ? 3 : 4; };
@@ -32,7 +32,7 @@ function makeGeoFishhouseStage() {
   /* ---------- props ---------- */
   function dish(c, x, y, s, d, frac = 1) { // plate with food; y = table line
     c.save(); c.translate(x, y); c.scale(s, s); c.fillStyle = L('#fbfaf6'); ellipse(c, 0, -1, 18, 4.5); c.fill(); c.strokeStyle = L('#d8d4cc'); c.lineWidth = 0.8; c.beginPath(); c.ellipse(0, -1, 13, 3, 0, 0, TAU); c.stroke();
-    if (d && frac > 0.02) { const w = 11 * Math.sqrt(frac); c.fillStyle = L(d.c); if (d.k === 'oyster' || d.k === 'scallop' || d.k === 'mussel') { const n = Math.max(1, Math.round(3 * frac)); for (let i = 0; i < n; i++) { ellipse(c, -6 + i * 6, -3, 3.4, 2.4); c.fill(); } } else { c.beginPath(); c.moveTo(-w, -2); c.quadraticCurveTo(0, -9 * frac - 2, w, -2); c.fill(); } c.fillStyle = L('#5a9a3a'); c.fillRect(-2, -5, 3, 1.5); }
+    if (d && frac > 0.02) { const w = 11 * Math.sqrt(frac); c.fillStyle = L(d.c); if (d.k === 'oyster' || d.k === 'scallop' || d.k === 'mussel' || d.k === 'prawn') { const n = Math.max(1, Math.round(3 * frac)); for (let i = 0; i < n; i++) { ellipse(c, -6 + i * 6, -3, 3.4, 2.4); c.fill(); } } else { c.beginPath(); c.moveTo(-w, -2); c.quadraticCurveTo(0, -9 * frac - 2, w, -2); c.fill(); } c.fillStyle = L('#5a9a3a'); c.fillRect(-2, -5, 3, 1.5); }
     c.restore();
   }
   function wineGlass(c, x, y, s, lv, tilt = 0) { c.save(); c.translate(x, y); c.rotate(tilt); c.scale(s, s); c.strokeStyle = 'rgba(230,245,250,0.7)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -10); c.stroke(); c.fillStyle = 'rgba(230,245,250,0.6)'; ellipse(c, 0, 0, 5, 1.2); c.fill(); const bowl = [-6, -24, 6, -24, 7, -16, 4, -10, -4, -10, -7, -16]; c.fillStyle = 'rgba(230,245,250,0.25)'; K.poly(c, bowl); c.fill(); if (lv > 0.02) { c.save(); K.poly(c, bowl); c.clip(); c.fillStyle = L('#f2e08a'); c.fillRect(-8, lerp(-10, -20, lv), 16, 14); c.restore(); } c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(-6, -24); c.lineTo(6, -24); c.stroke(); c.restore(); }
@@ -235,12 +235,12 @@ function makeGeoFishhouseStage() {
   function drawBar(c, t) {
     const P = K.P, { x0, x1, top } = BAR;
     // crushed ice mound with oysters, lobster, crab, lemons
-    c.fillStyle = P.ice2; c.beginPath(); c.moveTo(x0 + 10, top); c.quadraticCurveTo(x0 + 120, top - 60, x0 + 220, top - 40); c.quadraticCurveTo(x0 + 330, top - 64, x1 - 10, top); c.fill();
+    c.fillStyle = P.ice2; c.beginPath(); c.moveTo(x0 + 10, top); c.quadraticCurveTo(x0 + 70, top - 60, x0 + 120, top - 44); c.quadraticCurveTo(x0 + 180, top - 64, x1 - 10, top); c.fill();
     c.fillStyle = P.ice; for (let i = 0; i < 40; i++) { const xx = x0 + 20 + (i * 37) % (x1 - x0 - 40), yy = top - 6 - ((i * 13) % 34); c.fillRect(xx, yy, 4, 3); }
     for (let i = 0; i < 9; i++) oyster(c, x0 + 40 + (i % 5) * 22 + Math.floor(i / 5) * 10, top - 22 - Math.floor(i / 5) * 12, 1.3, i % 3 === 0);
-    c.fillStyle = L('#d8341e'); c.save(); c.translate(x0 + 300, top - 40); c.rotate(-0.2); ellipse(c, 0, 0, 34, 10); c.fill(); c.fillRect(30, -12, 22, 6); c.fillRect(30, 6, 22, 6); c.strokeStyle = L('#a01e10'); c.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 10, -9); c.lineTo(i * 10, 9); c.stroke(); } c.restore();
-    c.fillStyle = L('#e8803a'); ellipse(c, x0 + 220, top - 30, 18, 12); c.fill(); c.strokeStyle = L('#e8803a'); c.lineWidth = 3; for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(x0 + 206 + i * 12, top - 24); c.lineTo(x0 + 196 + i * 16, top - 8); c.stroke(); }
-    for (let i = 0; i < 3; i++) { c.fillStyle = L('#f8e040'); c.beginPath(); c.arc(x0 + 170 + i * 16, top - 14, 6, Math.PI, TAU); c.fill(); }
+    c.fillStyle = L('#d8341e'); c.save(); c.translate(x0 + 196, top - 44); c.rotate(-0.2); c.scale(0.8, 0.8); ellipse(c, 0, 0, 34, 10); c.fill(); c.fillRect(30, -12, 22, 6); c.fillRect(30, 6, 22, 6); c.strokeStyle = L('#a01e10'); c.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 10, -9); c.lineTo(i * 10, 9); c.stroke(); } c.restore();
+    c.fillStyle = L('#e8803a'); ellipse(c, x0 + 150, top - 30, 18, 12); c.fill(); c.strokeStyle = L('#e8803a'); c.lineWidth = 3; for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(x0 + 136 + i * 12, top - 24); c.lineTo(x0 + 126 + i * 16, top - 8); c.stroke(); }
+    for (let i = 0; i < 3; i++) { c.fillStyle = L('#f8e040'); c.beginPath(); c.arc(x0 + 176 + i * 14, top - 12, 6, Math.PI, TAU); c.fill(); }
     // counter
     c.fillStyle = L('#c8ccd0'); c.fillRect(x0 - 8, top, x1 - x0 + 16, 8); c.fillStyle = P.wood; c.fillRect(x0, top + 8, x1 - x0, 152); c.fillStyle = P.woodDk; for (let x = x0 + 12; x < x1 - 20; x += 70) c.fillRect(x, top + 22, 56, 120); c.fillStyle = P.brass; c.fillRect(x0 - 4, top + 130, x1 - x0 + 8, 4);
     if (platter.on && !platter.home) H.platter().draw(c, platter.x, top - 6, 1); else if (platter.on) H.platter().draw(c, 150, top - 6, 1);

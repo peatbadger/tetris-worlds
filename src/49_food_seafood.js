@@ -1,20 +1,27 @@
-/* ---- Fish House blocks MADE OF seafood (FoodMass) ----
-   I lobster tail (segmented red shell, white meat at the cut ends) · O oysters on ice (pearly half shells, lemon)
-   · T seared scallops (golden crust rings) · S mussels (blue-black shells, orange meat) · Z salmon fillet (coral with
-   white fat lines, crisp skin) · J seaweed salad (glossy green ribbons, sesame) · L octopus (mauve, sucker rows). */
+/* ---- Fish House blocks MADE OF seafood (FoodMass) — v2, the house's OWN set (nothing shared with Kaiten Sushi) ----
+   I lobster tail (crimson shell plates, white meat at the cut end, fanned tail) · O oysters on crushed ice
+   · T scallops in the shell (ribbed coral shells, seared scallop + roe) · S mussels (blue-black heap, a few open)
+   · Z grilled prawns (laid side by side, pale coral, grill char) · J crab (orange knobbly shell cracked to white meat)
+   · L whole grilled branzino (olive-grey scaled skin, pale belly, golden char, grill bars, score cuts).
+   Whole-piece drawing in piece space (no seams), matte, no faces/eyes, no garnish clip-art. */
 const SeafoodFood = FoodMass({
-  FOOD: [null, 'lobster', 'oyster', 'scallop', 'mussel', 'salmon', 'seaweed', 'octopus'],
-  MAIN: [null, '#c8341e', '#d8d0c0', '#f0e2c4', '#252b42', '#f2845c', '#3f7f34', '#a65a72'],
-  soft: { lobster: 0.7, oyster: 0.9, scallop: 1.3, mussel: 0.8, salmon: 1.4, seaweed: 1.5, octopus: 1.4 },
-  glisten: { salmon: 0.45, oyster: 0.5, octopus: 0.4, seaweed: 0.4, mussel: 0.35 },
+  FOOD: [null, 'lobster', 'oyster', 'scallop', 'mussel', 'prawn', 'crab', 'grillfish'],
+  MAIN: [null, '#b8281a', '#dfe6ea', '#e89a86', '#262c44', '#f0a48a', '#e2742e', '#9a9a84'],
+  soft: { lobster: 0.7, oyster: 0.8, scallop: 0.9, mussel: 0.8, prawn: 1.2, crab: 0.8, grillfish: 1.1 },
+  shape: true, diag: true, R: 0.22,
   vkey: (food, vr) => vr, vpaint: (food, vk) => vk,
   paint(x, food, Q) {
-    const { P, mask, vr, small, l, t, r, b, C, hash, N, E, S, W } = Q;
-    const lx = vr & 3, ly = (vr >> 2) & 3, horiz = (mask & (E | W)) || !(mask & (N | S));
+    const { P, mask, vr, small, l, t, r, b, C, hash, N, E, S, W, shape } = Q;
+    const lx = vr & 3, ly = (vr >> 2) & 3, cells = shape || [[lx, ly]], lw = (k) => Math.max(1, P * k), A = cells.length;
+    let bx0 = 9, by0 = 9, bx1 = -9, by1 = -9; for (const [a, c] of cells) { bx0 = Math.min(bx0, a); by0 = Math.min(by0, c); bx1 = Math.max(bx1, a + 1); by1 = Math.max(by1, c + 1); }
+    const wide = bx1 - bx0 >= by1 - by0, X0 = bx0 * P, Y0 = by0 * P, BW = (bx1 - bx0) * P, BH = (by1 - by0) * P;
     const fill = (col) => { x.fillStyle = col; x.fillRect(l - 2, t - 2, r - l + 4, b - t + 4); };
     const lin = (x0, y0, x1, y1, st) => linear(x, x0, y0, x1, y1, st);
-    // piece space: draw patterns in whole-piece coordinates so they run on across cells without seams
     const piece = (fn) => { x.save(); x.translate(C(0) - lx * P, C(0) - ly * P); fn(); x.restore(); };
+    const H = (i, k) => hash(49, i, k);
+    const blob = (u, v, rr, k, n = 7, sq = 1) => { const pt = []; for (let j = 0; j < n; j++) { const an = j / n * TAU, q = rr * (0.7 + H(k, j + 20) * 0.5); pt.push([u + Math.cos(an) * q, v + Math.sin(an) * q * sq]); } x.beginPath(); for (let j = 0; j <= n; j++) { const p0 = pt[j % n], p1 = pt[(j + 1) % n], mx = (p0[0] + p1[0]) / 2, my = (p0[1] + p1[1]) / 2; j ? x.quadraticCurveTo(p0[0], p0[1], mx, my) : x.moveTo(mx, my); } x.closePath(); };
+    // work along the piece's long axis: u runs along, v across (rotate for tall pieces)
+    const axis = (fn) => piece(() => { x.save(); if (wide) fn(X0, Y0, BW, BH); else { x.translate(X0 + BW, Y0); x.rotate(Math.PI / 2); fn(0, 0, BH, BW); } x.restore(); });
     const form = (hi, lo, w = 0.22) => {
       if (!(mask & N)) { x.fillStyle = lin(0, t, 0, t + P * w, [[0, hi], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 2, t - 2, r - l + 4, P * w + 2); }
       if (!(mask & W)) { x.fillStyle = lin(l, 0, l + P * w, 0, [[0, hi], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 2, t - 2, P * w + 2, b - t + 4); }
@@ -22,84 +29,120 @@ const SeafoodFood = FoodMass({
       if (!(mask & S)) { x.fillStyle = lin(0, b - P * w, 0, b, [[0, 'rgba(0,0,0,0)'], [1, lo]]); x.fillRect(l - 2, b - P * w, r - l + 4, P * w + 2); }
     };
     switch (food) {
-      case 'lobster': { // one tail: overlapping shell segments (one per cell), white meat at one end, fanned tail at the other
-        fill('#c8341e');
-        x.save(); if (!horiz) { x.translate(C(0.5), C(0.5)); x.rotate(Math.PI / 2); x.translate(-C(0.5), -C(0.5)); }
-        const a0 = horiz ? W : N, a1 = horiz ? E : S;
-        x.fillStyle = lin(0, C(0), 0, C(1), [[0, '#f0704a'], [0.35, '#d44228'], [1, '#8e1e10']]); x.fillRect(C(-0.1), C(0), P * 1.2, P);
-        x.fillStyle = 'rgba(120,16,6,0.55)'; x.beginPath(); x.moveTo(C(0.86), C(-0.05)); x.quadraticCurveTo(C(1.0), C(0.5), C(0.86), C(1.05)); x.lineTo(C(0.8), C(1.05)); x.quadraticCurveTo(C(0.94), C(0.5), C(0.8), C(-0.05)); x.fill();
-        x.fillStyle = 'rgba(255,214,190,0.5)'; x.fillRect(C(-0.1), C(0.16), P * 1.2, P * 0.06);
-        if (!(mask & a0)) { x.fillStyle = '#f6ece2'; ellipse(x, C(0.12), C(0.5), P * 0.13, P * 0.4); x.fill(); x.fillStyle = 'rgba(236,150,130,0.6)'; ellipse(x, C(0.12), C(0.5), P * 0.08, P * 0.28); x.fill(); }
-        if (!(mask & a1)) { x.fillStyle = '#a82614'; x.beginPath(); x.moveTo(C(0.55), C(0.12)); x.quadraticCurveTo(C(1.0), C(-0.02), C(1.05), C(0.5)); x.quadraticCurveTo(C(1.0), C(1.02), C(0.55), C(0.88)); x.closePath(); x.fill(); x.strokeStyle = 'rgba(255,190,160,0.4)'; x.lineWidth = Math.max(1, P * 0.02); for (let k = -1; k <= 1; k++) { x.beginPath(); x.moveTo(C(0.6), C(0.5)); x.lineTo(C(0.98), C(0.5 + k * 0.3)); x.stroke(); } }
-        x.restore();
-        form('rgba(255,200,170,0.2)', 'rgba(70,6,0,0.35)', 0.16);
-        break;
-      }
-      case 'oyster': { // one big oyster: pearly meat in the middle, dark frilled mantle and a rough layered shell rim on the exposed sides
-        fill('#d8d0c0');
-        piece(() => { x.fillStyle = radial(x, P * 0.95, P * 0.95, P * 1.15, [[0, '#f2ede2'], [0.55, '#d2c9b6'], [1, '#9e9482']]); x.fillRect(-P, -P, P * 4, P * 4);
-          x.strokeStyle = 'rgba(78,70,60,0.7)'; x.lineWidth = Math.max(1, P * 0.06); x.beginPath(); for (let k = 0; k <= 48; k++) { const a = k / 48 * TAU, rr = P * (0.72 + Math.sin(a * 9) * 0.035); k ? x.lineTo(P + Math.cos(a) * rr, P + Math.sin(a) * rr * 0.92) : x.moveTo(P + rr, P); } x.stroke();
-          x.strokeStyle = 'rgba(150,140,124,0.5)'; x.lineWidth = Math.max(1, P * 0.025); x.beginPath(); for (let k = 0; k <= 48; k++) { const a = k / 48 * TAU, rr = P * (0.6 + Math.sin(a * 7 + 1) * 0.03); k ? x.lineTo(P + Math.cos(a) * rr, P + Math.sin(a) * rr * 0.9) : x.moveTo(P + rr, P); } x.stroke();
-          x.fillStyle = 'rgba(255,255,255,0.55)'; ellipse(x, P * 0.72, P * 0.62, P * 0.28, P * 0.08, -0.5); x.fill(); x.fillStyle = 'rgba(255,255,255,0.3)'; ellipse(x, P * 1.15, P * 1.1, P * 0.12, P * 0.05, -0.5); x.fill(); });
-        const rim = (side) => { const w = P * 0.2; x.save(); if (side === E) { x.translate(C(1), C(0)); x.rotate(Math.PI / 2); } else if (side === S) { x.translate(C(1), C(1)); x.rotate(Math.PI); } else if (side === W) { x.translate(C(0), C(1)); x.rotate(-Math.PI / 2); } else x.translate(C(0), C(0));
-          x.fillStyle = '#6f675c'; x.beginPath(); x.moveTo(-P * 0.1, -2); x.lineTo(P * 1.1, -2); for (let k = 6; k >= 0; k--) x.lineTo(P * k / 6, w * (0.75 + 0.35 * hash(vr, k + side, 3))); x.closePath(); x.fill();
-          x.strokeStyle = 'rgba(200,190,175,0.5)'; x.lineWidth = Math.max(1, P * 0.02); x.beginPath(); x.moveTo(0, w * 0.4); for (let k = 0; k <= 6; k++) x.lineTo(P * k / 6, w * (0.35 + 0.15 * hash(vr, k + side, 4))); x.stroke();
-          x.strokeStyle = 'rgba(60,54,48,0.6)'; x.lineWidth = Math.max(1, P * 0.035); x.beginPath(); for (let k = 0; k <= 8; k++) { const yy = w * 1.25 + Math.sin(k * 2.2 + side) * P * 0.025; k ? x.lineTo(P * k / 8, yy) : x.moveTo(0, yy); } x.stroke(); x.restore(); };
-        for (const sd of [N, E, S, W]) if (!(mask & sd)) rim(sd);
-        form('rgba(255,255,255,0.25)', 'rgba(40,36,30,0.3)', 0.14);
-        break;
-      }
-      case 'scallop': { // seared scallop flesh: ivory with a fine grain, deep caramel sear on top
-        fill('#f0e2c4');
-        piece(() => { x.strokeStyle = 'rgba(200,176,130,0.28)'; x.lineWidth = Math.max(1, P * 0.02); for (let k = 0; k < 12; k++) { const xx = P * (0.15 + k * 0.28); x.beginPath(); x.moveTo(xx, 0); x.quadraticCurveTo(xx + P * 0.06, P * 1.5, xx - P * 0.02, P * 3); x.stroke(); } });
-        if (!(mask & N)) { x.fillStyle = lin(0, t, 0, t + P * 0.36, [[0, '#8a4a1a'], [0.35, '#c07a34'], [1, 'rgba(230,180,110,0)']]); x.fillRect(l - 2, t - 2, r - l + 4, P * 0.38); x.fillStyle = 'rgba(255,230,180,0.5)'; x.fillRect(C(0.1), t + P * 0.05, P * 0.45, Math.max(1, P * 0.025)); }
-        form('rgba(255,250,235,0.3)', 'rgba(120,90,50,0.3)');
-        break;
-      }
-      case 'mussel': { // blue-black shells with nacre sheen and growth lines; orange meat where the shells open at the top
-        fill('#252b42');
-        piece(() => { x.strokeStyle = 'rgba(120,140,190,0.25)'; x.lineWidth = Math.max(1, P * 0.025); for (let k = 1; k < 8; k++) { x.beginPath(); x.arc(P * 0.3, P * 2.6, P * k * 0.42, -1.4, -0.1); x.stroke(); } x.fillStyle = 'rgba(150,170,220,0.18)'; ellipse(x, P * 0.9, P * 0.7, P * 0.6, P * 0.2, -0.5); x.fill(); });
-        if (!(mask & N)) { x.fillStyle = '#e8873a'; x.beginPath(); x.moveTo(l - 2, t + P * 0.2); for (let k = 0; k <= 4; k++) x.lineTo(lerp(l - 2, r + 2, k / 4), t + P * (0.08 + 0.08 * hash(vr, k, 5))); x.lineTo(r + 2, t + P * 0.24); x.lineTo(l - 2, t + P * 0.24); x.closePath(); x.fill(); x.fillStyle = 'rgba(255,220,170,0.5)'; x.fillRect(C(0.15), t + P * 0.12, P * 0.3, Math.max(1, P * 0.025)); x.fillStyle = '#1a1e30'; x.fillRect(l - 2, t + P * 0.22, r - l + 4, Math.max(1, P * 0.035)); }
-        form('rgba(170,190,240,0.22)', 'rgba(5,6,14,0.45)');
-        break;
-      }
-      case 'salmon': { // fillet: coral flesh with white fat lines that run on across the piece, crisp skin underneath
-        fill('#f2845c');
-        piece(() => { x.strokeStyle = 'rgba(255,236,224,0.7)'; x.lineWidth = Math.max(1, P * 0.045); for (let k = -4; k < 10; k++) { const o = k * P * 0.5; x.beginPath(); x.moveTo(o, P * 4); x.quadraticCurveTo(o + P * 0.9, P * 2, o + P * 2.2, 0); x.stroke(); } x.strokeStyle = 'rgba(200,90,60,0.25)'; x.lineWidth = Math.max(1, P * 0.03); for (let k = -4; k < 10; k++) { const o = k * P * 0.5 + P * 0.2; x.beginPath(); x.moveTo(o, P * 4); x.quadraticCurveTo(o + P * 0.9, P * 2, o + P * 2.2, 0); x.stroke(); } });
-        if (!(mask & S)) { x.fillStyle = lin(0, b - P * 0.18, 0, b, [[0, '#9a9286'], [1, '#5e584e']]); x.fillRect(l - 2, b - P * 0.16, r - l + 4, P * 0.18); x.fillStyle = 'rgba(230,224,214,0.7)'; x.fillRect(l - 2, b - P * 0.16, r - l + 4, Math.max(1, P * 0.025)); }
-        form('rgba(255,220,200,0.25)', 'rgba(120,40,20,0.3)');
-        break;
-      }
-      case 'seaweed': { // wakame salad: glossy ribbons flowing across the whole piece, a few sesame seeds
-        fill('#3f7f34');
-        piece(() => { x.lineCap = 'round'; for (let k = 0; k < 9; k++) { const y0 = P * (0.2 + k * 0.42); x.strokeStyle = k % 2 ? 'rgba(120,190,90,0.75)' : 'rgba(90,160,70,0.8)'; x.lineWidth = P * 0.16; x.beginPath(); x.moveTo(-P * 0.2, y0); for (let j = 1; j <= 12; j++) x.lineTo(j * P * 0.35 - P * 0.2, y0 + Math.sin(j * 0.9 + k * 1.3) * P * 0.12); x.stroke(); x.strokeStyle = 'rgba(210,250,180,0.45)'; x.lineWidth = Math.max(1, P * 0.03); x.beginPath(); x.moveTo(-P * 0.2, y0 - P * 0.05); for (let j = 1; j <= 12; j++) x.lineTo(j * P * 0.35 - P * 0.2, y0 - P * 0.05 + Math.sin(j * 0.9 + k * 1.3) * P * 0.12); x.stroke(); } x.lineCap = 'butt'; });
-        if (!small) { x.fillStyle = '#f4ead0'; for (let i = 0; i < 3; i++) { ellipse(x, C(0.15 + hash(vr, i, 10) * 0.7), C(0.15 + hash(vr, i, 11) * 0.7), Math.max(0.8, P * 0.03), Math.max(0.5, P * 0.016), hash(i, vr) * 3); x.fill(); } }
-        form('rgba(220,255,200,0.2)', 'rgba(10,40,10,0.35)');
-        break;
-      }
-      case 'octopus': { // grilled octopus: mauve skin, pale suckers only along the exposed underside, charred tips
-        fill('#a65a72');
-        piece(() => { x.fillStyle = 'rgba(255,214,226,0.18)'; ellipse(x, P * 1.2, P * 0.6, P * 1.2, P * 0.25, -0.2); x.fill(); });
-        if (!(mask & S)) for (let i = 0; i < 3; i++) { const cx = C((i + 0.5) / 3), cy = b - P * 0.16; x.fillStyle = '#efd6d6'; ellipse(x, cx, cy, P * 0.1, P * 0.08); x.fill(); x.fillStyle = 'rgba(190,120,135,0.8)'; ellipse(x, cx, cy + P * 0.01, P * 0.05, P * 0.035); x.fill(); }
-        if (!(mask & N)) { x.fillStyle = lin(0, t, 0, t + P * 0.2, [[0, 'rgba(50,18,24,0.55)'], [1, 'rgba(50,18,24,0)']]); x.fillRect(l - 2, t - 2, r - l + 4, P * 0.22); }
-        form('rgba(255,220,230,0.22)', 'rgba(50,14,26,0.35)');
-        break;
-      }
+      case 'lobster': { // one tail along the piece: curved shell plates (not per cell), meat at one end, tail fan at the other
+        fill('#b8281a');
+        axis((u0, v0, L, Wd) => {
+          x.fillStyle = lin(0, v0, 0, v0 + Wd, [[0, '#e8583a'], [0.4, '#c23220'], [1, '#7a1408']]); x.fillRect(u0 - P, v0 - P, L + 2 * P, Wd + 2 * P);
+          const seg = L / (Math.round(L / P * 1.35));
+          for (let uu = u0 + P * 0.45; uu < u0 + L - P * 0.5; uu += seg) { x.fillStyle = 'rgba(80,8,2,0.38)'; x.beginPath(); x.moveTo(uu, v0 - 2); x.quadraticCurveTo(uu + seg * 0.45, v0 + Wd / 2, uu, v0 + Wd + 2); x.lineTo(uu + lw(0.06), v0 + Wd + 2); x.quadraticCurveTo(uu + seg * 0.45 + lw(0.06), v0 + Wd / 2, uu + lw(0.06), v0 - 2); x.fill();
+            x.fillStyle = 'rgba(255,170,130,0.22)'; x.beginPath(); x.moveTo(uu + lw(0.06), v0 - 2); x.quadraticCurveTo(uu + seg * 0.45 + lw(0.06), v0 + Wd / 2, uu + lw(0.06), v0 + Wd + 2); x.lineTo(uu + lw(0.2), v0 + Wd + 2); x.quadraticCurveTo(uu + seg * 0.45 + lw(0.2), v0 + Wd / 2, uu + lw(0.2), v0 - 2); x.fill(); }
+          x.fillStyle = 'rgba(255,200,170,0.25)'; x.fillRect(u0, v0 + Wd * 0.18, L, Wd * 0.07);
+          x.fillStyle = 'rgba(70,6,2,0.3)'; for (let i = 0; i < A * 14; i++) { x.beginPath(); x.arc(u0 + H(i, 50) * L, v0 + H(i, 51) * Wd, lw(0.02 + H(i, 52) * 0.02), 0, TAU); x.fill(); }
+          // white meat showing at the cut end
+          x.fillStyle = '#f4e8de'; blob(u0 + P * 0.12, v0 + Wd / 2, Wd * 0.36, 7, 9, 1.05); x.fill(); x.fillStyle = 'rgba(230,120,100,0.45)'; blob(u0 + P * 0.14, v0 + Wd * 0.42, Wd * 0.2, 8, 7, 0.8); x.fill();
+          // tail fan: three soft lobes, darker
+          for (let k = -1; k <= 1; k++) { x.fillStyle = k ? '#8e1a0c' : '#a22414'; x.save(); x.translate(u0 + L - P * 0.28, v0 + Wd / 2); x.rotate(k * 0.55); x.beginPath(); x.ellipse(P * 0.12, 0, P * 0.24, Wd * 0.2, 0, 0, TAU); x.fill(); x.restore(); }
+        });
+        form('rgba(255,190,160,0.2)', 'rgba(60,4,0,0.4)', 0.16); break; }
+      case 'oyster': { // crushed ice bed with three half-shell oysters of different size/turn (never a pair)
+        fill('#dfe6ea');
+        piece(() => {
+          x.fillStyle = lin(X0, Y0, X0 + BW, Y0 + BH, [[0, '#f2f7fa'], [1, '#b8c6d0']]); x.fillRect(X0 - P, Y0 - P, BW + 2 * P, BH + 2 * P);
+          for (let i = 0; i < A * 26; i++) { const u = X0 + H(i, 1) * BW, v = Y0 + H(i, 2) * BH, q = P * (0.04 + H(i, 3) * 0.05), a0 = H(i, 4) * 6; x.fillStyle = i % 3 ? 'rgba(255,255,255,0.7)' : 'rgba(150,176,196,0.45)'; x.beginPath(); x.moveTo(u + Math.cos(a0) * q, v + Math.sin(a0) * q); x.lineTo(u + Math.cos(a0 + 2.2) * q, v + Math.sin(a0 + 2.2) * q); x.lineTo(u + Math.cos(a0 + 4.1) * q * 0.7, v + Math.sin(a0 + 4.1) * q * 0.7); x.fill(); }
+          const n = Math.max(2, Math.round(A * 0.75));
+          for (let i = 0; i < n; i++) { const [a, c] = cells[(i * 3 + 1) % A], u = (a + 0.3 + H(i, 5) * 0.4) * P + (i === 2 ? P * 0.3 : 0), v = (c + 0.3 + H(i, 6) * 0.4) * P, s = P * (0.4 + H(i, 7) * 0.12), rot = H(i, 8) * TAU;
+            x.save(); x.translate(u, v); x.rotate(rot);
+            x.fillStyle = 'rgba(40,50,60,0.3)'; x.beginPath(); x.ellipse(lw(0.03), lw(0.05), s * 1.05, s * 0.78, 0, 0, TAU); x.fill();
+            x.fillStyle = '#8a8070'; blob(0, 0, s, i + 30, 11, 0.74); x.fill(); x.strokeStyle = 'rgba(210,200,184,0.6)'; x.lineWidth = lw(0.025); blob(0, 0, s * 0.92, i + 31, 11, 0.72); x.stroke();
+            x.fillStyle = '#e9e2d6'; x.beginPath(); x.ellipse(-s * 0.05, 0, s * 0.74, s * 0.52, 0, 0, TAU); x.fill();
+            x.fillStyle = lin(-s * 0.6, 0, s * 0.6, 0, [[0, '#d8ccb8'], [0.5, '#cfc2ac'], [1, '#a89c88']]); blob(-s * 0.05, 0, s * 0.56, i + 40, 9, 0.66); x.fill();
+            x.strokeStyle = 'rgba(96,86,74,0.55)'; x.lineWidth = lw(0.03); blob(-s * 0.05, 0, s * 0.5, i + 41, 13, 0.62); x.stroke();
+            x.fillStyle = 'rgba(255,255,255,0.45)'; x.beginPath(); x.ellipse(-s * 0.25, -s * 0.16, s * 0.22, s * 0.07, -0.3, 0, TAU); x.fill();
+            x.restore(); }
+        });
+        form('rgba(255,255,255,0.3)', 'rgba(60,80,100,0.35)', 0.16); break; }
+      case 'scallop': { // big overlapping ribbed shells, each cradling one seared scallop (no small dots)
+        fill('#e89a86');
+        piece(() => {
+          x.fillStyle = '#b8604e'; x.fillRect(X0 - P, Y0 - P, BW + 2 * P, BH + 2 * P);
+          const pos = cells.filter((_, i) => i % 2 === 0 || A < 3).map(([a, c], i) => [(a + 0.5 + (H(i, 9) - 0.5) * 0.3) * P, (c + 0.7) * P]); if (A >= 4) { const [a, c] = cells[A - 1]; pos.push([(a + 0.5) * P, (c + 0.75) * P]); }
+          pos.forEach(([u, v], i) => { const s = P * (0.95 + H(i, 10) * 0.12), rot = (H(i, 11) - 0.5) * 0.8;
+            x.save(); x.translate(u, v); x.rotate(rot);
+            x.fillStyle = 'rgba(60,16,8,0.35)'; x.beginPath(); x.moveTo(0, s * 0.42); x.arc(0, s * 0.42, s * 1.02, -Math.PI * 0.9, -Math.PI * 0.1); x.closePath(); x.fill();
+            x.fillStyle = lin(0, -s * 0.6, 0, s * 0.4, [[0, '#f8c4ae'], [1, '#d07a64']]); x.beginPath(); x.moveTo(0, s * 0.36); x.arc(0, s * 0.36, s, -Math.PI * 0.9, -Math.PI * 0.1); x.closePath(); x.fill();
+            for (let k = 1; k < 9; k++) { const an = -Math.PI * 0.9 + k / 9 * Math.PI * 0.8; x.strokeStyle = 'rgba(170,74,56,0.28)'; x.lineWidth = lw(0.05); x.beginPath(); x.moveTo(Math.cos(an) * s * 0.25, s * 0.36 + Math.sin(an) * s * 0.25); x.lineTo(Math.cos(an) * s * 0.98, s * 0.36 + Math.sin(an) * s * 0.98); x.stroke(); }
+            x.fillStyle = 'rgba(80,30,20,0.3)'; x.beginPath(); x.ellipse(lw(0.02), -s * 0.12 + lw(0.04), s * 0.36, s * 0.27, 0, 0, TAU); x.fill();
+            x.fillStyle = '#f2e6d0'; x.beginPath(); x.ellipse(0, -s * 0.12, s * 0.36, s * 0.27, 0, 0, TAU); x.fill();
+            x.fillStyle = radial(x, 0, -s * 0.16, s * 0.34, [[0, '#9a5420'], [0.6, '#c0803c'], [1, 'rgba(230,190,130,0.2)']]); x.beginPath(); x.ellipse(0, -s * 0.15, s * 0.32, s * 0.22, 0, 0, TAU); x.fill();
+            x.restore(); });
+        });
+        form('rgba(255,230,210,0.22)', 'rgba(90,30,20,0.4)', 0.16); break; }
+      case 'mussel': { // a heap of blue-black shells, random turns, lit nacre edges; a few gape to show orange meat between the halves
+        fill('#262c44');
+        piece(() => {
+          x.fillStyle = '#161a2a'; x.fillRect(X0 - P, Y0 - P, BW + 2 * P, BH + 2 * P);
+          const n = A * 7; for (let i = 0; i < n; i++) { const u = X0 - P * 0.1 + H(i, 12) * (BW + P * 0.2), v = Y0 - P * 0.1 + H(i, 13) * (BH + P * 0.2), s = P * (0.36 + H(i, 14) * 0.1), rot = H(i, 15) * TAU, open = H(i, 16) < 0.2;
+            x.save(); x.translate(u, v); x.rotate(rot);
+            const shell = () => { x.beginPath(); x.moveTo(-s, 0); x.quadraticCurveTo(-s * 0.2, -s * 0.6, s * 0.9, -s * 0.14); x.quadraticCurveTo(s * 1.02, s * 0.1, s * 0.7, s * 0.24); x.quadraticCurveTo(-s * 0.2, s * 0.34, -s, 0); x.closePath(); };
+            if (open) { x.fillStyle = '#e8803a'; x.beginPath(); x.moveTo(-s * 0.9, 0); x.quadraticCurveTo(0, -s * 0.5, s * 0.85, -s * 0.05); x.quadraticCurveTo(0, s * 0.2, -s * 0.9, 0); x.fill(); x.fillStyle = 'rgba(255,190,120,0.5)'; x.beginPath(); x.ellipse(0, -s * 0.12, s * 0.4, s * 0.06, -0.15, 0, TAU); x.fill(); x.translate(0, s * 0.18); x.scale(1, 0.7); }
+            x.fillStyle = lin(0, -s * 0.5, 0, s * 0.3, [[0, '#56648e'], [0.55, '#2c3352'], [1, '#141828']]); shell(); x.fill();
+            x.strokeStyle = 'rgba(170,196,240,0.7)'; x.lineWidth = lw(0.04); x.beginPath(); x.moveTo(-s * 0.85, -s * 0.06); x.quadraticCurveTo(-s * 0.15, -s * 0.48, s * 0.82, -s * 0.12); x.stroke();
+            x.strokeStyle = 'rgba(120,140,190,0.22)'; x.lineWidth = lw(0.02); x.beginPath(); x.moveTo(-s * 0.6, s * 0.02); x.quadraticCurveTo(0, -s * 0.22, s * 0.6, -s * 0.02); x.stroke();
+            x.restore(); }
+        });
+        form('rgba(170,190,240,0.22)', 'rgba(4,6,14,0.5)', 0.18); break; }
+      case 'prawn': { // a heap of plump grilled prawns, thick curled bodies with segment bands and a darker tail fan
+        fill('#f0a48a');
+        piece(() => {
+          x.fillStyle = '#b85a44'; x.fillRect(X0 - P, Y0 - P, BW + 2 * P, BH + 2 * P);
+          const n = Math.round(A * 2.6); for (let i = 0; i < n; i++) { const [a, c] = cells[i % A], u = (a + 0.15 + H(i, 30) * 0.7) * P, v = (c + 0.15 + H(i, 31) * 0.7) * P, s = P * (0.4 + H(i, 32) * 0.08), rot = H(i, 33) * TAU;
+            x.save(); x.translate(u, v); x.rotate(rot); const th = s * 0.42;
+            x.strokeStyle = 'rgba(70,20,10,0.35)'; x.lineWidth = th + lw(0.03); x.lineCap = 'round'; x.beginPath(); x.arc(lw(0.02), lw(0.03), s * 0.6, -0.2, Math.PI * 1.15); x.stroke();
+            x.strokeStyle = '#f2a284'; x.lineWidth = th; x.beginPath(); x.arc(0, 0, s * 0.6, -0.2, Math.PI * 1.15); x.stroke();
+            x.strokeStyle = 'rgba(255,214,196,0.6)'; x.lineWidth = th * 0.3; x.beginPath(); x.arc(0, 0, s * 0.6 + th * 0.22, 0.1, Math.PI * 1.0); x.stroke();
+            x.strokeStyle = 'rgba(176,70,46,0.55)'; x.lineWidth = lw(0.025); for (let k = 0; k < 5; k++) { const an = k / 5 * Math.PI * 1.1, ci = Math.cos(an), si = Math.sin(an); x.beginPath(); x.moveTo(ci * (s * 0.6 - th / 2), si * (s * 0.6 - th / 2)); x.lineTo(ci * (s * 0.6 + th / 2), si * (s * 0.6 + th / 2)); x.stroke(); }
+            x.fillStyle = '#b8381e'; x.save(); x.rotate(-0.2); x.translate(s * 0.6, 0); x.beginPath(); x.moveTo(0, 0); x.lineTo(th * 0.5, -th * 0.9); x.lineTo(-th * 0.5, -th * 0.9); x.closePath(); x.fill(); x.restore();
+            x.restore(); }
+          x.fillStyle = 'rgba(50,16,8,0.22)'; for (let k = 0; k < 2; k++) { x.save(); x.translate(X0 + BW / 2, Y0 + BH * (0.33 + k * 0.34)); x.rotate(-0.5); x.fillRect(-BW, -lw(0.05), BW * 2, lw(0.1)); x.restore(); }
+        });
+        form('rgba(255,220,200,0.2)', 'rgba(110,40,20,0.35)', 0.16); break; }
+      case 'crab': { // cluster of cooked crab legs: knobbly orange-red tubes with cream undersides, cracked ends showing white meat
+        fill('#e2742e');
+        axis((u0, v0, L, Wd) => {
+          x.fillStyle = '#8a2e10'; x.fillRect(u0 - P, v0 - P, L + 2 * P, Wd + 2 * P);
+          const rows = Math.max(2, Math.round(Wd / P * 2.2)), rh = Wd / rows;
+          for (let j = 0; j < rows; j++) { let uu = u0 - P * 0.3 + H(j, 40) * P * 0.5; while (uu < u0 + L + P * 0.2) { const len = P * (1.0 + H(j * 9 + uu, 41) * 0.8), vv = v0 + (j + 0.5) * rh + (H(j, 42) - 0.5) * rh * 0.25, th = rh * 0.92, tilt = (H(j * 7 + uu, 43) - 0.5) * 0.12;
+              x.save(); x.translate(uu, vv); x.rotate(tilt);
+              x.fillStyle = lin(0, -th / 2, 0, th / 2, [[0, '#f4945a'], [0.45, '#e0602a'], [0.8, '#c04a1c'], [1, '#f2dcc0']]); roundRect(x, 0, -th / 2, len, th, th * 0.45); x.fill();
+              x.fillStyle = 'rgba(255,200,150,0.45)'; for (let k = 0; k < len / P * 5; k++) { x.beginPath(); x.arc(P * 0.1 + k * P * 0.2 + H(k, j + 44) * P * 0.08, -th * 0.2 + H(k, j + 45) * th * 0.15, lw(0.025), 0, TAU); x.fill(); }
+              x.fillStyle = 'rgba(120,30,8,0.45)'; for (let k = 1; k < len / P * 1.4; k++) { const jx = k * P * 0.7 + H(k, j + 46) * P * 0.1; if (jx > len - th * 0.6) break; x.fillRect(jx, -th / 2, lw(0.05), th); }
+              x.fillStyle = '#f6eee2'; x.beginPath(); x.ellipse(len - th * 0.2, 0, th * 0.22, th * 0.4, 0, 0, TAU); x.fill(); x.fillStyle = 'rgba(230,130,100,0.45)'; x.beginPath(); x.ellipse(len - th * 0.2, -th * 0.08, th * 0.12, th * 0.18, 0, 0, TAU); x.fill();
+              x.restore(); uu += len + P * 0.04; } }
+        });
+        form('rgba(255,210,160,0.22)', 'rgba(70,20,4,0.42)', 0.16); break; }
+      case 'grillfish': { // one whole grilled branzino along the piece's longest arm: olive-grey scaled back, pale belly, golden char patches, grill bars, two score cuts
+        fill('#9a9a84');
+        const cnt = {}; for (const [a, c] of cells) { const k = wide ? c : a; cnt[k] = (cnt[k] || 0) + 1; } const arm = +Object.keys(cnt).sort((p1, p2) => cnt[p2] - cnt[p1] || p1 - p2)[0];
+        axis((u0, v0, L, Wd) => {
+          const va = wide ? arm * P : (bx1 - 1 - arm) * P, vb = va + P; // band of the arm in axis coords
+          x.fillStyle = lin(0, va, 0, vb, [[0, '#5a5e4c'], [0.42, '#8e907a'], [0.6, '#d6d0be'], [1, '#e8e2d2']]); x.fillRect(u0 - P, v0 - P, L + 2 * P, Wd + 2 * P);
+          x.fillStyle = '#5a5e4c'; x.fillRect(u0 - P, v0 - P, L + 2 * P, va - v0 + P); x.fillStyle = '#e8e2d2'; x.fillRect(u0 - P, vb, L + 2 * P, v0 + Wd + P - vb);
+          x.strokeStyle = 'rgba(230,226,206,0.28)'; x.lineWidth = lw(0.02); for (let i = 0; i < L / P * 7; i++) for (let j = 0; j < 5; j++) { const uu = u0 + i * P * 0.15 + (j % 2) * P * 0.075, vv = va - P * 0.3 + j * P * 0.14; x.beginPath(); x.arc(uu, vv, P * 0.07, 0.3, Math.PI - 0.3); x.stroke(); }
+          x.fillStyle = 'rgba(28,18,8,0.4)'; for (let i = 0; i < Math.round(L / P * 0.8) + 1; i++) { x.save(); x.translate(u0 + (i + 0.4) * P * 1.2, va + P * 0.5); x.rotate(0.7); x.fillRect(-lw(0.06), -P * 1.5, lw(0.12), P * 3); x.restore(); }
+          x.fillStyle = 'rgba(255,255,255,0.3)'; x.fillRect(u0 - P, va + P * 0.5, L + 2 * P, lw(0.035));
+          for (let i = 0; i < A; i++) { const cu = u0 + H(i, 61) * L, cv = va + P * (0.4 + H(i, 62) * 0.5); x.fillStyle = 'rgba(190,124,40,0.38)'; blob(cu, cv, P * (0.24 + H(i, 63) * 0.12), i + 200, 9, 0.45); x.fill(); }
+          for (let i = 0; i < 2; i++) { const uu = u0 + L * (0.33 + i * 0.34); x.fillStyle = '#f2ead8'; x.beginPath(); x.moveTo(uu - P * 0.08, va + P * 0.2); x.quadraticCurveTo(uu + P * 0.06, va + P * 0.45, uu - P * 0.03, va + P * 0.72); x.quadraticCurveTo(uu + P * 0.12, va + P * 0.45, uu - P * 0.08, va + P * 0.2); x.fill(); }
+        });
+        form('rgba(220,235,250,0.2)', 'rgba(20,24,30,0.42)', 0.16); break; }
     }
-  },
-  live(c, food, o) {
-    const { s, mask, seed, T, small, hash } = o;
-    if (small) return;
-    if (food === 'oyster' || food === 'seaweed' || food === 'salmon') { const u = (T * 0.35 + hash(seed, 1)) % 1; if (u < 0.3) { c.globalAlpha = (o.alpha ?? 1) * Math.sin(u / 0.3 * Math.PI) * 0.8; c.fillStyle = '#ffffff'; const x = (hash(seed, 2) - 0.5) * s * 0.6, y = (hash(seed, 3) - 0.5) * s * 0.6; c.beginPath(); c.moveTo(x, y - s * 0.08); c.lineTo(x + s * 0.02, y); c.lineTo(x, y + s * 0.08); c.lineTo(x - s * 0.02, y); c.fill(); c.beginPath(); c.moveTo(x - s * 0.08, y); c.lineTo(x, y + s * 0.02); c.lineTo(x + s * 0.08, y); c.lineTo(x, y - s * 0.02); c.fill(); c.globalAlpha = o.alpha ?? 1; } }
-    if (food === 'scallop' && !(mask & FM_N)) { c.strokeStyle = 'rgba(255,255,255,0.4)'; c.lineWidth = Math.max(1, s * 0.04); const u = (T * 0.5 + seed * 0.1) % 1; c.globalAlpha = (o.alpha ?? 1) * Math.sin(u * Math.PI) * 0.7; c.beginPath(); c.moveTo(0, -s * 0.5 - u * s * 0.3); c.quadraticCurveTo(s * 0.08, -s * 0.6 - u * s * 0.3, 0, -s * 0.7 - u * s * 0.3); c.stroke(); c.globalAlpha = o.alpha ?? 1; }
+    void small;
   },
   clear(food, q) {
     const { v, X, Y, s, r, vr, push, dir } = q, col = SeafoodFood.MAIN[v];
-    push({ k: food === 'scallop' || food === 'mussel' ? 'roll' : 'slide', v, x: X, y: Y, vx: dir * s * (1.5 + r(2)), vy: -s * 0.9, rot: 0, vr: dir * (1.5 + r(3) * 2), life: 0.85, vrr: vr });
-    for (let i = 0; i < 3; i++) push({ k: 'dot', col: food === 'oyster' ? '#ffffff' : i % 2 ? col : '#d8eef6', r: 0.05 + r(i) * 0.04, x: X, y: Y, vx: (r(i + 5) - 0.5) * s * 4, vy: -s * (1.5 + r(i + 7) * 2), life: 0.6 });
-    push({ k: 'bubble', x: X, y: Y, vx: 0, vy: -s * 2, g: -1, life: 0.7, r: 0.07 });
+    push({ k: food === 'scallop' || food === 'mussel' || food === 'oyster' ? 'roll' : 'slide', v, x: X, y: Y, vx: dir * s * (1.5 + r(2)), vy: -s * 0.9, rot: 0, vr: dir * (1.5 + r(3)), life: 0.85, vrr: vr });
+    for (let i = 0; i < 3; i++) push({ k: 'dot', col: food === 'oyster' ? '#ffffff' : i % 2 ? col : '#d8eef6', r: 0.05 + r(i) * 0.04, x: X, y: Y, vx: (r(i + 5) - 0.5) * s * 3, vy: -s * (1.5 + r(i) * 2), life: 0.6 });
     return true;
   },
 });
 SKINSETS.seafood = SeafoodFood.skin();
-(() => { const st = STAGES.find((s) => s.id === 'fishhouse'); if (st) { st.palette = SeafoodFood.MAIN.slice(1); st.boardBg = 'rgba(22,24,28,0.9)'; st.desc = 'Flat geometric harbour dining room: an oyster bar on crushed ice, a waiter lifting cloches and pouring wine, candles lit at dusk and a lighthouse sweeping the night — string quartet & piano.'; } })();
+(() => { const st = STAGES.find((s) => s.id === 'fishhouse'); if (st) { st.palette = SeafoodFood.MAIN.slice(1); st.boardBg = 'rgba(20,30,38,0.9)'; st.desc = 'Flat geometric harbour dining room: an oyster bar on crushed ice, a waiter lifting cloches and pouring wine, candles lit at dusk and a lighthouse sweeping the night — string quartet & piano.'; } })();

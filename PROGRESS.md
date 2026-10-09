@@ -347,3 +347,9 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Board: dark espresso (rgba(58,40,36,0.9)) so stracciatella/limone no longer vanish on pale pink.
 - Scene (backup wip/46_pre_remap.js): case 72–450 → 14–250 (7 tins at 32px pitch, scaled tins); coin tray/taster spoons moved in; Giulia clamps 40–220; window/ledge moved to 1040–1168 with seats 1076/1140; overflow party members stand right of the lead (1086–1196) instead of 930 (gutter).
 - cmp: /workspace/shots/cmp-gelato.png (v7); screenshot-geo-gelato-afternoon.png.
+- Published 11800fb; ready.txt line added. NEXT: Fish House (own seafood set).
+
+## Step 8 — Fish House (round 2)
+- Blocks v2 = the house's OWN seafood set (src/49_food_seafood.js, backup wip/49_pre_v2.js): I lobster tail (curved shell plates across cells, white meat end, tail fan), O oysters on crushed ice (3 half shells, never a pair), T scallops in ribbed shells with seared scallop, S mussel heap (nacre edges, a few gaping with orange meat), Z heap of curled grilled prawns, J crab legs (knobbly tubes, joints, white cracked ends), L whole grilled branzino along the longest arm (scaled olive back, pale belly, golden char, grill bars, score cuts). Salmon/seaweed/octopus gone (sushi leak); mackerel rejected (echo of sushi saba). shape/diag, matte, no glisten.
+- Scene (backup wip/48_pre_r2.js): harbour window 300–990 → 452–824 so the sea sits only behind the board (no sea blur through the left HUD); oyster bar 24–452 → 24–262 with lobster/crab/lemons compacted onto the ice; menu dishes now Oysters / Seared scallops / Lobster thermidor / Grilled branzino / Garlic prawns / Crab claws / Moules. Gutter check: no offenders at any viewport.
+- cmp: /workspace/shots/cmp-fishhouse.png (v6); screenshot-geo-fishhouse-dinner.png.
