@@ -5,7 +5,7 @@
    cracked open) · L mint pastilles (chalky embossed discs on mint) */
 const CinemaFood = remakeFood('cinema', {
   FOOD: [null, 'hotdog', 'popcorn', 'nachos', 'slushie', 'pretzel', 'malt', 'mint'],
-  MAIN: [null, '#c8743a', '#f2e4bc', '#e8a83a', '#2a6ad0', '#7a3c18', '#3a2214', '#9cd8bc'],
+  MAIN: [null, '#c8743a', '#f2e4bc', '#e8a83a', '#2a58a8', '#7a3c18', '#3a2214', '#9cd8bc'],
   soft: { hotdog: 1.0, popcorn: 1.5, nachos: 0.9, slushie: 1.2, pretzel: 1.0, malt: 1.3, mint: 1.4 },
   boardBg: 'rgba(30,12,18,0.92)', grid: 'rgba(255,210,140,0.06)',
   paint(x, food, Q) {
@@ -40,18 +40,21 @@ const CinemaFood = remakeFood('cinema', {
           x.fillStyle = M.lin(u - R, v - R, u + R, v + R, [[0, '#f8dc98'], [0.6, '#eabc62'], [1, '#c8902e']]); tri(0, 0); x.fill();
           x.strokeStyle = 'rgba(170,100,20,0.7)'; x.lineWidth = lw(0.025); x.lineJoin = 'round'; tri(0, 0); x.stroke();
           if (!small) { x.fillStyle = 'rgba(170,110,40,0.5)'; for (let k = 0; k < 5; k++) x.fillRect(u + (H(i * 5 + k, 23) - 0.5) * R * 0.7, v + (H(i * 5 + k, 24) - 0.5) * R * 0.7, lw(0.022), lw(0.022)); } }
-        // molten cheese: an irregular drizzle of pools following the piece, with drips
-        along((ax, ay, bx, by) => { for (let k = 0; k <= 4; k++) { const f = k / 4, px = ax + (bx - ax) * f + (H(ax + k, 25) - 0.5) * P * 0.12, py = ay + (by - ay) * f + (H(ay + k, 26) - 0.5) * P * 0.12, rr = P * (0.15 + H(ax * 3 + ay + k, 27) * 0.08), sd = Math.floor(ax + ay * 7 + k * 13);
-          x.fillStyle = 'rgba(140,60,0,0.45)'; M.blob(px + P * 0.02, py + P * 0.035, rr, sd, 8, 0.5); x.fill(); x.fillStyle = '#f2a414'; M.blob(px, py, rr, sd, 8, 0.5); x.fill(); } });
-        along((ax, ay, bx, by) => { for (let k = 0; k <= 4; k++) { const f = k / 4, px = ax + (bx - ax) * f, py = ay + (by - ay) * f; x.fillStyle = 'rgba(255,225,150,0.55)'; ellipse(x, px - P * 0.05, py - P * 0.06, P * 0.06, P * 0.025, -0.5); x.fill(); } });
-        for (const [u, v, i] of M.pts(A, 31, 0.2)) { if (H(i, 32) < 0.7) continue; const r0 = P * 0.1; x.fillStyle = '#3e6a1e'; x.beginPath(); x.arc(u, v, r0, 0, TAU); x.fill(); x.fillStyle = '#9ac458'; x.beginPath(); x.arc(u, v, r0 * 0.72, 0, TAU); x.fill(); x.fillStyle = '#e8eec0'; for (let k = 0; k < 4; k++) { const a = k / 4 * TAU + H(i, 33); x.beginPath(); x.arc(u + Math.cos(a) * r0 * 0.36, v + Math.sin(a) * r0 * 0.36, r0 * 0.12, 0, TAU); x.fill(); } } });
+        // molten cheese: one flat glossy pool along the core — overlapping blobs in ONE colour merge into a single irregular sauce shape
+        const pool = []; along((ax, ay, bx, by) => { for (let k = 0; k <= 6; k++) { const f = k / 6, sd = Math.floor(ax * 3 + ay * 7 + k * 13); pool.push([ax + (bx - ax) * f + (H(sd, 25) - 0.5) * P * 0.16, ay + (by - ay) * f + (H(sd, 26) - 0.5) * P * 0.16, P * (0.22 + H(sd, 27) * 0.1), sd]); } });
+        x.fillStyle = 'rgba(100,44,0,0.4)'; for (const [px, py, rr, sd] of pool) { M.blob(px + P * 0.02, py + P * 0.04, rr, sd, 9, 0.45); x.fill(); }
+        x.fillStyle = '#cf861c'; for (const [px, py, rr, sd] of pool) { M.blob(px, py, rr, sd, 9, 0.45); x.fill(); }
+        x.fillStyle = '#e09e2c'; for (const [px, py, rr, sd] of pool) { M.blob(px - P * 0.015, py - P * 0.02, rr * 0.8, sd + 1, 9, 0.45); x.fill(); }
+        if (!small) for (const [px, py, rr, sd] of pool) { if (H(sd, 30) < 0.5) continue; x.fillStyle = 'rgba(255,238,195,0.5)'; ellipse(x, px - rr * 0.35, py - rr * 0.4, rr * 0.28, rr * 0.1, -0.4); x.fill(); }
+        // jalapeño rings: sliced, with a dark skin edge, pale flesh ring, seed core — a few, set into the sauce
+        for (const [u, v, i] of M.pts(A, 31, 0.24)) { if (H(i, 32) < 0.4) continue; const r0 = P * 0.16, cx = u, cy = v; x.fillStyle = 'rgba(40,40,0,0.35)'; x.beginPath(); x.arc(cx + P * 0.015, cy + P * 0.025, r0, 0, TAU); x.fill(); x.fillStyle = '#2e5a18'; x.beginPath(); x.arc(cx, cy, r0, 0, TAU); x.fill(); x.fillStyle = '#7ea444'; x.beginPath(); x.arc(cx, cy, r0 * 0.8, 0, TAU); x.fill(); x.fillStyle = '#c6d488'; x.beginPath(); x.arc(cx, cy, r0 * 0.42, 0, TAU); x.fill(); x.fillStyle = '#eef0c8'; for (let k = 0; k < 5; k++) { const a = k / 5 * TAU + H(i, 33); ellipse(x, cx + Math.cos(a) * r0 * 0.22, cy + Math.sin(a) * r0 * 0.22, r0 * 0.09, r0 * 0.06, a); x.fill(); } x.strokeStyle = 'rgba(230,245,200,0.5)'; x.lineWidth = lw(0.015); x.beginPath(); x.arc(cx, cy, r0 * 0.9, 3.6, 5.2); x.stroke(); } });
         M.form('rgba(255,235,180,0.2)', 'rgba(100,50,0,0.4)'); break; }
-      case 'slushie': { M.fill('#1c5cc4'); M.piece(() => {
-        x.fillStyle = M.lin(X0, Y0, X0, Y0 + BH, [[0, 'rgba(120,190,255,0.45)'], [1, 'rgba(10,30,110,0.45)']]); M.all(x.fillStyle);
-        for (const [u, v, i] of M.pts(A * (small ? 10 : 22), 35, 0.02)) { const R = P * (0.06 + H(i, 37) * 0.07), a0 = H(i, 38) * TAU, n = 5; x.fillStyle = ['#4a96f0', '#2a72dc', '#1448a8', '#6ab0f8'][Math.floor(H(i, 39) * 4)]; x.beginPath(); for (let k = 0; k < n; k++) { const a = a0 + k / n * TAU, q = R * (0.7 + H(i, 40 + k) * 0.5); k ? x.lineTo(u + Math.cos(a) * q, v + Math.sin(a) * q) : x.moveTo(u + Math.cos(a) * q, v + Math.sin(a) * q); } x.closePath(); x.fill();
-          x.fillStyle = 'rgba(230,245,255,0.55)'; x.beginPath(); x.moveTo(u + Math.cos(a0) * R * 0.8, v + Math.sin(a0) * R * 0.8); x.lineTo(u, v); x.lineTo(u + Math.cos(a0 + 1.26) * R * 0.8, v + Math.sin(a0 + 1.26) * R * 0.8); x.closePath(); x.fill(); }
-        if (!small) { x.fillStyle = '#ffffff'; for (const [u, v] of M.pts(A * 6, 47, 0.06)) x.fillRect(u, v, lw(0.03), lw(0.03)); } });
-        M.form('rgba(200,230,255,0.28)', 'rgba(0,10,60,0.45)'); break; }
+      case 'slushie': { M.fill('#2a58a8'); M.piece(() => { // blue-raspberry slush: fine translucent crushed ice, syrup pooling darker at the bottom
+        x.fillStyle = M.lin(X0, Y0, X0, Y0 + BH, [[0, 'rgba(150,200,250,0.4)'], [0.6, 'rgba(50,100,190,0)'], [1, 'rgba(14,30,90,0.5)']]); M.all(x.fillStyle);
+        for (const [u, v, i] of M.pts(A * (small ? 14 : 70), 35, 0.01)) { const R = P * (0.025 + H(i, 37) * 0.035), a0 = H(i, 38) * TAU; x.fillStyle = H(i, 39) < 0.5 ? 'rgba(170,210,250,0.4)' : 'rgba(20,50,130,0.35)'; x.beginPath(); for (let k = 0; k < 5; k++) { const a = a0 + k / 5 * TAU, q = R * (0.7 + H(i, 40 + k) * 0.5); k ? x.lineTo(u + Math.cos(a) * q, v + Math.sin(a) * q) : x.moveTo(u + Math.cos(a) * q, v + Math.sin(a) * q); } x.closePath(); x.fill(); }
+        if (!small) { for (const [u, v, i] of M.pts(A * 10, 45, 0.04)) { const R = P * (0.03 + H(i, 46) * 0.03); x.fillStyle = 'rgba(235,248,255,0.7)'; x.beginPath(); x.moveTo(u - R, v); x.lineTo(u, v - R * 0.6); x.lineTo(u + R * 0.5, v + R * 0.2); x.closePath(); x.fill(); } }
+        x.strokeStyle = 'rgba(220,240,255,0.25)'; x.lineWidth = lw(0.02); for (const [u, v, i] of M.pts(A, 48, 0.2)) { x.beginPath(); x.arc(u, v, P * (0.16 + H(i, 49) * 0.1), 3.4, 4.8); x.stroke(); } });
+        M.form('rgba(200,230,255,0.26)', 'rgba(0,10,60,0.42)'); break; }
       case 'pretzel': { M.fill('#4a200c'); M.piece(() => {
         strokeSkel('rgba(30,10,0,0.6)', P * 0.72, 0, P * 0.05); strokeSkel('#7e3e16', P * 0.66); strokeSkel('#9a5222', P * 0.4, 0, -P * 0.05); strokeSkel('rgba(255,200,150,0.35)', P * 0.08, 0, -P * 0.18);
         x.strokeStyle = 'rgba(40,14,0,0.55)'; x.lineWidth = lw(0.04); along((ax, ay, bx, by) => { const hz = ay === by; for (let k = 0; k < 4; k++) { const f = (k + 0.5) / 4, px = ax + (bx - ax) * f, py = ay + (by - ay) * f; x.beginPath(); if (hz) { x.moveTo(px - P * 0.12, py - P * 0.3); x.quadraticCurveTo(px + P * 0.06, py, px - P * 0.08, py + P * 0.3); } else { x.moveTo(px - P * 0.3, py - P * 0.12); x.quadraticCurveTo(px, py + P * 0.06, px + P * 0.3, py - P * 0.08); } x.stroke(); } });

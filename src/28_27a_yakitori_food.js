@@ -22,13 +22,14 @@ const YakitoriFood = remakeFood('yakitori', {
           else { const rr = P * (0.36 + H(i, 5) * 0.05); x.fillStyle = 'rgba(20,8,0,0.5)'; M.blob(u + P * 0.03, v + P * 0.05, rr, i, 8, 0.4); x.fill(); x.fillStyle = M.rad(u - rr * 0.35, v - rr * 0.4, rr * 1.6, [[0, '#e8b064'], [0.5, '#b8742e'], [1, '#7a4216']]); M.blob(u, v, rr, i, 8, 0.4); x.fill(); char(u, v, rr, i); x.fillStyle = 'rgba(255,225,170,0.45)'; ellipse(x, u - rr * 0.35, v - rr * 0.4, rr * 0.3, rr * 0.12, -0.5); x.fill(); } } });
         M.form('rgba(255,220,160,0.2)', 'rgba(40,16,0,0.45)'); break; }
       case 'uzura': { M.fill('#d4ae74'); M.piece(() => { stick();
-        for (const [u, v, hz, i] of beads(0.5)) { const rx = P * (hz ? 0.28 : 0.25), ry = P * (hz ? 0.25 : 0.28); x.fillStyle = 'rgba(60,30,0,0.4)'; ellipse(x, u + P * 0.03, v + P * 0.04, rx, ry); x.fill();
+        const eggs = beads(0.5); for (const [a2, c2] of M.cells) if (M.has(a2 + 1, c2) && M.has(a2, c2 + 1) && M.has(a2 + 1, c2 + 1)) eggs.push([(a2 + 1) * P, (c2 + 1) * P, true, eggs.length]); // fill the hollow centre of 2×2 blocks
+        for (const [u, v, hz, i] of eggs) { const rx = P * (hz ? 0.3 : 0.27), ry = P * (hz ? 0.27 : 0.3); x.fillStyle = 'rgba(60,30,0,0.4)'; ellipse(x, u + P * 0.03, v + P * 0.04, rx, ry); x.fill();
           x.fillStyle = M.rad(u - rx * 0.35, v - ry * 0.4, Math.max(rx, ry) * 1.6, [[0, '#ffffff'], [0.45, '#f8f0dc'], [1, '#dcc08a']]); ellipse(x, u, v, rx, ry); x.fill();
-          x.fillStyle = 'rgba(170,100,40,0.3)'; ellipse(x, u + rx * 0.2, v + ry * 0.35, rx * 0.7, ry * 0.4); x.fill(); x.fillStyle = 'rgba(255,255,255,0.85)'; ellipse(x, u - rx * 0.38, v - ry * 0.42, rx * 0.22, ry * 0.12, -0.6); x.fill(); }
+          x.fillStyle = 'rgba(176,104,36,0.34)'; ellipse(x, u + rx * 0.2, v + ry * 0.35, rx * 0.72, ry * 0.42); x.fill(); x.fillStyle = 'rgba(150,80,20,0.18)'; ellipse(x, u, v, rx, ry); x.fill(); /* thin tare glaze */ x.fillStyle = 'rgba(255,255,255,0.85)'; ellipse(x, u - rx * 0.38, v - ry * 0.42, rx * 0.22, ry * 0.12, -0.6); x.fill(); }
         if (!small) for (const [u, v, i] of M.pts(A * 3, 9, 0.08)) { x.fillStyle = H(i, 10) < 0.5 ? 'rgba(40,20,0,0.5)' : 'rgba(230,200,140,0.5)'; x.fillRect(u, v, lw(0.025), lw(0.025)); } });
         M.form('rgba(255,245,220,0.22)', 'rgba(80,40,0,0.38)'); break; }
       case 'tebasaki': { M.fill('#52260c'); M.piece(() => { stick();
-        for (const [u, v, i] of M.pts(A * 3, 13, 0.14)) { const rr = P * (0.3 + H(i, 15) * 0.06), a0 = H(i, 16) * TAU, dx = Math.cos(a0) * rr * 0.45, dy = Math.sin(a0) * rr * 0.45;
+        for (const [u, v, i] of M.pts(A * 4, 13, 0.12)) { const rr = P * (0.31 + H(i, 15) * 0.06), a0 = H(i, 16) * TAU, dx = Math.cos(a0) * rr * 0.45, dy = Math.sin(a0) * rr * 0.45;
           x.fillStyle = 'rgba(20,6,0,0.5)'; ellipse(x, u + P * 0.03, v + P * 0.05, rr * 1.1, rr * 0.72, a0); x.fill();
           x.fillStyle = M.rad(u - rr * 0.4, v - rr * 0.45, rr * 1.7, [[0, '#f0b058'], [0.5, '#c07a2c'], [1, '#7a3c12']]); ellipse(x, u - dx * 0.4, v - dy * 0.4, rr * 0.8, rr * 0.62, a0); x.fill(); ellipse(x, u + dx, v + dy, rr * 0.55, rr * 0.5, a0); x.fill();
           if (!small) { x.fillStyle = 'rgba(255,215,150,0.5)'; for (let k = 0; k < 6; k++) { x.beginPath(); x.arc(u + (H(i * 6 + k, 17) - 0.5) * rr * 1.2, v + (H(i * 6 + k, 18) - 0.5) * rr * 0.8, P * 0.022, 0, TAU); x.fill(); } x.fillStyle = 'rgba(40,14,0,0.6)'; ellipse(x, u + dx * 1.6, v + dy * 1.6, rr * 0.18, rr * 0.12, a0); x.fill(); }
