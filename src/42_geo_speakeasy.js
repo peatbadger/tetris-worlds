@@ -347,7 +347,7 @@ function makeGeoSpeakeasyStage() {
     return false;
   }
   function onGone(Kk, a) { if (a.spot) a.spot.occ = null; glasses = glasses.filter((g) => g.owner !== a || g.level > 0.02 ? g.owner !== a : true); }
-  return GeoKit.stage({ id: 'speakeasy', pal: SpeakPal, startHour: 19, span: 10, build, sim, draw, onClear, onGone, icon, font: 'italic 700 15px Georgia, "Times New Roman", serif', vign: 'rgba(8,4,10,0.45)',
+  return GeoKit.stage({ id: 'speakeasy', pal: SpeakPal, startHour: 19, span: 10, build, sim, draw, onClear, onGone, icon, font: 'italic 700 15px Georgia, "Times New Roman", serif', vign: 'rgba(8,4,10,0.45)', zone: 'rgba(16,10,8,0.58)',
     debug: () => ({ glasses: glasses.map((g) => g.kind + ':' + g.level.toFixed(2)).join(' '), spot: spot.active, raid: raid.on, band: bandOn(), pats: patrons().map((a) => a.type + ':' + a.phase).join(' ') }) });
 }
 registerStage('speakeasy', makeGeoSpeakeasyStage);

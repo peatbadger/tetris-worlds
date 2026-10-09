@@ -170,3 +170,10 @@ Shared engine (new):
 - a) ZoneMask: shared board-zone layer for every world (geo + originals): blur (2-step downscale) + tint inside the HOLD/board/NEXT rects, so no readable text or figures ghost through. Verified in sushi, speakeasy, ocean, mikes.
 - b) Web Audio: every OscillatorNode/BiquadFilterNode frequency (setValueAtTime/ramps/setTarget/curves/.value) is clamped to min(0.45·sampleRate, 20 kHz). `node tools/audiotest.js` plays all 15 worlds + fires every sfx: 0 values ≥ 20 kHz (max 19845 Hz = the clamp), 0 warnings.
 - c) Speakeasy spawn: probed 64 samples at 200 ms after hard drops (/tmp/spawnprobe.js): a piece exists and is drawn in the first visible row immediately on every lock (spawn is synchronous; no ARE gap). The only piece-less windows are the intentional 2 s game-start intro and the 2.7 s world transition — most likely what the QA frame caught. No change needed.
+
+## Speakeasy blocks v2 (QA step 3) — `src/43_food_cocktail.js`
+- Real liquid in glass: flat body (no per-cell gradients → no seams), meniscus curling up at the walls with empty glass above, refraction tint + long reflection streak on the lit wall, darker far wall, thick tinted glass base with caustic line, rising bubble streams (lager, champagne beads, mojito), slosh on the surface.
+- Lager: creamy irregular foam head with lacing. Old fashioned / negroni: clear ice cube poking above the surface (gradient body, lit edges, facet, crack). Old fashioned: orange-peel twist. Negroni: orange half-wheel. Martini: cool clear, two olives on a pick. Wine: legs on the glass. Mojito: crushed-ice shards, one muted mint leaf, lime wedge + sprig.
+- Removed: pea-pod leaf spots, square tile insets, sprinkle dots, per-cell stripe highlight.
+- Calmer backdrop: speakeasy board zone tint raised (rgba(16,10,8,0.58)) on top of the global blur.
+- Shots: screenshot-geo-speakeasy-day.png (19:30 rain), -night.png (01:00 snow). Weak spot: left bar group still layers 3–4 figures closely (doorman behind seated guests).
