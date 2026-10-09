@@ -14,7 +14,7 @@ function FoodMass(spec) {
   /* PREMIUM material pass (spec.premium:true; window.__fmPremium overrides for A/B and rollback): one top-left light, soft drop
      shadow onto the board, thin dark low-contrast edges instead of bevel planes, soft AO along exposed edges, seeded micro-grain,
      slightly lower saturation. Food-specific materials read Q.premium inside spec.paint. */
-  const PREM = () => (typeof window !== 'undefined' && window.__fmPremium !== undefined ? !!window.__fmPremium : !!spec.premium);
+  const PREM = () => !(typeof window !== 'undefined' && window.__fmPremium === false) && (spec.premium === true || (typeof window !== 'undefined' && window.__fmPremium === true)); // ROLLOUT: per-world opt-in until every world is done
   const noiseC = new Map();
   function noiseTex(P) {
     let c = noiseC.get(P); if (c) return c; const n = Math.ceil(P * 2.4); c = makeCanvas(n, n); const X = c.getContext('2d'), im = X.createImageData(n, n), d = im.data; let sd = 1234567 + P;
@@ -26,10 +26,10 @@ function FoodMass(spec) {
   function premiumFinish(x, food, P, pad, mask, cut, vr, small, l, t, r, b, rd) {
     const PO = spec.premiumOpts || {}, gr = (PO.grain && PO.grain[food]) ?? PO.grainAll ?? 0.16;
     if (!small && gr > 0) { const nz = noiseTex(P), ox = hash(vr, 1.3) * (nz.width - (r - l) - 2), oy = hash(2.7, vr) * (nz.height - (b - t) - 2); x.save(); x.globalCompositeOperation = 'overlay'; x.globalAlpha = gr; x.drawImage(nz, ox, oy, r - l + 2, b - t + 2, l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
-    const ds = (PO.desat && PO.desat[food]) ?? PO.desatAll ?? 0.12; if (ds > 0) { x.save(); x.globalCompositeOperation = 'saturation'; x.globalAlpha = ds; x.fillStyle = '#808080'; x.fillRect(l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
+    const ds = (PO.desat && PO.desat[food]) ?? PO.desatAll ?? 0.04; if (ds > 0) { x.save(); x.globalCompositeOperation = 'saturation'; x.globalAlpha = ds; x.fillStyle = '#808080'; x.fillRect(l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
     // form light: one light from the top-left. Exposed N/W edges catch a soft lift, exposed S/E edges roll into shade (AO where masses meet)
     const strip = (x0, y0, x1, y1, c0) => { x.fillStyle = linear(x, x0, y0, x1, y1, [[0, c0], [1, c0.replace(/[\d.]+\)$/, '0)')]]); x.fillRect(Math.min(x0, x1) - (x0 === x1 ? P : 0), Math.min(y0, y1) - (y0 === y1 ? P : 0), Math.abs(x1 - x0) || P * 3, Math.abs(y1 - y0) || P * 3); };
-    const hiA = PO.hi ?? 0.13, shA = PO.sh ?? 0.3, aoW = P * 0.24;
+    const hiA = PO.hi ?? 0.14, shA = PO.sh ?? 0.22, aoW = P * 0.22;
     x.save(); x.globalCompositeOperation = 'multiply';
     if (!(mask & S)) { x.fillStyle = linear(x, 0, b, 0, b - aoW, [[0, `rgba(40,20,12,${shA})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(l - 1, b - aoW, r - l + 2, aoW + 1); }
     if (!(mask & E)) { x.fillStyle = linear(x, r, 0, r - aoW * 0.8, 0, [[0, `rgba(40,20,12,${shA * 0.8})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(r - aoW * 0.8, t - 1, aoW * 0.8 + 1, b - t + 2); }
@@ -39,6 +39,15 @@ function FoodMass(spec) {
     if (!(mask & N)) { x.fillStyle = linear(x, 0, t, 0, t + P * 0.16, [[0, `rgba(255,246,230,${hiA})`], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 1, t - 1, r - l + 2, P * 0.16 + 1); }
     if (!(mask & W)) { x.fillStyle = linear(x, l, 0, l + P * 0.12, 0, [[0, `rgba(255,246,230,${hiA * 0.7})`], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 1, t - 1, P * 0.12 + 1, b - t + 2); }
     x.restore(); void strip;
+    // lift: +brightness/contrast so masses never sink into the board (applied to this cell's own pixels, inside the mass clip)
+    const lf = (PO.lift && PO.lift[food]) ?? PO.liftAll ?? 'brightness(1.08) contrast(1.12) saturate(1.04)';
+    if (lf && !small) { x.save(); x.globalCompositeOperation = 'copy'; x.filter = lf; x.drawImage(x.canvas, 0, 0); x.restore(); }
+    // rim light on the sides that face the light (N, W) — a thin warm line just inside the edge separates each piece from the board
+    { const d = P * 0.04, ra = Math.max(0, rd[0] - d); x.beginPath();
+      if (!(mask & N)) { x.moveTo(mask & W ? l - 2 : l + d + ra, t + d); x.lineTo(mask & E ? r + 2 : r - Math.max(rd[1], d), t + d); }
+      if (!(mask & W)) { x.moveTo(l + d, mask & S ? b + 2 : b - Math.max(rd[3], d)); x.lineTo(l + d, mask & N ? t - 2 : t + d + ra); }
+      if (!(mask & N) && !(mask & W)) { if (ra) { x.moveTo(l + d, t + d + ra); x.arcTo(l + d, t + d, l + d + ra, t + d, ra); } }
+      x.strokeStyle = PO.rim || 'rgba(255,248,232,0.42)'; x.lineWidth = Math.max(1, P * 0.028); x.lineCap = 'round'; x.stroke(); }
     // thin dark low-contrast edge on exposed sides only (continuous masses keep no seams)
     x.beginPath(); const [a0, a1, a2, a3] = rd;
     if (!(mask & N)) { x.moveTo(l + a0, t); x.lineTo(r - a1, t); } if (!(mask & E)) { x.moveTo(r, t + a1); x.lineTo(r, b - a2); }

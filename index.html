@@ -6193,7 +6193,7 @@ function FoodMass(spec) {
   /* PREMIUM material pass (spec.premium:true; window.__fmPremium overrides for A/B and rollback): one top-left light, soft drop
      shadow onto the board, thin dark low-contrast edges instead of bevel planes, soft AO along exposed edges, seeded micro-grain,
      slightly lower saturation. Food-specific materials read Q.premium inside spec.paint. */
-  const PREM = () => (typeof window !== 'undefined' && window.__fmPremium !== undefined ? !!window.__fmPremium : !!spec.premium);
+  const PREM = () => !(typeof window !== 'undefined' && window.__fmPremium === false) && (spec.premium === true || (typeof window !== 'undefined' && window.__fmPremium === true)); // ROLLOUT: per-world opt-in until every world is done
   const noiseC = new Map();
   function noiseTex(P) {
     let c = noiseC.get(P); if (c) return c; const n = Math.ceil(P * 2.4); c = makeCanvas(n, n); const X = c.getContext('2d'), im = X.createImageData(n, n), d = im.data; let sd = 1234567 + P;
@@ -6205,10 +6205,10 @@ function FoodMass(spec) {
   function premiumFinish(x, food, P, pad, mask, cut, vr, small, l, t, r, b, rd) {
     const PO = spec.premiumOpts || {}, gr = (PO.grain && PO.grain[food]) ?? PO.grainAll ?? 0.16;
     if (!small && gr > 0) { const nz = noiseTex(P), ox = hash(vr, 1.3) * (nz.width - (r - l) - 2), oy = hash(2.7, vr) * (nz.height - (b - t) - 2); x.save(); x.globalCompositeOperation = 'overlay'; x.globalAlpha = gr; x.drawImage(nz, ox, oy, r - l + 2, b - t + 2, l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
-    const ds = (PO.desat && PO.desat[food]) ?? PO.desatAll ?? 0.12; if (ds > 0) { x.save(); x.globalCompositeOperation = 'saturation'; x.globalAlpha = ds; x.fillStyle = '#808080'; x.fillRect(l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
+    const ds = (PO.desat && PO.desat[food]) ?? PO.desatAll ?? 0.04; if (ds > 0) { x.save(); x.globalCompositeOperation = 'saturation'; x.globalAlpha = ds; x.fillStyle = '#808080'; x.fillRect(l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
     // form light: one light from the top-left. Exposed N/W edges catch a soft lift, exposed S/E edges roll into shade (AO where masses meet)
     const strip = (x0, y0, x1, y1, c0) => { x.fillStyle = linear(x, x0, y0, x1, y1, [[0, c0], [1, c0.replace(/[\d.]+\)$/, '0)')]]); x.fillRect(Math.min(x0, x1) - (x0 === x1 ? P : 0), Math.min(y0, y1) - (y0 === y1 ? P : 0), Math.abs(x1 - x0) || P * 3, Math.abs(y1 - y0) || P * 3); };
-    const hiA = PO.hi ?? 0.13, shA = PO.sh ?? 0.3, aoW = P * 0.24;
+    const hiA = PO.hi ?? 0.14, shA = PO.sh ?? 0.22, aoW = P * 0.22;
     x.save(); x.globalCompositeOperation = 'multiply';
     if (!(mask & S)) { x.fillStyle = linear(x, 0, b, 0, b - aoW, [[0, `rgba(40,20,12,${shA})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(l - 1, b - aoW, r - l + 2, aoW + 1); }
     if (!(mask & E)) { x.fillStyle = linear(x, r, 0, r - aoW * 0.8, 0, [[0, `rgba(40,20,12,${shA * 0.8})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(r - aoW * 0.8, t - 1, aoW * 0.8 + 1, b - t + 2); }
@@ -6218,6 +6218,15 @@ function FoodMass(spec) {
     if (!(mask & N)) { x.fillStyle = linear(x, 0, t, 0, t + P * 0.16, [[0, `rgba(255,246,230,${hiA})`], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 1, t - 1, r - l + 2, P * 0.16 + 1); }
     if (!(mask & W)) { x.fillStyle = linear(x, l, 0, l + P * 0.12, 0, [[0, `rgba(255,246,230,${hiA * 0.7})`], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 1, t - 1, P * 0.12 + 1, b - t + 2); }
     x.restore(); void strip;
+    // lift: +brightness/contrast so masses never sink into the board (applied to this cell's own pixels, inside the mass clip)
+    const lf = (PO.lift && PO.lift[food]) ?? PO.liftAll ?? 'brightness(1.08) contrast(1.12) saturate(1.04)';
+    if (lf && !small) { x.save(); x.globalCompositeOperation = 'copy'; x.filter = lf; x.drawImage(x.canvas, 0, 0); x.restore(); }
+    // rim light on the sides that face the light (N, W) — a thin warm line just inside the edge separates each piece from the board
+    { const d = P * 0.04, ra = Math.max(0, rd[0] - d); x.beginPath();
+      if (!(mask & N)) { x.moveTo(mask & W ? l - 2 : l + d + ra, t + d); x.lineTo(mask & E ? r + 2 : r - Math.max(rd[1], d), t + d); }
+      if (!(mask & W)) { x.moveTo(l + d, mask & S ? b + 2 : b - Math.max(rd[3], d)); x.lineTo(l + d, mask & N ? t - 2 : t + d + ra); }
+      if (!(mask & N) && !(mask & W)) { if (ra) { x.moveTo(l + d, t + d + ra); x.arcTo(l + d, t + d, l + d + ra, t + d, ra); } }
+      x.strokeStyle = PO.rim || 'rgba(255,248,232,0.42)'; x.lineWidth = Math.max(1, P * 0.028); x.lineCap = 'round'; x.stroke(); }
     // thin dark low-contrast edge on exposed sides only (continuous masses keep no seams)
     x.beginPath(); const [a0, a1, a2, a3] = rd;
     if (!(mask & N)) { x.moveTo(l + a0, t); x.lineTo(r - a1, t); } if (!(mask & E)) { x.moveTo(r, t + a1); x.lineTo(r, b - a2); }
@@ -6483,7 +6492,7 @@ const SushiFood = (() => {
   function premiumSprites(P) { const o = {};
     { // ikura: translucent sphere — dark rim, light transmitted to the lower right, darker core, thin rim light, specular dot
       const r = Math.max(2, P * 0.25), n = Math.ceil(r * 2 + 2), c = makeCanvas(n, n), X = c.getContext('2d'), m = n / 2;
-      X.beginPath(); X.arc(m, m, r, 0, TAU); X.fillStyle = radial(X, m + r * 0.2, m + r * 0.25, r * 1.15, [[0, '#f08a40'], [0.35, '#d8561c'], [0.75, '#a8300e'], [1, '#6a1606']]); X.fill();
+      X.beginPath(); X.arc(m, m, r, 0, TAU); X.fillStyle = radial(X, m + r * 0.2, m + r * 0.25, r * 1.15, [[0, '#ffa050'], [0.35, '#ee6a24'], [0.75, '#c03e12'], [1, '#7a1e08']]); X.fill();
       X.beginPath(); X.arc(m + r * 0.2, m + r * 0.24, r * 0.5, 0, TAU); X.fillStyle = radial(X, m + r * 0.2, m + r * 0.24, r * 0.5, [[0, 'rgba(255,170,90,0.75)'], [1, 'rgba(255,140,60,0)']]); X.fill();
       X.beginPath(); X.arc(m + r * 0.12, m + r * 0.1, r * 0.2, 0, TAU); X.fillStyle = radial(X, m + r * 0.12, m + r * 0.1, r * 0.2, [[0, 'rgba(110,26,6,0.85)'], [1, 'rgba(150,40,10,0)']]); X.fill();
       X.beginPath(); X.arc(m, m, r * 0.9, Math.PI * 0.95, Math.PI * 1.55); X.strokeStyle = 'rgba(255,214,180,0.45)'; X.lineWidth = Math.max(0.6, r * 0.07); X.stroke();
@@ -6497,7 +6506,7 @@ const SushiFood = (() => {
       const shape = (X, grow) => { X.beginPath(); for (let i = 0; i < 3; i++) { const bx = x0 + L * (0.2 + i * 0.3), rr = Hh * (0.5 - (i === 1 ? 0 : 0.04)) + grow; X.moveTo(bx + rr, cy); X.arc(bx, cy, rr, 0, TAU); } X.moveTo(x0 + L * 0.2, cy - Hh * 0.46 - grow); X.lineTo(x0 + L * 0.8, cy - Hh * 0.46 - grow); X.lineTo(x0 + L * 0.8, cy + Hh * 0.47 + grow); X.lineTo(x0 + L * 0.2, cy + Hh * 0.47 + grow); X.closePath(); X.moveTo(x0 + L * 0.06, cy); X.ellipse(x0 + L * 0.08, cy, L * 0.08 + grow, Hh * 0.34 + grow, 0, 0, TAU); X.moveTo(x0 + L * 0.98, cy); X.ellipse(x0 + L * 0.92, cy - Hh * 0.04, L * 0.08 + grow, Hh * 0.3 + grow, 0, 0, TAU); };
       const c = makeCanvas(w, h), X = c.getContext('2d');
       shape(X, Math.max(0.7, P * 0.014)); X.fillStyle = 'rgba(20,40,10,0.6)'; X.fill('nonzero');
-      shape(X, 0); X.fillStyle = linear(X, 0, cy - Hh / 2, 0, cy + Hh / 2, [[0, '#8aa660'], [0.45, '#668a42'], [1, '#3c5e28']]); X.fill('nonzero');
+      shape(X, 0); X.fillStyle = linear(X, 0, cy - Hh / 2, 0, cy + Hh / 2, [[0, '#a0bc6c'], [0.45, '#78a04a'], [1, '#4a722e']]); X.fill('nonzero');
       X.save(); shape(X, 0); X.clip('nonzero');
       for (let i = 0; i < 3; i++) { const bx = x0 + L * (0.2 + i * 0.3); X.fillStyle = radial(X, bx - Hh * 0.15, cy - Hh * 0.18, Hh * 0.55, [[0, 'rgba(200,225,150,0.4)'], [1, 'rgba(200,225,150,0)']]); X.fillRect(bx - Hh, cy - Hh, Hh * 2, Hh * 2); X.fillStyle = 'rgba(30,60,16,0.25)'; X.fillRect(bx + L * 0.14, cy - Hh, Math.max(0.6, P * 0.012), Hh * 2); }
       X.fillStyle = 'rgba(235,245,215,0.28)'; for (let i = 0; i < 70; i++) { const z = Math.max(0.5, P * 0.008); X.fillRect(x0 + hash(i, P, 1) * L, cy - Hh / 2 + hash(P, i, 2) * Hh, z, z); }
@@ -6512,15 +6521,15 @@ const SushiFood = (() => {
     const { P, mask, vr, small, l, t, r, b, C, band, rrect, radii, cut } = Q, H = (i, j = 0) => hash(vr, i, j);
     switch (food) {
       case 'ikura': {
-        x.fillStyle = '#7a2008'; x.fillRect(l, t, r - l, b - t);
+        x.fillStyle = '#a8380e'; x.fillRect(l, t, r - l, b - t);
         if (!(mask & S)) { band(b - P * 0.12, P * 0.12, '#141c16'); x.fillStyle = 'rgba(120,150,120,0.12)'; for (let i = 0; i < 6; i++) x.fillRect(C(i / 6), b - P * 0.12, Math.max(1, P * 0.01), P * 0.12); }
         // packed background roe, darker and smaller, so the bed reads as depth rather than a flat colour
-        for (let i = 0; i < 14; i++) { const u = C(H(i, 1)), v = C(H(i, 2) * 0.9), rr = P * (0.06 + H(i, 3) * 0.05); x.fillStyle = radial(x, u - rr * 0.3, v - rr * 0.3, rr * 1.2, [[0, '#c84a16'], [1, '#8a2a0a']]); x.beginPath(); x.arc(u, v, rr, 0, TAU); x.fill(); }
+        for (let i = 0; i < 14; i++) { const u = C(H(i, 1)), v = C(H(i, 2) * 0.9), rr = P * (0.06 + H(i, 3) * 0.05); x.fillStyle = radial(x, u - rr * 0.3, v - rr * 0.3, rr * 1.2, [[0, '#e2601e'], [1, '#a8360e']]); x.beginPath(); x.arc(u, v, rr, 0, TAU); x.fill(); }
         if (small) { const o = sprites(P), d = o.beadR; for (const [bx, by, , sc] of packFor(mask, vr)) x.drawImage(o.bead, C(bx) - d * sc, C(by) - d * sc, d * 2 * sc, d * 2 * sc); }
         break;
       }
       case 'edamame': {
-        x.fillStyle = '#1c3214'; x.fillRect(l, t, r - l, b - t);
+        x.fillStyle = '#2c4a1e'; x.fillRect(l, t, r - l, b - t);
         for (let i = 0; i < 5; i++) { x.fillStyle = H(i, 9) < 0.5 ? 'rgba(70,104,44,0.55)' : 'rgba(40,66,26,0.6)'; ellipse(x, C(H(vr, i)), C(H(i, 4)), P * 0.2, P * 0.09, H(i, 5) * 3); x.fill(); }
         x.fillStyle = 'rgba(240,240,225,0.5)'; for (let i = 0; i < 10; i++) { const z = Math.max(0.8, P * 0.012); x.fillRect(C(H(i, 11)), C(H(i, 12)), z, z); }
         if (small) { const o = sprites(P); for (const [px, py, a, sc] of podsPrem(mask, vr)) { x.save(); x.translate(C(px), C(py)); x.rotate(a); x.scale(sc, sc); x.drawImage(o.pod, -o.pod.width / 2, -o.pod.height / 2); x.restore(); } }
@@ -6545,11 +6554,11 @@ const SushiFood = (() => {
         const frd = radii(mask, cut, P * 0.2); frd[2] = frd[3] = 0;
         if (!(mask & S)) { x.fillStyle = linear(x, 0, fb, 0, fb + P * 0.1, [[0, 'rgba(80,40,20,0.45)'], [1, 'rgba(80,40,20,0)']]); x.fillRect(l, fb, r - l, P * 0.1); }
         rrect(x, l, t, r, fb, frd); x.save(); x.clip();
-        x.fillStyle = '#e0784c'; x.fillRect(l, t, r - l, fb - t);
-        for (let i = 0; i < 4; i++) { x.fillStyle = H(i, 21) < 0.5 ? 'rgba(200,90,50,0.35)' : 'rgba(240,140,100,0.3)'; ellipse(x, C(H(i, 22)), C(H(i, 23)), P * 0.3, P * 0.12, -0.6); x.fill(); }
+        x.fillStyle = '#f27a44'; x.fillRect(l, t, r - l, fb - t);
+        for (let i = 0; i < 4; i++) { x.fillStyle = H(i, 21) < 0.5 ? 'rgba(226,96,50,0.3)' : 'rgba(255,150,100,0.28)'; ellipse(x, C(H(i, 22)), C(H(i, 23)), P * 0.3, P * 0.12, -0.6); x.fill(); }
         // marbled fat: main veins (period 1/3, row shift 2/3) + fine branching veins (period 1/2, row shift 1/2)
-        family(x, P, C, 1 / 3, 2 / 3, (k, X) => { vein(x, P, C, X, P * 0.07, 'rgba(248,214,190,0.28)', 0); vein(x, P, C, X, P * 0.03, 'rgba(250,232,216,0.85)', 0); }, 0.09);
-        if (!small) family(x, P, C, 1 / 2, 1 / 2, (k, X) => vein(x, P, C, (yy) => X(yy) + P * 0.12, P * 0.012, 'rgba(250,222,200,0.45)', 2), 0.12);
+        family(x, P, C, 1 / 3, 2 / 3, (k, X) => { vein(x, P, C, X, P * 0.05, 'rgba(255,226,206,0.3)', 0); vein(x, P, C, X, P * 0.018, 'rgba(255,246,238,0.95)', 0); }, 0.045);
+        if (!small) family(x, P, C, 1 / 2, 1 / 2, (k, X) => vein(x, P, C, (yy) => X(yy) + P * 0.12, P * 0.008, 'rgba(255,236,222,0.4)', 2), 0.06);
         x.fillStyle = 'rgba(150,50,20,0.18)'; for (let i = 0; i < 18; i++) { const z = Math.max(0.7, P * 0.01); x.fillRect(C(H(i, 31)), C(H(i, 32)), z, z * 2); }
         if (!(mask & N)) sheen(x, C(0.32 + H(41) * 0.3), t + P * 0.16, P * 0.42, P * 0.1, 0.5);
         else if (H(42) < 0.6) sheen(x, C(0.2 + H(43) * 0.6), C(0.2 + H(44) * 0.5), P * 0.22, P * 0.06, 0.28);
@@ -6557,13 +6566,13 @@ const SushiFood = (() => {
         x.restore(); break;
       }
       case 'maguro': {
-        x.fillStyle = '#8a1a30'; x.fillRect(l, t, r - l, b - t);
+        x.fillStyle = '#ae2238'; x.fillRect(l, t, r - l, b - t);
         for (let i = 0; i < 5; i++) { x.fillStyle = H(i, 51) < 0.5 ? 'rgba(70,6,22,0.12)' : 'rgba(190,60,80,0.1)'; ellipse(x, C(H(i, 52)), C(H(i, 53)), P * 0.36, P * 0.22, H(i, 54) * 3); x.fill(); }
         if (!small) family(x, P, C, 1 / 8, 1 / 4, (k, X) => { x.strokeStyle = k % 2 ? 'rgba(255,170,180,0.07)' : 'rgba(60,0,14,0.12)'; x.lineWidth = Math.max(0.6, P * 0.012); x.beginPath(); for (let i = 0; i <= 12; i++) { const yy = C(-0.1 + i * 0.1); i ? x.lineTo(X(yy), yy) : x.moveTo(X(yy), yy); } x.stroke(); });
         family(x, P, C, 1 / 2, 1 / 2, (k, X) => { // soft slice edges: a dark cut line and a lit bevel fading away from it
           for (let j = 0; j < 4; j++) { x.strokeStyle = j === 0 ? 'rgba(52,0,14,0.55)' : `rgba(230,110,130,${0.16 - j * 0.04})`; x.lineWidth = j === 0 ? Math.max(1, P * 0.022) : P * 0.04; x.beginPath(); for (let i = 0; i <= 12; i++) { const yy = C(-0.1 + i * 0.1), xx = X(yy) + (j === 0 ? 0 : P * (0.01 + j * 0.035)); i ? x.lineTo(xx, yy) : x.moveTo(xx, yy); } x.stroke(); } }, 0.08);
-        if (!(mask & N)) sheen(x, C(0.35 + H(61) * 0.3), t + P * 0.15, P * 0.4, P * 0.09, 0.32);
-        else if (H(62) < 0.5) sheen(x, C(0.3 + H(63) * 0.4), C(0.3 + H(64) * 0.4), P * 0.2, P * 0.05, 0.18);
+        if (!(mask & N)) sheen(x, C(0.35 + H(61) * 0.3), t + P * 0.15, P * 0.44, P * 0.1, 0.45);
+        sheen(x, C(0.25 + H(63) * 0.5), C(0.3 + H(64) * 0.45), P * 0.26, P * 0.055, 0.26);
         if (!(mask & S)) band(b - P * 0.07, P * 0.07, '#5e0e1e');
         break;
       }
@@ -6582,22 +6591,22 @@ const SushiFood = (() => {
       case 'maki': {
         x.fillStyle = '#0b110d'; x.fillRect(l, t, r - l, b - t);
         const cx = C(0.5) + (H(81) - 0.5) * P * 0.03, cy = C(0.5) + (H(82) - 0.5) * P * 0.03;
-        x.beginPath(); x.arc(cx, cy, P * 0.45, 0, TAU); x.fillStyle = '#16211a'; x.fill();
+        x.beginPath(); x.arc(cx, cy, P * 0.45, 0, TAU); x.fillStyle = '#121b15'; x.fill();
         if (!small) { x.strokeStyle = 'rgba(120,150,120,0.12)'; x.lineWidth = Math.max(0.5, P * 0.006); for (let i = 0; i < 10; i++) { const a = H(i, 83) * TAU; x.beginPath(); x.arc(cx, cy, P * (0.38 + H(i, 84) * 0.06), a, a + 0.6); x.stroke(); } }
         x.beginPath(); x.arc(cx, cy, P * 0.45, -2.5, -0.9); x.strokeStyle = 'rgba(150,180,150,0.22)'; x.lineWidth = Math.max(1, P * 0.02); x.stroke();
-        x.beginPath(); x.arc(cx, cy, P * 0.37, 0, TAU); x.fillStyle = '#e6decf'; x.fill();
+        x.beginPath(); x.arc(cx, cy, P * 0.37, 0, TAU); x.fillStyle = '#f4efe4'; x.fill();
         x.save(); x.beginPath(); x.arc(cx, cy, P * 0.37, 0, TAU); x.clip();
-        x.fillStyle = 'rgba(150,130,100,0.22)'; x.beginPath(); x.arc(cx + P * 0.05, cy + P * 0.07, P * 0.37, 0, TAU); x.arc(cx, cy, P * 0.37, 0, TAU, true); x.fill();
-        riceGrains(x, cx - P * 0.36, cy - P * 0.36, cx + P * 0.36, cy + P * 0.36, P, vr + 5, small ? 3 : 18);
+        x.fillStyle = 'rgba(150,130,100,0.14)'; x.beginPath(); x.arc(cx + P * 0.05, cy + P * 0.07, P * 0.37, 0, TAU); x.arc(cx, cy, P * 0.37, 0, TAU, true); x.fill();
+        riceGrains(x, cx - P * 0.36, cy - P * 0.36, cx + P * 0.36, cy + P * 0.36, P, vr + 5, small ? 0 : 12);
         x.restore();
         if (!small) for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + H(i, 85) * 0.3, rr = P * 0.37; ellipse(x, cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, P * 0.04, P * 0.021, a + Math.PI / 2); x.fillStyle = i % 3 ? '#efe8dc' : '#ddd3c0'; x.fill(); }
         // filling: cucumber cut face (skin, pale flesh, seed bed) beside a slice of avocado
         const fa = H(86) * 0.8 - 0.4; x.save(); x.translate(cx, cy); x.rotate(fa);
-        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.15, 0, TAU); x.fillStyle = '#2c4e1e'; x.fill();
-        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.125, 0, TAU); x.fillStyle = '#b4cc86'; x.fill();
-        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.07, 0, TAU); x.fillStyle = '#d4e0a8'; x.fill();
+        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.16, 0, TAU); x.fillStyle = '#1e4a16'; x.fill();
+        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.12, 0, TAU); x.fillStyle = '#9ccc5a'; x.fill();
+        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.072, 0, TAU); x.fillStyle = '#d8eaa4'; x.fill();
         if (!small) { x.fillStyle = 'rgba(244,240,214,0.9)'; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + 0.3; ellipse(x, -P * 0.07 + Math.cos(a) * P * 0.04, Math.sin(a) * P * 0.04, P * 0.016, P * 0.008, a); x.fill(); } }
-        x.beginPath(); x.moveTo(P * 0.04, P * 0.15); x.quadraticCurveTo(P * 0.02, -P * 0.14, P * 0.13, -P * 0.17); x.quadraticCurveTo(P * 0.24, -P * 0.02, P * 0.15, P * 0.16); x.closePath(); x.fillStyle = linear(x, P * 0.04, 0, P * 0.2, 0, [[0, '#cfd88a'], [0.65, '#9eb44c'], [1, '#56782a']]); x.fill();
+        x.beginPath(); x.moveTo(P * 0.04, P * 0.15); x.quadraticCurveTo(P * 0.02, -P * 0.14, P * 0.13, -P * 0.17); x.quadraticCurveTo(P * 0.24, -P * 0.02, P * 0.15, P * 0.16); x.closePath(); x.fillStyle = linear(x, P * 0.04, 0, P * 0.2, 0, [[0, '#e0e894'], [0.6, '#a8c44c'], [1, '#4e7a22']]); x.fill();
         x.restore();
         break;
       }
@@ -6609,7 +6618,7 @@ const SushiFood = (() => {
     soft: { tamago: 1.6, ikura: 1.2, maki: 0.8 },
     premium: true,
     premiumVkey: (food, vr) => (food === 'tamago' ? vr & 1 : vr),
-    premiumOpts: { R: 0.16, grain: { maki: 0.1, ikura: 0.08, edamame: 0.14, tamago: 0.12, salmon: 0.14, maguro: 0.2, saba: 0.12 }, desatAll: 0.1, edge: 'rgba(24,12,8,0.55)' },
+    premiumOpts: { R: 0.16, grain: { maki: 0.04, ikura: 0.08, edamame: 0.12, tamago: 0.1, salmon: 0.1, maguro: 0.14, saba: 0.1 }, desatAll: 0.03, desat: { salmon: 0, maguro: 0 }, sh: 0.2, edge: 'rgba(24,12,8,0.5)', lift: { maki: 'brightness(1.1) contrast(1.22)', edamame: 'brightness(1.16) contrast(1.14) saturate(1.06)', maguro: 'brightness(1.12) contrast(1.12) saturate(1.08)' } },
     glisten: { salmon: 0.55, maguro: 0.55, saba: 0.55, tamago: 0.3 },
     vkey: (food, vr) => (food === 'tamago' ? vr & 1 : vr % 4),
     vpaint: (food, vk) => (food === 'tamago' ? vk : vk * 13 + 1),

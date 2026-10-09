@@ -1,7 +1,7 @@
 // node tools/cmp.js <world> [out=/workspace/shots/cmp-<world>.png] [hour=12.5]
 // Same hand-built 16-piece stack in <world> and in Kaiten Sushi; crops the bottom 7 rows x 10 cols at 4x and puts them side by side.
 const { chromium } = require('/usr/local/lib/pnpm/5/.pnpm/playwright-core@1.59.1/node_modules/playwright-core');
-const path = require('path'); const { execFileSync } = require('child_process');
+const path = require('path'); const { execFileSync } = require('child_process'); require('fs').mkdirSync('/workspace/tmp_cmp', { recursive: true });
 const [world, outArg, hour = '12.5'] = process.argv.slice(2); const out = outArg || `/workspace/shots/cmp-${world}.png`;
 async function grab(b, id, file) {
   const pg = await b.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 4 }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
@@ -22,11 +22,11 @@ async function grab(b, id, file) {
 }
 (async () => {
   const b = await chromium.launch({ timeout: 120000, executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] }); let __ok = false; try {
-  const e1 = await grab(b, world, '/tmp/cmp_a.png'), e2 = await grab(b, 'sushi', '/tmp/cmp_b.png'); var E1 = e1, E2 = e2; __ok = true; } finally { await b.close().catch(() => {}); }
+  const e1 = await grab(b, world, '/workspace/tmp_cmp/cmp_a.png'), e2 = await grab(b, 'sushi', '/workspace/tmp_cmp/cmp_b.png'); var E1 = e1, E2 = e2; __ok = true; } finally { await b.close().catch(() => {}); }
   const e1 = E1, e2 = E2;
   execFileSync('python3', ['-c', `
 from PIL import Image, ImageDraw
-a=Image.open('/tmp/cmp_a.png').convert('RGB'); b=Image.open('/tmp/cmp_b.png').convert('RGB')
+a=Image.open('/workspace/tmp_cmp/cmp_a.png').convert('RGB'); b=Image.open('/workspace/tmp_cmp/cmp_b.png').convert('RGB')
 h=max(a.height,b.height); im=Image.new('RGB',(a.width+b.width+30,h+60),(20,20,24)); im.paste(a,(0,60)); im.paste(b,(a.width+30,60))
 d=ImageDraw.Draw(im); d.text((10,15),'${world} (4x)',fill=(255,255,255)); d.text((a.width+40,15),'Kaiten Sushi benchmark (4x)',fill=(255,255,255))
 im.save('${out}'); im.resize((im.width//4, im.height//4)).save('${out}'.replace('.png','-small.png'))
