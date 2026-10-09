@@ -13,6 +13,7 @@ const CocktailFood = (() => {
   const BUB = { beer: [3, 0.5], champagne: [5, 0.6], mojito: [1, 0.3] };
   const AIR = '#2c2420', SURF = 0.22;
   const M = FoodMass({
+    premium: true,
     FOOD: [null, 'beer', 'oldfash', 'negroni', 'wine', 'mojito', 'martini', 'champagne'],
     MAIN: [null, '#e08e0c', '#62240a', '#e2382a', '#560c26', '#8cc84a', '#d2e6f2', '#f0d478'],
     soft: { beer: 1.4, wine: 1.5, champagne: 1.4, mojito: 1.2, martini: 1.5, negroni: 1.3, oldfash: 1.1 },

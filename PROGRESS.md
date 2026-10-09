@@ -384,3 +384,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Kaiten materials: marbled salmon (displacement-field veins periodic in P, wet sheen, rice grains at edge), tuna grain + soft slice edges, ikura packed varied translucent spheres (core, rim light, specular, contact shadows), matte edamame pods w/ fuzz, cucumber cut face + avocado in maki, tamago pores/browned top/textured nori, saba iridescent belly. Audit 0 close pairs (ikura 72 / maguro 51).
 - Backups: wip/14_pre_premium.js, wip/14a_pre_premium.js. Tool: tools/premium.js.
 - 894ecb4 Kaiten premium v2: engine lift filter (brightness 1.08/contrast 1.12) + N/W rim light, desat 0.04, AO 0.22; salmon #f27a44 w/ thin soft marbling; tuna #ae2238 + wet sheen; maki crisper; ikura L87 vs tuna L63. Audit 0 close. Images shots/premium-kaiten-v2(.png/-grey/-small).
+- 8cdd5fd premium mikes: generic premium pass; pale-food gentle lift; L 23/100/130/160/187/212/231, 0 close — shots/premium/mikes.png
