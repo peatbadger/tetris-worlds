@@ -2,8 +2,9 @@
    I acai (deep purple, blueberries) · O dragon fruit (magenta, black seeds) · T watermelon (red, seeds, rind on the real bottom)
    · S kiwi (green, seed rays along a pale core) · Z papaya (orange, seed channel) · J pineapple (golden chunks) · L coconut (white flesh, shell on exposed edges) */
 const TikiFood = remakeFood('tiki', {
+  premium: true, premiumOpts: { lift: { papaya: 'brightness(0.9) contrast(1.1) saturate(1.15)', dragon: 'contrast(1.08) brightness(0.97)' } },
   FOOD: [null, 'acai', 'dragon', 'watermelon', 'kiwi', 'papaya', 'pineapple', 'coconut'],
-  MAIN: [null, '#4a1e4a', '#d02a7c', '#e8424a', '#5a9620', '#f08a3a', '#f2c838', '#f4f0e6'],
+  MAIN: [null, '#4a1e4a', '#e05090', '#e8424a', '#5a9620', '#f08a3a', '#f2c838', '#f4f0e6'],
   soft: { acai: 1.4, dragon: 1.1, watermelon: 1.1, kiwi: 1.1, papaya: 1.1, pineapple: 1.0, coconut: 0.9 },
   boardBg: 'rgba(14,30,40,0.93)', grid: 'rgba(200,250,255,0.06)',
   paint(x, food, Q) {
@@ -14,10 +15,22 @@ const TikiFood = remakeFood('tiki', {
         for (const [u, v, i] of M.pts(A * 3, 3, 0.12)) { const rr = P * (0.07 + H(i, 9) * 0.03); x.fillStyle = '#26204a'; x.beginPath(); x.arc(u, v, rr, 0, TAU); x.fill(); x.fillStyle = 'rgba(160,170,230,0.55)'; x.beginPath(); x.arc(u - rr * 0.35, v - rr * 0.35, rr * 0.28, 0, TAU); x.fill(); }
         if (!small) { x.fillStyle = 'rgba(240,220,170,0.8)'; for (const [u, v] of M.pts(A * 4, 11)) x.fillRect(u, v, lw(0.025), lw(0.02)); } });
         M.form('rgba(200,150,210,0.18)', 'rgba(10,0,14,0.4)'); break; }
-      case 'dragon': { M.fill('#d02a7c'); M.piece(() => {
-        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.4, Math.max(BW, BH) * 0.8, [[0, 'rgba(255,120,190,0.35)'], [1, 'rgba(120,0,60,0.2)']]); M.all(x.fillStyle);
-        for (const [u, v, i] of M.pts(A * 30, 5, 0.02)) { const a = H(i, 7) * 3; x.fillStyle = 'rgba(255,170,215,0.35)'; ellipse(x, u, v, P * 0.035, P * 0.025, a); x.fill(); x.fillStyle = '#1a0a12'; ellipse(x, u, v, P * 0.018, P * 0.012, a); x.fill(); } });
-        M.form('rgba(255,190,225,0.22)', 'rgba(70,0,30,0.4)'); break; }
+      case 'dragon': { M.fill('#e4d6da'); M.piece(() => { // white dragon-fruit flesh, black seeds with a soft grey halo
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.4, Math.max(BW, BH) * 0.8, [[0, 'rgba(250,244,246,0.35)'], [1, 'rgba(205,180,195,0.4)']]); M.all(x.fillStyle);
+        for (const [u, v, i] of M.pts(A * 50, 5, 0.02)) { const a = H(i, 7) * 3; x.fillStyle = 'rgba(120,100,115,0.2)'; ellipse(x, u, v, P * 0.04, P * 0.03, a); x.fill(); x.fillStyle = '#16100e'; ellipse(x, u, v, P * 0.021, P * 0.014, a); x.fill(); } });
+        // magenta skin on the exposed edges, flesh blushing pink just inside it, little green-tipped scales
+        { const { mask, l, t, r, b, N, E, S, W } = Q, sk = P * 0.12, bl = P * 0.12;
+          const side = (ex, f) => { if (!ex) f(); };
+          x.save();
+          side(mask & N, () => { x.fillStyle = M.lin(0, t + sk, 0, t + sk + bl, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(l - 2, t + sk, r - l + 4, bl); });
+          side(mask & S, () => { x.fillStyle = M.lin(0, b - sk, 0, b - sk - bl, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(l - 2, b - sk - bl, r - l + 4, bl); });
+          side(mask & W, () => { x.fillStyle = M.lin(l + sk, 0, l + sk + bl, 0, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(l + sk, t - 2, bl, b - t + 4); });
+          side(mask & E, () => { x.fillStyle = M.lin(r - sk, 0, r - sk - bl, 0, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(r - sk - bl, t - 2, bl, b - t + 4); });
+          x.fillStyle = '#c81e6e'; if (!(mask & N)) x.fillRect(l - 2, t - 2, r - l + 4, sk + 2); if (!(mask & S)) x.fillRect(l - 2, b - sk, r - l + 4, sk + 2); if (!(mask & W)) x.fillRect(l - 2, t - 2, sk + 2, b - t + 4); if (!(mask & E)) x.fillRect(r - sk, t - 2, sk + 2, b - t + 4);
+          if (!small) { const sc = (cx, cy, ang) => { x.save(); x.translate(cx, cy); x.rotate(ang); x.fillStyle = '#e8559c'; GeoKit.poly(x, [-P * 0.07, P * 0.03, P * 0.07, P * 0.03, P * 0.02, -P * 0.06]); x.fill(); x.fillStyle = '#7aa83a'; GeoKit.poly(x, [-P * 0.012, -P * 0.035, P * 0.03, -P * 0.035, P * 0.02, -P * 0.06]); x.fill(); x.restore(); };
+            for (let k = 0; k < 3; k++) { const f = (k + 0.5 + (M.H(k, 41) - 0.5) * 0.3) / 3; if (!(mask & N)) sc(l + (r - l) * f, t + sk * 0.55, 0); if (!(mask & S)) sc(l + (r - l) * f, b - sk * 0.55, Math.PI); if (!(mask & W)) sc(l + sk * 0.55, t + (b - t) * f, -Math.PI / 2); if (!(mask & E)) sc(r - sk * 0.55, t + (b - t) * f, Math.PI / 2); } }
+          x.restore(); }
+        M.form('rgba(255,255,255,0.18)', 'rgba(90,20,50,0.3)'); break; }
       case 'watermelon': { M.fill('#e8424a'); M.piece(() => {
         for (const [u, v, i] of M.pts(A * 6, 13, 0.05)) { x.fillStyle = 'rgba(255,140,140,0.3)'; M.blob(u, v, P * 0.18, i, 7); x.fill(); }
         for (const [u, v, i] of M.pts(A * 3, 17, 0.18)) { x.save(); x.translate(u, v); x.rotate((H(i, 19) - 0.5) * 0.8); x.fillStyle = '#2a1410'; x.beginPath(); x.moveTo(0, -P * 0.06); x.quadraticCurveTo(P * 0.04, 0, 0, P * 0.05); x.quadraticCurveTo(-P * 0.04, 0, 0, -P * 0.06); x.fill(); x.restore(); }
@@ -40,13 +53,17 @@ const TikiFood = remakeFood('tiki', {
         for (const [u, v, i] of M.pts(A * 5, 21, 0.1)) { x.save(); x.translate(u, v); x.rotate(H(i, 23) * 3); const q = P * (0.16 + H(i, 24) * 0.06); x.fillStyle = '#b07e10'; roundRect(x, -q + P * 0.02, -q * 0.7 + P * 0.03, q * 2, q * 1.4, q * 0.3); x.fill(); x.fillStyle = H(i, 25) < 0.5 ? '#f6d448' : '#f0c838'; roundRect(x, -q, -q * 0.7, q * 2, q * 1.4, q * 0.3); x.fill();
           x.strokeStyle = 'rgba(200,150,20,0.5)'; x.lineWidth = lw(0.015); for (let k = -2; k <= 2; k++) { x.beginPath(); x.moveTo(-q * 0.8, k * q * 0.22); x.lineTo(q * 0.8, k * q * 0.22); x.stroke(); } x.fillStyle = 'rgba(255,250,200,0.5)'; roundRect(x, -q * 0.7, -q * 0.6, q * 1.2, q * 0.3, q * 0.15); x.fill(); x.restore(); } });
         M.form('rgba(255,250,200,0.22)', 'rgba(100,60,0,0.35)'); break; }
-      case 'coconut': { M.fill('#f4f0e6'); M.piece(() => {
-        if (!small) { x.strokeStyle = 'rgba(200,190,170,0.35)'; x.lineWidth = lw(0.015); for (const [u, v, i] of M.pts(A * 8, 27)) { x.beginPath(); x.moveTo(u, v); x.lineTo(u + P * 0.12, v + (H(i, 29) - 0.5) * P * 0.06); x.stroke(); } }
-        x.fillStyle = 'rgba(255,255,255,0.6)'; for (const [u, v, i] of M.pts(A * 2, 31, 0.2)) { M.blob(u, v, P * 0.16, i, 7); x.fill(); } });
-        // brown shell along the exposed outer edges, a thin white lip inside it
-        { const { mask, l, t, r, b, N, E, S, W } = Q, sh = P * 0.13; x.fillStyle = '#6a4426'; if (!(mask & S)) x.fillRect(l - 2, b - sh, r - l + 4, sh + 2); if (!(mask & W)) x.fillRect(l - 2, t - 2, sh + 2, b - t + 4); if (!(mask & E)) x.fillRect(r - sh, t - 2, sh + 2, b - t + 4); if (!(mask & N)) x.fillRect(l - 2, t - 2, r - l + 4, sh * 0.6);
-          x.strokeStyle = 'rgba(40,24,10,0.6)'; x.lineWidth = lw(0.012); if (!(mask & S)) for (let k = 0; k < 8; k++) { const xx = l + (k + 0.5) * (r - l) / 8; x.beginPath(); x.moveTo(xx, b - sh * 0.8); x.lineTo(xx + P * 0.04, b - sh * 0.2); x.stroke(); } }
-        M.form('rgba(255,255,255,0.2)', 'rgba(90,70,40,0.3)'); break; }
+      case 'coconut': { M.fill('#f6f3ec'); M.piece(() => { // coconut meat: fine radial fibres, a cool wet sheen
+        if (!small) { x.strokeStyle = 'rgba(190,180,160,0.32)'; x.lineWidth = lw(0.012); for (const [u, v, i] of M.pts(A * 10, 27)) { const a = H(i, 28) * 0.6 - 0.3; x.beginPath(); x.moveTo(u, v); x.lineTo(u + Math.cos(a) * P * 0.14, v + Math.sin(a) * P * 0.14); x.stroke(); } }
+        x.fillStyle = 'rgba(235,245,255,0.55)'; for (const [u, v, i] of M.pts(A * 2, 31, 0.2)) { M.blob(u, v, P * 0.15, i, 7); x.fill(); } });
+        // thick hairy brown shell on the exposed edges with a tan seed-coat line between shell and meat
+        { const { mask, l, t, r, b, N, E, S, W } = Q, sh = P * 0.17, tc = P * 0.035;
+          x.fillStyle = '#c8a678'; if (!(mask & S)) x.fillRect(l - 2, b - sh - tc, r - l + 4, tc + 1); if (!(mask & W)) x.fillRect(l + sh, t - 2, tc, b - t + 4); if (!(mask & E)) x.fillRect(r - sh - tc, t - 2, tc, b - t + 4); if (!(mask & N)) x.fillRect(l - 2, t + sh * 0.7, r - l + 4, tc);
+          x.fillStyle = '#5a3418'; if (!(mask & S)) x.fillRect(l - 2, b - sh, r - l + 4, sh + 2); if (!(mask & W)) x.fillRect(l - 2, t - 2, sh + 2, b - t + 4); if (!(mask & E)) x.fillRect(r - sh, t - 2, sh + 2, b - t + 4); if (!(mask & N)) x.fillRect(l - 2, t - 2, r - l + 4, sh * 0.7 + 2);
+          if (!small) { x.strokeStyle = 'rgba(150,100,60,0.55)'; x.lineWidth = lw(0.012); x.beginPath(); for (let k = 0; k < 26; k++) { const f = M.H(k, 51), g = M.H(k, 52), ln = P * (0.05 + M.H(k, 53) * 0.06), a = (M.H(k, 54) - 0.5) * 1.2;
+              const hair = (px, py, ang) => { x.moveTo(px, py); x.lineTo(px + Math.cos(ang) * ln, py + Math.sin(ang) * ln); };
+              if (!(mask & S)) hair(l + (r - l) * f, b - sh * g, 0.3 + a); if (!(mask & W)) hair(l + sh * g, t + (b - t) * f, 1.3 + a); if (!(mask & E)) hair(r - sh * g, t + (b - t) * f, 1.8 + a); if (!(mask & N)) hair(l + (r - l) * f, t + sh * 0.7 * g, 0.2 + a); } x.stroke(); } }
+        M.form('rgba(255,255,255,0.18)', 'rgba(90,70,40,0.3)'); break; }
     }
   },
 });
