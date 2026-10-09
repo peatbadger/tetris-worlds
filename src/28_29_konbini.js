@@ -41,7 +41,7 @@
   let micro = 0, microOn = 0, steam = 0, warm = 0, truck = -1, fresh = 0;
   const K0 = (c, pts) => GeoKit.poly(c, pts);
   const W = {
-    id: 'konbini', pal: KonPal, stationX: 96, startHour: 7, span: 19, font: '800 15px "Trebuchet MS", sans-serif', vign: 'rgba(10,20,40,0.2)', zone: 'rgba(240,246,255,0.24)',
+    id: 'konbini', pal: KonPal, stationX: 34, srvX: 240, spots: [150, 330], maxCust: 2, crowd: 0.6, // never crowded: two shoppers at most, one at the counter (150) between the maker by the coffee/hot case (60) and the clerk at the register (240); a second shopper waits off-counter startHour: 7, span: 19, font: '800 15px "Trebuchet MS", sans-serif', vign: 'rgba(10,20,40,0.2)', zone: 'rgba(240,246,255,0.24)',
     per: (h) => { const x = h < 5 ? h + 24 : h; return x < 10 ? 0 : x < 14 ? 1 : x < 17.5 ? 2 : 3; },
     staff: [{ T: 226, hw: 56, headR: 28, pattern: 'pin', top: 'white', top2: 'blue', hairStyle: 'bob', hair: 'dark', pants: 'navy' },
       { T: 240, hw: 60, headR: 28, pattern: 'pin', top: 'white', top2: 'blue', hairStyle: 'short', hair: 'dark', pants: 'navy' }],

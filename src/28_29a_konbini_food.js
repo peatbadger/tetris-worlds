@@ -1,7 +1,7 @@
 /* ---- Konbini blocks: seven things from a Japanese convenience store, each piece one continuous mass ----
-   I onigiri (a row of rice triangles, alternating, each with its crisp nori band and a peek of salmon / umé)
+   I onigiri (one clear rice triangle per cell on a pale tray, soft rice grains, a crisp nori band)
    · O roll cake (cream-heavy slices: thin golden sponge spiral, soft dome of whipped cream) · T karaage (craggy golden fried
-   chicken nuggets) · S melon pan (sugar-crust dome, diamond score lines) · Z sakura mochi (pink domyōji grain, rice texture)
+   chicken nuggets, four per cell, kept inside the cell) · S melon pan (sugar-crust dome, diamond score lines) · Z sakura mochi (pink domyōji grain, rice texture)
    · J matcha warabi (translucent jade cubes under a drift of matcha powder) · L chocolate (glossy ganache squares, cocoa dust) */
 const KonbiniFood = remakeFood('konbini', {
   premiumOpts: { R: 0.18, grain: { rollcake: 0.06, onigiri: 0.06, choco: 0.08, matcha: 0.1 }, lift: { choco: 'brightness(1.12) contrast(1.08)', matcha: 'brightness(1.06) contrast(1.08)', sakura: 'brightness(0.92) contrast(1.06) saturate(1.18)', onigiri: 'brightness(0.96) contrast(1.06)', rollcake: 'brightness(1.05) contrast(1.03)', melonpan: 'brightness(1.04) contrast(1.06)' } },
@@ -13,17 +13,17 @@ const KonbiniFood = remakeFood('konbini', {
     const M = MassKit(x, Q, 191), { P, X0, Y0, BW, BH, A, H, lw, small } = M;
     const grains = (n, k, col, r0) => { if (small) return; for (const [u, v, i] of M.pts(n, k, 0.02)) { x.save(); x.translate(u, v); x.rotate(H(i, k + 3) * 3); x.fillStyle = col(i); ellipse(x, 0, 0, P * r0, P * r0 * 0.5, 0); x.fill(); x.restore(); } };
     switch (food) {
-      case 'onigiri': { M.fill('#24302a'); M.piece(() => { // a tight row of rice triangles on a sheet of nori, alternating so they tile
-        x.fillStyle = 'rgba(120,150,120,0.12)'; for (let q = 0; q < (BW + BH) / (P * 0.08); q++) x.fillRect(X0 - P + q * P * 0.08, Y0 - P, lw(0.012), BH + 2 * P);
-        M.axis((len, sp) => { const w = Math.min(sp, P) * 0.98, n = Math.max(1, Math.round(len / (w * 0.6))), step = len / n;
-          for (let r = 0; r < Math.round(sp / P); r++) for (let k = 0; k < n; k++) { const up = (k + r) % 2 === 0, cx = (k + 0.5) * step, cy = r * P + P * 0.5, hh = P * 0.8, hw = step * 0.86, sgn = up ? 1 : -1, ty = cy - sgn * hh * 0.5, by = cy + sgn * hh * 0.5;
-            const tri = (dx, dy) => { x.beginPath(); x.moveTo(cx + dx, ty + dy); x.quadraticCurveTo(cx + hw * 0.18 + dx, ty + sgn * hh * 0.06 + dy, cx + hw * 0.9 + dx, by - sgn * hh * 0.08 + dy); x.quadraticCurveTo(cx + hw + dx, by + dy, cx + hw * 0.7 + dx, by + dy); x.lineTo(cx - hw * 0.7 + dx, by + dy); x.quadraticCurveTo(cx - hw + dx, by + dy, cx - hw * 0.9 + dx, by - sgn * hh * 0.08 + dy); x.quadraticCurveTo(cx - hw * 0.18 + dx, ty + sgn * hh * 0.06 + dy, cx + dx, ty + dy); x.closePath(); };
-            x.fillStyle = 'rgba(60,50,30,0.35)'; tri(P * 0.02, P * 0.035); x.fill();
-            x.fillStyle = M.lin(cx - hw, ty, cx + hw, by, [[0, '#fffdf6'], [0.6, '#f2ecdd'], [1, '#d6ccb6']]); tri(0, 0); x.fill();
-            if (!small) { x.save(); tri(0, 0); x.clip(); for (let g = 0; g < 14; g++) { const gx = cx + (H(k * 31 + r, g) - 0.5) * hw * 1.6, gy = cy + (H(k * 37 + r, g + 20) - 0.5) * hh * 0.9; x.fillStyle = H(k + g, 7) < 0.5 ? 'rgba(255,255,255,0.9)' : 'rgba(200,190,170,0.45)'; ellipse(x, gx, gy, P * 0.03, P * 0.016, H(g, k) * 3); x.fill(); } x.restore(); }
-            // filling peek (salmon or umé) near the tip, then the nori band across the base
-            const nb = hh * 0.3, ny = up ? by - nb : by; x.save(); tri(0, 0); x.clip(); x.fillStyle = '#18221c'; x.fillRect(cx - hw * 0.55, ny, hw * 1.1, nb); x.fillStyle = 'rgba(120,150,120,0.16)'; for (let q = 0; q < 4; q++) x.fillRect(cx - hw * 0.55, ny + nb * (0.2 + q * 0.2), hw * 1.1, lw(0.01)); x.fillStyle = 'rgba(210,230,210,0.22)'; x.fillRect(cx - hw * 0.55, up ? ny : ny + nb - lw(0.025), hw * 1.1, lw(0.025)); x.restore(); } }); });
-        M.form('rgba(255,255,250,0.2)', 'rgba(60,50,30,0.32)'); break; }
+      case 'onigiri': { M.fill('#9eaab8'); M.piece(() => { // one clear rice triangle per cell on a pale tray: soft rice texture, a crisp nori band
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.35, Math.max(BW, BH) * 0.8, [[0, 'rgba(200,212,226,0.6)'], [1, 'rgba(110,124,142,0.55)']]); M.all(x.fillStyle);
+        for (const [a, c] of M.cells) { const cx = (a + 0.5) * P, cy = (c + 0.5) * P + P * 0.02, hw = P * 0.46, top = cy - P * 0.43, bot = cy + P * 0.4;
+          const tri = (dx, dy) => { const pt = [[cx + dx, top + dy, 0.3], [cx + hw + dx, bot + dy, 0.2], [cx - hw + dx, bot + dy, 0.2]]; x.beginPath(); for (let i = 0; i < 3; i++) { const [px, py, k] = pt[i], [qx, qy] = pt[(i + 2) % 3], [nx, ny] = pt[(i + 1) % 3]; const ax = px + (qx - px) * k, ay = py + (qy - py) * k, bx = px + (nx - px) * k, by = py + (ny - py) * k; i ? x.lineTo(ax, ay) : x.moveTo(ax, ay); x.quadraticCurveTo(px, py, bx, by); } x.closePath(); }; // soft rounded triangle
+          x.fillStyle = 'rgba(30,40,60,0.4)'; tri(P * 0.025, P * 0.045); x.fill();
+          x.fillStyle = M.lin(cx - hw, top, cx + hw * 0.6, bot, [[0, '#ffffff'], [0.55, '#f6f2e6'], [1, '#ddd4c0']]); tri(0, 0); x.fill();
+          x.save(); tri(0, 0); x.clip();
+          if (!small) for (let g = 0; g < 26; g++) { const gx = cx + (H(a * 31 + c, g) - 0.5) * hw * 1.7, gy = top + H(a * 37 + c, g + 30) * (bot - top); x.fillStyle = H(a + c + g, 7) < 0.55 ? 'rgba(255,255,255,0.8)' : 'rgba(196,186,164,0.35)'; ellipse(x, gx, gy, P * 0.026, P * 0.013, H(g, a + c) * 3); x.fill(); } // soft rice grains
+          const nw = hw * 0.5, ny = bot - P * 0.24; x.fillStyle = '#1c2620'; x.fillRect(cx - nw, ny, nw * 2, P * 0.26); x.fillStyle = 'rgba(130,160,130,0.22)'; for (let q = 0; q < 3; q++) x.fillRect(cx - nw, ny + P * (0.07 + q * 0.08), nw * 2, lw(0.01)); x.fillStyle = 'rgba(220,236,220,0.28)'; x.fillRect(cx - nw, ny, lw(0.02), P * 0.26); x.restore();
+          x.fillStyle = 'rgba(255,255,255,0.7)'; ellipse(x, cx - hw * 0.25, top + P * 0.2, P * 0.07, P * 0.025, -1); x.fill(); } });
+        M.form('rgba(240,248,255,0.2)', 'rgba(30,40,60,0.32)'); break; }
       case 'rollcake': { M.fill('#f4ecdc'); M.piece(() => { // a cream-heavy roll: slices laid flat, thin golden sponge spiral, whipped cream with soft peaks
         x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.35, Math.max(BW, BH) * 0.8, [[0, 'rgba(255,253,246,0.5)'], [1, 'rgba(200,184,150,0.3)']]); M.all(x.fillStyle);
         for (const [a, c] of M.cells) { const cx = (a + 0.5) * P + (H(a * 7 + c, 1) - 0.5) * P * 0.06, cy = (c + 0.5) * P + (H(a * 7 + c, 2) - 0.5) * P * 0.06, R = P * 0.43, r0 = H(a + c * 5, 3) * TAU;
@@ -33,14 +33,14 @@ const KonbiniFood = remakeFood('konbini', {
           x.strokeStyle = '#dcaa5c'; x.lineWidth = lw(0.035); x.lineCap = 'round'; x.beginPath(); for (let q = 0; q <= 40; q++) { const an = r0 + q * 0.2, rr = R * (0.14 + q * 0.0145); q ? x.lineTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr) : x.moveTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr); } x.stroke();
           x.fillStyle = 'rgba(255,255,255,0.7)'; ellipse(x, cx - R * 0.32, cy - R * 0.4, R * 0.2, R * 0.08, -0.5); x.fill(); } });
         M.form('rgba(255,255,250,0.22)', 'rgba(110,80,40,0.3)'); break; }
-      case 'karaage': { M.fill('#5a2c0c'); M.piece(() => { // craggy fried chicken pieces packed tight
-        for (const [u, v, i] of M.pts(A * 5, 11, 0.1)) { const rr = P * (0.23 + H(i, 13) * 0.07), sd = i * 7 + 3;
-          x.fillStyle = 'rgba(30,10,0,0.5)'; M.blob(u + P * 0.03, v + P * 0.05, rr, sd, 10, 0.55); x.fill();
-          x.fillStyle = M.rad(u - rr * 0.4, v - rr * 0.45, rr * 1.7, [[0, '#f2c070'], [0.45, '#c88032'], [1, '#7a3e12']]); M.blob(u, v, rr, sd, 10, 0.55); x.fill();
-          if (!small) { for (let k = 0; k < 8; k++) { const a = H(i * 8 + k, 15) * TAU, d = rr * H(i * 8 + k, 16) * 0.8; x.fillStyle = k % 2 ? 'rgba(255,220,150,0.55)' : 'rgba(90,40,10,0.45)'; x.beginPath(); x.arc(u + Math.cos(a) * d, v + Math.sin(a) * d, P * (0.016 + H(i + k, 17) * 0.016), 0, TAU); x.fill(); }
-            }
-          x.fillStyle = 'rgba(255,240,210,0.5)'; ellipse(x, u - rr * 0.38, v - rr * 0.42, rr * 0.26, rr * 0.09, -0.5); x.fill(); } });
-        M.form('rgba(255,215,150,0.2)', 'rgba(40,14,0,0.42)'); break; }
+      case 'karaage': { M.fill('#9a5a20'); M.piece(() => { // four craggy nuggets per cell, kept well inside the cell so the piece edge stays clean
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.35, Math.max(BW, BH) * 0.8, [[0, '#c88838'], [1, '#8a4c18']]); M.all(x.fillStyle);
+        for (const [a, c] of M.cells) for (let q = 0; q < 4; q++) { const i = (a * 7 + c * 3) * 4 + q, u = (a + 0.28 + (q % 2) * 0.44) * P + (H(i, 12) - 0.5) * P * 0.04, v = (c + 0.28 + (q >> 1) * 0.44) * P + (H(i, 14) - 0.5) * P * 0.04, rr = P * (0.19 + H(i, 13) * 0.025), sd = i * 7 + 3;
+          x.fillStyle = 'rgba(60,24,0,0.4)'; M.blob(u + P * 0.015, v + P * 0.03, rr, sd, 9, 0.28); x.fill();
+          x.fillStyle = M.rad(u - rr * 0.4, v - rr * 0.45, rr * 1.7, [[0, '#f4c472'], [0.45, '#d08a38'], [1, '#8a4a16']]); M.blob(u, v, rr, sd, 9, 0.28); x.fill();
+          if (!small) for (let k = 0; k < 7; k++) { const an = H(i * 8 + k, 15) * TAU, d = rr * H(i * 8 + k, 16) * 0.75; x.fillStyle = k % 2 ? 'rgba(255,224,160,0.55)' : 'rgba(110,50,12,0.4)'; x.beginPath(); x.arc(u + Math.cos(an) * d, v + Math.sin(an) * d, P * (0.012 + H(i + k, 17) * 0.012), 0, TAU); x.fill(); }
+          x.fillStyle = 'rgba(255,240,210,0.5)'; ellipse(x, u - rr * 0.36, v - rr * 0.42, rr * 0.28, rr * 0.09, -0.5); x.fill(); } });
+        M.form('rgba(255,215,150,0.2)', 'rgba(60,24,0,0.36)'); break; }
       case 'melonpan': { M.fill('#9a6a26'); M.piece(() => { // one sugar-crust surface scored in diamonds, golden at the edges
         x.fillStyle = M.rad(X0 + BW * 0.45, Y0 + BH * 0.4, Math.max(BW, BH) * 0.75, [[0, 'rgba(255,240,180,0.45)'], [1, 'rgba(176,120,40,0.4)']]); M.all(x.fillStyle);
         const g = P * 0.36; for (let iy = -2; iy < BH / (g * 0.5) + 3; iy++) for (let ix = -2; ix < BW / g + 3; ix++) { const cx = X0 + ix * g + (iy % 2 ? g / 2 : 0), cy = Y0 + iy * g * 0.5, hx = g * 0.47, hy = g * 0.25;

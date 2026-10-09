@@ -14,7 +14,7 @@ const GeoCafePal = (base, keys, label) => {
 function makeGeoCafe(W) {
   return function () {
     const CNT = { x0: 14, x1: 250, top: 500, base: 650 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
-    const SPOTS = [{ x: 118, occ: null }, { x: 214, occ: null }], WAIT = { x: 40 };
+    const SPOTS = (W.spots || [118, 214]).map((x) => ({ x, occ: null })), WAIT = { x: 40 }, MAXC = W.maxCust || 4; // optional per-world queue spacing / crowd cap
     const WIN = W.win || { x0: 1036, y0: 112, x1: 1244, y1: 468 };
     const LEDGE = [{ x: 1092, occ: null }, { x: 1188, occ: null }], LEDGE_Y = 548, EXIT = 1350, ST = { x: W.stationX || 66 };
     let K, srv, mk, nextArrive = 2; const S = { orders: [], coins: 0, ev: null, evT: 0 };
@@ -32,7 +32,7 @@ function makeGeoCafe(W) {
     };
     /* ---------- staff ---------- */
     function mkStaff() {
-      srv = K.mk(B(W.staff[0]), { role: 'server', staff: 1, hx: 176, f: 1, floorY: SF, sc: SSC, faceDir: 0.6 });
+      srv = K.mk(B(W.staff[0]), { role: 'server', staff: 1, hx: W.srvX || 176, f: 1, floorY: SF, sc: SSC, faceDir: 0.6 });
       mk = K.mk(B(W.staff[1]), { role: 'maker', staff: 1, hx: ST.x + 26, f: -1, floorY: SF - 4, sc: SSC * 0.98, faceDir: -0.4, speed: 1.2 });
       srv.think = srvThink; mk.think = mkThink;
     }
@@ -47,7 +47,7 @@ function makeGeoCafe(W) {
     }
     function takeOrder(a, cu) {
       const party = cu.party.members.length, items = cu.party.members.map(() => pick(W.menu));
-      K.start(a, 'order', [K.ph(0, (s) => { s.walkTo = 170; }, { until: (s) => !s.walking, max: 10 }),
+      K.start(a, 'order', [K.ph(0, (s) => { s.walkTo = W.srvX ? W.srvX - 4 : 170; }, { until: (s) => !s.walking, max: 10 }),
         K.ph(0.6, (s) => { s.f = 1; s.look = { x: () => cu.hx, until: K.simT + 0.5 }; }, { enter: () => K.say(a, pick(W.greet), 1.3) }),
         K.ph(1.3, null, { enter: () => K.after(0.2, () => K.say(cu, items.map((m) => m.n).join(' + '), 1.7)) }),
         K.ph(1.0, (s, u, t) => { s.tgN = [s.hx + 30 + Math.sin(t * 14) * 3, CNT.top - 22]; s.leanT = 0.1; }, { enter: () => K.after(0.3, () => K.say(mk, pick(W.ack), 1.1)), exit: () => { items.forEach((m, i) => S.orders.push({ cu, m, i, n: party })); } }),
@@ -79,8 +79,8 @@ function makeGeoCafe(W) {
     }
     /* ---------- customers ---------- */
     function arrive() {
-      const p = per(); if (p === 4) return false; if (custs().length >= 4) return false;
-      const list = W.parties.filter((q) => q.w[p] > 0 && !custs().some((c) => q.m.includes(c.type)) && custs().length + q.m.length <= 4); if (!list.length) return false;
+      const p = per(); if (p === 4) return false; if (custs().length >= MAXC) return false;
+      const list = W.parties.filter((q) => q.w[p] > 0 && !custs().some((c) => q.m.includes(c.type)) && custs().length + q.m.length <= MAXC); if (!list.length) return false;
       let tot = list.reduce((t, q) => t + q.w[p], 0), r = Math.random() * tot, pt = list[0]; for (const q of list) { r -= q.w[p]; if (r <= 0) { pt = q; break; } }
       const party = { members: [] };
       pt.m.forEach((type, j) => { const a = mkCust(type, -40 - j * 46); a.party = party; party.members.push(a); a.phase = 'enter'; a.walkTo = WAIT.x - j * 34 + 40; });
@@ -120,7 +120,7 @@ function makeGeoCafe(W) {
     /* ---------- sim ---------- */
     function sim(Kk, dt) {
       nextArrive -= dt; const p = per();
-      if (nextArrive <= 0) { const target = [2.5, 3, 4, 3, 0][p] * (cool('rain') || cool('snow') ? 0.7 : 1); if (custs().length < target) arrive(); nextArrive = rand(8, 14); }
+      if (nextArrive <= 0) { const target = [2.5, 3, 4, 3, 0][p] * (W.crowd || 1) * (cool('rain') || cool('snow') ? 0.7 : 1); if (custs().length < target) arrive(); nextArrive = rand(8, 14); }
       if (W.sim) W.sim(X(), dt);
       if (W.events) { S.evT += dt; if (!S.ev && S.evT > 70 && Math.random() < dt / 30) { S.ev = pick(W.events); S.evT = 0; S.ev.start(X(), srv, mk); } if (S.ev) { S.ev.t = (S.ev.t || 0) + dt; if (S.ev.t > S.ev.dur) { if (S.ev.end) S.ev.end(X()); S.ev.t = 0; S.ev = null; } } }
     }
