@@ -358,3 +358,9 @@ Concept / look-alike leaks (to fix in each world's turn)
 ## Step 9 — Mike's Pastry seams (round 2)
 - Blocks v4 (src/41_food_pastry.js, backup wip/41_pre_v4.js): shape/diag piece-space painter. Layers now span the whole piece (no repeated layer stack per cell): Boston cream sponge/custard/sponge, tiramisu two ladyfinger bands with irregular joints, rainbow cookie green/white/red over the piece height with chocolate only on real top/bottom. ONE long cannoli per I piece (ricotta + chips only at the two real ends; no mid-piece joint). Pistachio folds and ganache sheen continuous; glisten removed. Cheesecake jam/graham only on real top/bottom edges.
 - cmp: /workspace/shots/cmp-mikes.png (v1); screenshot-geo-mikes-afternoon.png.
+- Published 5e17752; ready.txt line added. NEXT: Speakeasy + Trattoria QA polish.
+
+## Round 3 — colour/value audit (16:16 message)
+- New tools: tools/audit.js (one browser, many worlds: cmp stack + board json into shots/audit) + tools/audit.py (per-piece median colour + luminance, flags pairs with dL<12 and similar hue) + tools/cg.py (colour | greyscale strip, saved as shots/cmp-<world>-grey.png).
+- Baseline: sushi spread L68–216, no close pairs. Clustered: Trattoria (5 pairs), Night Market, Boba, Golden Arches, Mike's (cheesecake≈tiramisu), Fish House (prawn/crab/branzino), Speakeasy (old fashioned≈negroni).
+- Boba already published at 425a784 (ready.txt 01:38: scene remake, matte blocks, straw kept inside the cup glyphs, opaque panels so no crowd through the board). Re-checked live: OK. Round 3: values spread — oolong deep amber L72, matcha deep green 112, taro purple 125, tiger 149, thai orange ~150, mango yellow 196, winter melon pale 209.

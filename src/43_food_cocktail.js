@@ -9,12 +9,12 @@
    · S red wine (legs) · Z mojito (crushed ice, muddled mint at the bottom, lime) · J martini (olives) · L champagne. */
 const CocktailFood = (() => {
   // surface (lit), body, depth (saturated dark)
-  const LQ = { beer: ['#f6c55a', '#d88e1e', '#8a4a06'], oldfash: ['#e0a05a', '#a85420', '#4e1c04'], negroni: ['#f06a4a', '#b0201c', '#5a0612'], wine: ['#b8466a', '#6a1230', '#2a0210'], mojito: ['#eef6d2', '#c6dc9e', '#7e9e56'], martini: ['#eef6f6', '#b4c8cc', '#56707a'], champagne: ['#fbeab4', '#e8c86e', '#b08a30'] };
-  const BUB = { beer: [2, 0.5], champagne: [3, 0.7], mojito: [1, 0.3] };
+  const LQ = { beer: ['#ffdc6a', '#eaa81e', '#a86a06'], oldfash: ['#c47838', '#76300e', '#340e02'], negroni: ['#f06a4a', '#b0201c', '#5a0612'], wine: ['#b8466a', '#6a1230', '#2a0210'], mojito: ['#e2f6a8', '#a6d262', '#4a8628'], martini: ['#f4fbff', '#c6dcea', '#6a8ea6'], champagne: ['#fff6d2', '#f2e2a2', '#c8ac62'] };
+  const BUB = { beer: [3, 0.5], champagne: [5, 0.6], mojito: [1, 0.3] };
   const AIR = '#2c2420', SURF = 0.22;
   const M = FoodMass({
     FOOD: [null, 'beer', 'oldfash', 'negroni', 'wine', 'mojito', 'martini', 'champagne'],
-    MAIN: [null, '#d88e1e', '#a85420', '#b0201c', '#6a1230', '#c6dc9e', '#d6dccc', '#e8c86e'],
+    MAIN: [null, '#eaa81e', '#76300e', '#b0201c', '#6a1230', '#a6d262', '#c6dcea', '#f2e2a2'],
     soft: { beer: 1.4, wine: 1.5, champagne: 1.4, mojito: 1.2, martini: 1.5, negroni: 1.3, oldfash: 1.1 },
     R: 0.18, cutCol: 'rgba(255,255,255,0.22)', noPlanes: true, depth: true, diag: true, padK: 0.1,
     vkey: (food, vr) => vr, vpaint: (food, vk) => vk,
@@ -42,6 +42,7 @@ const CocktailFood = (() => {
             x.strokeStyle = 'rgba(255,255,255,0.5)'; x.lineWidth = Math.max(0.6, P * 0.014); x.beginPath(); x.moveTo(...pts[3]); x.lineTo(...pts[4]); x.lineTo(...pts[0]); x.stroke();
           }
         });
+        if (!small) pieceSpace(() => { for (let i = 0; i < 7; i++) { const cx = P * (0.2 + hash(i, 6, 1) * 3.6), cy = P * (SURF + 0.3 + hash(i, 6, 2) * 3.4), q = P * (0.11 + hash(i, 6, 3) * 0.05), a = hash(i, 6, 4) * 6; x.save(); x.translate(cx, cy); x.rotate(a); x.fillStyle = 'rgba(40,110,40,0.6)'; x.beginPath(); x.moveTo(-q, 0); x.quadraticCurveTo(0, -q * 0.6, q, 0); x.quadraticCurveTo(0, q * 0.6, -q, 0); x.fill(); x.strokeStyle = 'rgba(150,210,120,0.5)'; x.lineWidth = Math.max(0.6, P * 0.012); x.beginPath(); x.moveTo(-q * 0.8, 0); x.lineTo(q * 0.8, 0); x.stroke(); x.restore(); } });
         if (!(mask & S)) { // muddled mint + lime pulp settled on the bottom: a soft dark-green layer seen through the ice
           x.fillStyle = linear(x, 0, b - P * 0.5, 0, b - P * 0.16, [[0, 'rgba(60,110,40,0)'], [1, 'rgba(60,110,40,0.45)']]); x.fillRect(l - 2, b - P * 0.5, r - l + 4, P * 0.34);
           if (!small) for (let i = 0; i < 3; i++) { x.fillStyle = 'rgba(40,86,34,0.28)'; ellipse(x, C(0.15 + hash(vr, i, 21) * 0.7), b - P * (0.22 + hash(vr, i, 22) * 0.1), P * 0.14, P * 0.05, hash(vr, i, 24) - 0.5); x.fill(); }
@@ -77,7 +78,7 @@ const CocktailFood = (() => {
       // the top: empty glass above a meniscus that climbs the walls (lager: a creamy head instead)
       if (top) {
         if (food === 'beer') {
-          const fb = t + P * 0.38;
+          const fb = t + P * 0.46;
           x.fillStyle = lin(0, t, 0, fb, [[0, '#fbf6ea'], [0.65, '#f2e6cc'], [1, '#e0c890']]);
           x.beginPath(); x.moveTo(l - 2, t - 2); x.lineTo(r + 2, t - 2); x.lineTo(r + 2, fb);
           const n = 5; for (let i = n; i >= 0; i--) { const px = lerp(l - 2, r + 2, i / n), py = fb + (hash(lx, i, 11) - 0.5) * P * 0.05; x.quadraticCurveTo(px + P * 0.06, py + P * 0.04, px, py); }
@@ -85,6 +86,7 @@ const CocktailFood = (() => {
           x.fillStyle = 'rgba(255,214,120,0.4)'; x.fillRect(l - 2, fb - P * 0.02, r - l + 4, P * 0.04);
           x.fillStyle = 'rgba(255,255,255,0.55)'; x.fillRect(l - 2, t + P * 0.06, r - l + 4, P * 0.035);
           x.fillStyle = 'rgba(200,170,120,0.18)'; x.fillRect(l - 2, t + P * 0.22, r - l + 4, P * 0.05);
+          if (!small) for (let i = 0; i < 14; i++) { const fx = lerp(l + P * 0.04, r - P * 0.04, hash(lx, i, 41)), fy = t + P * (0.08 + hash(lx, i, 42) * 0.3), fr = P * (0.02 + hash(lx, i, 43) * 0.025); x.strokeStyle = 'rgba(214,190,140,0.55)'; x.lineWidth = Math.max(0.6, P * 0.01); x.beginPath(); x.arc(fx, fy, fr, 0, TAU); x.stroke(); }
         } else {
           x.fillStyle = AIR; x.fillRect(l - 2, t - 2, r - l + 4, sy - t + 2);
           x.fillStyle = rgba(c1, 0.16); x.fillRect(l - 2, t - 2, r - l + 4, sy - t + 2);
@@ -159,14 +161,14 @@ const CocktailFood = (() => {
     },
     live(c, food, o) {
       const { s, mask, seed, T, wob, gx, gy, hash, small, dr } = o;
-      const top = !(mask & FM_N) && dr === 0, sy = -s / 2 + s * (food === 'beer' ? 0.38 : SURF), bot = !(mask & FM_S) ? s / 2 - s * 0.18 : s / 2;
+      const top = !(mask & FM_N) && dr === 0, sy = -s / 2 + s * (food === 'beer' ? 0.46 : SURF), bot = !(mask & FM_S) ? s / 2 - s * 0.18 : s / 2;
       const B = BUB[food];
       if (B && !small) { // bead streams in world space: they run on from the cell below into this one
         c.fillStyle = 'rgba(255,253,240,0.85)';
         for (let i = 0; i < B[0]; i++) {
           const bx = (hash(gx, i, 7) - 0.5) * s * 0.56, sp = s * (0.13 + hash(gx, i, 8) * 0.06), v = s * B[1] * (0.8 + hash(gx, i, 9) * 0.5), ph = hash(gx, i, 10) * sp;
           const yC = (gy + 0.5) * s, off = (((ph - T * v - yC) % sp) + sp) % sp; // first bead below the cell top
-          for (let yy = -s / 2 + off; yy < bot; yy += sp) { if (top && yy < sy + s * 0.03) continue; const kk = Math.round((yC + yy + T * v - ph) / sp); if (hash(kk, i, gx) < 0.3) continue; const rr = s * (food === 'champagne' ? 0.011 : 0.014) * (1.25 - (yy + s / 2) / s * 0.4); c.globalAlpha = (o.alpha ?? 1) * (0.25 + 0.5 * ((yy + s / 2) / s < 0.5 ? 1 : 0.6)); c.beginPath(); c.arc(bx + (hash(kk, i, 5) - 0.5) * s * 0.035 + Math.sin(T * 2.4 + kk + i) * s * 0.006, yy, rr * (0.7 + hash(kk, i, 6) * 0.6), 0, TAU); c.fill(); }
+          for (let yy = -s / 2 + off; yy < bot; yy += sp) { if (top && yy < sy + s * 0.03) continue; const kk = Math.round((yC + yy + T * v - ph) / sp); if (hash(kk, i, gx) < 0.3) continue; const rr = s * (food === 'champagne' ? 0.022 : 0.016) * (1.25 - (yy + s / 2) / s * 0.4); c.globalAlpha = (o.alpha ?? 1) * (food === 'champagne' ? 0.5 : 0.25) * (1 + 1.4 * ((yy + s / 2) / s < 0.5 ? 1 : 0.6)); c.beginPath(); c.arc(bx + (hash(kk, i, 5) - 0.5) * s * 0.035 + Math.sin(T * 2.4 + kk + i) * s * 0.006, yy, rr * (0.7 + hash(kk, i, 6) * 0.6), 0, TAU); c.fill(); }
         }
         c.globalAlpha = o.alpha ?? 1;
       }

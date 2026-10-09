@@ -5,10 +5,10 @@
    I brown-sugar tiger milk · O mango green tea + cheese foam · T taro milk + taro balls · S matcha latte + red bean
    · Z shaken oolong (fine foam head) · J thai tea · L winter melon + grass jelly (v2: matte, no glints). */
 const BobaFood = (() => {
-  const LQ = { tiger: ['#ecdcc2', '#f8eedc', '#b89a78'], mango: ['#efb43c', '#fbd476', '#b8801a'], taro: ['#c2a6da', '#dcc8ee', '#8a6aa8'], matcha: ['#8db664', '#b6d68e', '#5a8a3a'], oolong: ['#c88a3a', '#e6b26a', '#7e5018'], thai: ['#e58a3e', '#f6b276', '#a8561a'], wmelon: ['#dcc49a', '#ecdcbc', '#a88a5a'] };
+  const LQ = { tiger: ['#ecdcc2', '#f8eedc', '#b89a78'], mango: ['#f6cc2a', '#ffe27a', '#c89a10'], taro: ['#9a78c8', '#bca0e2', '#6a4a98'], matcha: ['#4e8a32', '#78ae56', '#2e5e1e'], oolong: ['#7e4414', '#a86828', '#4a2408'], thai: ['#ea7a22', '#f8aa64', '#b45210'], wmelon: ['#f0e4c2', '#faf2dc', '#c8b48a'] };
   const M = FoodMass({
     FOOD: [null, 'tiger', 'mango', 'taro', 'matcha', 'oolong', 'thai', 'wmelon'],
-    MAIN: [null, '#ecdcc2', '#efb43c', '#c2a6da', '#8db664', '#d9a24e', '#e58a3e', '#dcc49a'],
+    MAIN: [null, '#ecdcc2', '#f6cc2a', '#9a78c8', '#4e8a32', '#7e4414', '#f49a4a', '#f0e4c2'],
     soft: { tiger: 1.4, mango: 1.4, taro: 1.4, matcha: 1.4, oolong: 1.4, thai: 1.4, wmelon: 1.4 },
     R: 0.22, depth: true, cutCol: 'rgba(255,255,255,0.12)', noPlanes: true,
     vkey: (food, vr) => vr, vpaint: (food, vk) => vk,
