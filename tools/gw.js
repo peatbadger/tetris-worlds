@@ -20,7 +20,8 @@ const [world = 'mikes', out = 'gw.png', hour = '', weather = '', warm = '20', w 
   }, [hour, weather, +warm, stack]);
   await pg.waitForTimeout((+warm / 8) * 1000);
   await pg.evaluate(() => { if (window.__geo) window.__geo.timeScale(1); window.__fps = []; let last = performance.now(); const f = (n) => { window.__fps.push(n - last); last = n; if (window.__fps.length < 150) requestAnimationFrame(f); }; requestAnimationFrame(f); });
-  await pg.waitForTimeout(2600);
+  if (process.env.GW_EVAL) await pg.evaluate(process.env.GW_EVAL); // optional debug hook, e.g. trigger a world event
+  await pg.waitForTimeout(+(process.env.GW_WAIT || 2600));
   if (+sceneOnly) await pg.addStyleTag({ content: 'body > *:not(#bg-wrap){visibility:hidden!important}' });
   const info = await pg.evaluate(() => { const a = window.__fps.slice(10); const fps = Math.round(1000 / (a.reduce((s, x) => s + x, 0) / Math.max(1, a.length))); const G = window.__geo; if (!G) return { fps, geo: false };
     return { fps, world: G.id, hour: +G.K.hour.toFixed(2), label: G.K.P.label, weather: G.K.weatherNow, simT: Math.round(G.K.simT), actors: G.K.actors.map((a) => (a.role || a.type || '?') + ':' + a.state + (a.act ? '/' + a.act.name : '')).join(' '), dbg: G.debug }; });

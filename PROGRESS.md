@@ -9,7 +9,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 2 | Mike's Pastry | mikes | live |
 | 3 | Speakeasy | speakeasy | live (no raid; singer/Charleston, flaming cocktail, champagne tower) |
 | 4 | Dim Sum | dimsum | live |
-| 5 | Cinema Lobby | cinema | TODO |
+| 5 | Cinema Lobby | cinema | live (geo; premiere searchlights, popcorn overflow; screenshot-cinema.png) |
 | 6 | Gelato | gelato | live |
 | 7 | Fish House | fishhouse | live |
 | 8 | Pizzeria | pizzeria | live |
@@ -404,3 +404,11 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Engine extras added during rollout: pale foods (MAIN luminance >205/170) get a gentler lift so whites keep texture; grain is a P-periodic tile anchored at the cell origin (seamless across joined cells).
 - ROLLBACK: set `window.__fmPremium = false` before load (A/B, whole game), or `premium: false` in one world's FoodMass spec; full file rollback = wip/14_pre_premium.js + wip/14a_pre_premium.js (and git revert of the round-5/6 commits). Original Ocean/Desert/Neon/Aurora/Cosmic don't use FoodMass and are untouched.
 - Before/after per world: shots/premium/<world>.png (+ -grey, -small, -before-4x, -after-4x, -before-iphone, -after-iphone). Tool: tools/premium.js / tools/prem_world.sh. Audit of all 15 worlds with premium default: 0 close pairs.
+
+## Cinema Lobby (new world 5)
+- Files: src/28_26_cinema.js (GeoCafe scene + WORLD_DEFS music), src/28_26a_cinema_food.js (FoodMass, premium by default).
+- Scene: art-deco lobby, chasing marquee bulbs, lobby trailer screen (4 looping mini trailers), lightbox concessions menu, popcorn kettle machine + soda fountain + glass candy case, cinema carpet; glass front onto a street with our marquee canopy, diner sign, passing taxis, day cycle + weather.
+- Staff: Rosa (vest, tears ticket stubs) and Theo (paper hat, shakes the kettle). Guests: date couple, film buff, teen, mum+kid, critic, nana — weighted by matinee/evening/late.
+- Events: premiere (night: searchlights, red carpet, flashbulbs, everyone looks) · popcorn overflow (any time).
+- Blocks: I hot dog · O popcorn · T nachos · S blue slushie · Z pretzel · J malt balls · L mint pastilles. Values L125/199/175/114/94/48/227, 0 close pairs.
+- Debug: window.__geoEv.cinema(n) triggers event n; tools/gw.js accepts GW_EVAL / GW_WAIT env.
