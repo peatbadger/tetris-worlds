@@ -2,9 +2,9 @@
    I acai (deep purple, blueberries) · O dragon fruit (magenta, black seeds) · T watermelon (red, seeds, rind on the real bottom)
    · S kiwi (green, seed rays along a pale core) · Z papaya (orange, seed channel) · J pineapple (golden chunks) · L coconut (white flesh, shell on exposed edges) */
 const TikiFood = remakeFood('tiki', {
-  premiumOpts: { lift: { papaya: 'brightness(0.9) contrast(1.1) saturate(1.15)', dragon: 'contrast(1.08) brightness(0.97)' } },
+  premiumOpts: { desatAll: 0.12, desat: { watermelon: 0.2, dragon: 0.16 }, lift: { papaya: 'brightness(0.98) contrast(1.06)', dragon: 'contrast(1.08) brightness(0.97)', watermelon: 'brightness(1.04) contrast(1.06)' } }, // muted, adult palette (QA r3)
   FOOD: [null, 'acai', 'dragon', 'watermelon', 'kiwi', 'papaya', 'pineapple', 'coconut'],
-  MAIN: [null, '#4a1e4a', '#e05090', '#e8424a', '#5a9620', '#f08a3a', '#f2c838', '#f4f0e6'],
+  MAIN: [null, '#4a1e4a', '#c85088', '#b23e46', '#5a9620', '#de7250', '#e8cc5a', '#f4f0e6'],
   soft: { acai: 1.4, dragon: 1.1, watermelon: 1.1, kiwi: 1.1, papaya: 1.1, pineapple: 1.0, coconut: 0.9 },
   boardBg: 'rgba(14,30,40,0.93)', grid: 'rgba(200,250,255,0.06)',
   paint(x, food, Q) {
@@ -22,19 +22,20 @@ const TikiFood = remakeFood('tiki', {
         { const { mask, l, t, r, b, N, E, S, W } = Q, sk = P * 0.12, bl = P * 0.12;
           const side = (ex, f) => { if (!ex) f(); };
           x.save();
-          side(mask & N, () => { x.fillStyle = M.lin(0, t + sk, 0, t + sk + bl, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(l - 2, t + sk, r - l + 4, bl); });
-          side(mask & S, () => { x.fillStyle = M.lin(0, b - sk, 0, b - sk - bl, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(l - 2, b - sk - bl, r - l + 4, bl); });
-          side(mask & W, () => { x.fillStyle = M.lin(l + sk, 0, l + sk + bl, 0, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(l + sk, t - 2, bl, b - t + 4); });
-          side(mask & E, () => { x.fillStyle = M.lin(r - sk, 0, r - sk - bl, 0, [[0, 'rgba(232,70,150,0.45)'], [1, 'rgba(232,70,150,0)']]); x.fillRect(r - sk - bl, t - 2, bl, b - t + 4); });
-          x.fillStyle = '#c81e6e'; if (!(mask & N)) x.fillRect(l - 2, t - 2, r - l + 4, sk + 2); if (!(mask & S)) x.fillRect(l - 2, b - sk, r - l + 4, sk + 2); if (!(mask & W)) x.fillRect(l - 2, t - 2, sk + 2, b - t + 4); if (!(mask & E)) x.fillRect(r - sk, t - 2, sk + 2, b - t + 4);
-          if (!small) { const sc = (cx, cy, ang) => { x.save(); x.translate(cx, cy); x.rotate(ang); x.fillStyle = '#e8559c'; GeoKit.poly(x, [-P * 0.07, P * 0.03, P * 0.07, P * 0.03, P * 0.02, -P * 0.06]); x.fill(); x.fillStyle = '#7aa83a'; GeoKit.poly(x, [-P * 0.012, -P * 0.035, P * 0.03, -P * 0.035, P * 0.02, -P * 0.06]); x.fill(); x.restore(); };
+          side(mask & N, () => { x.fillStyle = M.lin(0, t + sk, 0, t + sk + bl, [[0, 'rgba(200,80,140,0.4)'], [1, 'rgba(200,80,140,0)']]); x.fillRect(l - 2, t + sk, r - l + 4, bl); });
+          side(mask & S, () => { x.fillStyle = M.lin(0, b - sk, 0, b - sk - bl, [[0, 'rgba(200,80,140,0.4)'], [1, 'rgba(200,80,140,0)']]); x.fillRect(l - 2, b - sk - bl, r - l + 4, bl); });
+          side(mask & W, () => { x.fillStyle = M.lin(l + sk, 0, l + sk + bl, 0, [[0, 'rgba(200,80,140,0.4)'], [1, 'rgba(200,80,140,0)']]); x.fillRect(l + sk, t - 2, bl, b - t + 4); });
+          side(mask & E, () => { x.fillStyle = M.lin(r - sk, 0, r - sk - bl, 0, [[0, 'rgba(200,80,140,0.4)'], [1, 'rgba(200,80,140,0)']]); x.fillRect(r - sk - bl, t - 2, bl, b - t + 4); });
+          x.fillStyle = '#a83466'; if (!(mask & N)) x.fillRect(l - 2, t - 2, r - l + 4, sk + 2); if (!(mask & S)) x.fillRect(l - 2, b - sk, r - l + 4, sk + 2); if (!(mask & W)) x.fillRect(l - 2, t - 2, sk + 2, b - t + 4); if (!(mask & E)) x.fillRect(r - sk, t - 2, sk + 2, b - t + 4);
+          if (!small) { const sc = (cx, cy, ang) => { x.save(); x.translate(cx, cy); x.rotate(ang); x.fillStyle = '#c8588c'; GeoKit.poly(x, [-P * 0.07, P * 0.03, P * 0.07, P * 0.03, P * 0.02, -P * 0.06]); x.fill(); x.fillStyle = '#7aa83a'; GeoKit.poly(x, [-P * 0.012, -P * 0.035, P * 0.03, -P * 0.035, P * 0.02, -P * 0.06]); x.fill(); x.restore(); };
             for (let k = 0; k < 3; k++) { const f = (k + 0.5 + (M.H(k, 41) - 0.5) * 0.3) / 3; if (!(mask & N)) sc(l + (r - l) * f, t + sk * 0.55, 0); if (!(mask & S)) sc(l + (r - l) * f, b - sk * 0.55, Math.PI); if (!(mask & W)) sc(l + sk * 0.55, t + (b - t) * f, -Math.PI / 2); if (!(mask & E)) sc(r - sk * 0.55, t + (b - t) * f, Math.PI / 2); } }
           x.restore(); }
         M.form('rgba(255,255,255,0.18)', 'rgba(90,20,50,0.3)'); break; }
-      case 'watermelon': { M.fill('#e8424a'); M.piece(() => {
-        for (const [u, v, i] of M.pts(A * 6, 13, 0.05)) { x.fillStyle = 'rgba(255,140,140,0.3)'; M.blob(u, v, P * 0.18, i, 7); x.fill(); }
+      case 'watermelon': { M.fill('#b23e46'); M.piece(() => {
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(235,130,130,0.22)'], [1, 'rgba(90,10,20,0.25)']]); M.all(x.fillStyle);
+        for (const [u, v, i] of M.pts(A * 6, 13, 0.05)) { x.fillStyle = 'rgba(240,150,150,0.14)'; M.blob(u, v, P * 0.18, i, 7); x.fill(); }
         for (const [u, v, i] of M.pts(A * 3, 17, 0.18)) { x.save(); x.translate(u, v); x.rotate((H(i, 19) - 0.5) * 0.8); x.fillStyle = '#2a1410'; x.beginPath(); x.moveTo(0, -P * 0.06); x.quadraticCurveTo(P * 0.04, 0, 0, P * 0.05); x.quadraticCurveTo(-P * 0.04, 0, 0, -P * 0.06); x.fill(); x.restore(); }
-        for (const [a, c] of M.bots()) { const sy = (c + 1) * P; x.fillStyle = '#f0f2d0'; x.fillRect(a * P - 1, sy - P * 0.26, P + 2, P * 0.1); x.fillStyle = '#4a9a3a'; x.fillRect(a * P - 1, sy - P * 0.17, P + 2, P * 0.17); x.fillStyle = '#2a6a2a'; for (let k = 0; k < 4; k++) x.fillRect(a * P + k * P * 0.25 + P * 0.05, sy - P * 0.17, P * 0.08, P * 0.17); } });
+        for (const [a, c] of M.bots()) { const sy = (c + 1) * P; x.fillStyle = '#e4e2c4'; x.fillRect(a * P - 1, sy - P * 0.26, P + 2, P * 0.1); x.fillStyle = '#4a8a3c'; x.fillRect(a * P - 1, sy - P * 0.17, P + 2, P * 0.17); x.fillStyle = '#2a6a2a'; for (let k = 0; k < 4; k++) x.fillRect(a * P + k * P * 0.25 + P * 0.05, sy - P * 0.17, P * 0.08, P * 0.17); } });
         M.form('rgba(255,200,200,0.2)', 'rgba(80,0,10,0.35)'); break; }
       case 'kiwi': { M.fill('#5a9620'); M.piece(() => {
         x.fillStyle = M.rad(X0 + BW / 2, Y0 + BH / 2, Math.max(BW, BH) * 0.7, [[0, 'rgba(150,200,80,0.25)'], [1, 'rgba(30,70,0,0.35)']]); M.all(x.fillStyle);
@@ -43,15 +44,16 @@ const TikiFood = remakeFood('tiki', {
         x.strokeStyle = '#eef4c8'; x.lineWidth = P * 0.15; x.beginPath(); for (const [a, b, c2, d] of sk) { x.moveTo(a, b); x.lineTo(c2, d); } x.stroke();
         sk.forEach(([a, b, c2, d], k) => { const dx = Math.sign(c2 - a), dy = Math.sign(d - b); for (let i = 0; i < 7; i++) { const u = (i + 0.5) / 7, px = a + (c2 - a) * u, py = b + (d - b) * u; for (const sd of [-1, 1]) { const o = P * (0.17 + H(k * 9 + i, sd + 3) * 0.05); x.fillStyle = '#1a1a10'; ellipse(x, px - dy * sd * o, py + dx * sd * o, P * (dy ? 0.034 : 0.016), P * (dy ? 0.016 : 0.034), 0); x.fill(); } } }); });
         M.form('rgba(230,255,190,0.2)', 'rgba(20,50,0,0.4)'); break; }
-      case 'papaya': { M.fill('#f08a3a'); M.piece(() => {
-        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(255,190,110,0.35)'], [1, 'rgba(200,80,20,0.3)']]); M.all(x.fillStyle);
+      case 'papaya': { M.fill('#de7250'); M.piece(() => { // salmon-coral papaya flesh (pinker than the lemon pineapple)
+        x.fillStyle = M.rad(X0 + BW * 0.4, Y0 + BH * 0.3, Math.max(BW, BH) * 0.8, [[0, 'rgba(250,170,130,0.32)'], [1, 'rgba(170,60,40,0.3)']]); M.all(x.fillStyle);
         const sk = M.skel(); x.lineCap = 'round';
-        x.strokeStyle = '#f8b070'; x.lineWidth = P * 0.36; x.beginPath(); for (const [a, b, c2, d] of sk) { x.moveTo(a, b); x.lineTo(c2, d); } x.stroke();
+        x.strokeStyle = '#eea08a'; x.lineWidth = P * 0.36; x.beginPath(); for (const [a, b, c2, d] of sk) { x.moveTo(a, b); x.lineTo(c2, d); } x.stroke();
         sk.forEach(([a, b, c2, d], k) => { for (let i = 0; i < 9; i++) { const u = (i + 0.5) / 9, px = a + (c2 - a) * u + (H(k * 11 + i, 5) - 0.5) * P * 0.12, py = b + (d - b) * u + (H(k * 11 + i, 6) - 0.5) * P * 0.12; x.fillStyle = '#2a1a14'; x.beginPath(); x.arc(px, py, P * 0.05, 0, TAU); x.fill(); x.fillStyle = 'rgba(255,255,255,0.35)'; x.beginPath(); x.arc(px - P * 0.015, py - P * 0.015, P * 0.014, 0, TAU); x.fill(); } }); });
         M.form('rgba(255,220,170,0.22)', 'rgba(110,40,0,0.35)'); break; }
-      case 'pineapple': { M.fill('#d8a420'); M.piece(() => {
-        for (const [u, v, i] of M.pts(A * 5, 21, 0.1)) { x.save(); x.translate(u, v); x.rotate(H(i, 23) * 3); const q = P * (0.16 + H(i, 24) * 0.06); x.fillStyle = '#b07e10'; roundRect(x, -q + P * 0.02, -q * 0.7 + P * 0.03, q * 2, q * 1.4, q * 0.3); x.fill(); x.fillStyle = H(i, 25) < 0.5 ? '#f6d448' : '#f0c838'; roundRect(x, -q, -q * 0.7, q * 2, q * 1.4, q * 0.3); x.fill();
-          x.strokeStyle = 'rgba(200,150,20,0.5)'; x.lineWidth = lw(0.015); for (let k = -2; k <= 2; k++) { x.beginPath(); x.moveTo(-q * 0.8, k * q * 0.22); x.lineTo(q * 0.8, k * q * 0.22); x.stroke(); } x.fillStyle = 'rgba(255,250,200,0.5)'; roundRect(x, -q * 0.7, -q * 0.6, q * 1.2, q * 0.3, q * 0.15); x.fill(); x.restore(); } });
+      case 'pineapple': { M.fill('#c8a434'); M.piece(() => { // pale lemon pineapple chunks with fibrous grain
+        x.strokeStyle = 'rgba(250,236,170,0.22)'; x.lineWidth = lw(0.012); for (let k = 0; k < (BW + BH) / (P * 0.07); k++) { const o = k * P * 0.07; x.beginPath(); x.moveTo(X0 + o, Y0); x.lineTo(X0 + o - BH * 0.4, Y0 + BH); x.stroke(); }
+        for (const [u, v, i] of M.pts(A * 5, 21, 0.1)) { x.save(); x.translate(u, v); x.rotate(H(i, 23) * 3); const q = P * (0.16 + H(i, 24) * 0.06); x.fillStyle = '#a08424'; roundRect(x, -q + P * 0.02, -q * 0.7 + P * 0.03, q * 2, q * 1.4, q * 0.3); x.fill(); x.fillStyle = H(i, 25) < 0.5 ? '#eed870' : '#e6cc5c'; roundRect(x, -q, -q * 0.7, q * 2, q * 1.4, q * 0.3); x.fill();
+          x.strokeStyle = 'rgba(190,150,50,0.5)'; x.lineWidth = lw(0.015); for (let k = -2; k <= 2; k++) { x.beginPath(); x.moveTo(-q * 0.8, k * q * 0.22); x.lineTo(q * 0.8, k * q * 0.22); x.stroke(); } x.fillStyle = 'rgba(255,250,200,0.5)'; roundRect(x, -q * 0.7, -q * 0.6, q * 1.2, q * 0.3, q * 0.15); x.fill(); x.restore(); } });
         M.form('rgba(255,250,200,0.22)', 'rgba(100,60,0,0.35)'); break; }
       case 'coconut': { M.fill('#f6f3ec'); M.piece(() => { // coconut meat: fine radial fibres, a cool wet sheen
         if (!small) { x.strokeStyle = 'rgba(190,180,160,0.32)'; x.lineWidth = lw(0.012); for (const [u, v, i] of M.pts(A * 10, 27)) { const a = H(i, 28) * 0.6 - 0.3; x.beginPath(); x.moveTo(u, v); x.lineTo(u + Math.cos(a) * P * 0.14, v + Math.sin(a) * P * 0.14); x.stroke(); } }
