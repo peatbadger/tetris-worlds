@@ -335,3 +335,8 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Scene calmer: at most one stroller, strollers only stop to browse when neither stall is serving (fewer people
   stacked near the HUD edges). wip/nm is stale — src/54 is canonical.
 - Compare: /workspace/shots/cmp-nightmarket.png (v1–v3). Shot: shots/nightmarket-1280.png.
+
+## Step 6 — Dim Sum (round 2)
+- Blocks v2 (src/45_food_dimsum.js, backup wip/45_pre_v2.js): glisten/steam removed; shape+diag continuous masses. Siu mai = chunky filling + prawn bits + roe cluster, yellow wrapper only at base (no frame/eyes). Har gow = pink prawn under translucent pleated skin. Bao = ragged red split. Char siu = single lacquered glaze mass with soft caramel patches + charred edge shading (slices/grain rejected as bacon/log).
+- Scene: kitchen door moved behind the board (420–500) so the restock fade is hidden; auntie home 214→198, waiter 1066→1080 — no staff standing in the HUD gutter.
+- cmp: /workspace/shots/cmp-dimsum.png (v6); screenshot-geo-dimsum-lunch.png.

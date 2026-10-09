@@ -22,10 +22,10 @@ function makeGeoDimsumStage() {
   const TA = { id: 'A', x: 134, top: 566, seats: [{ x: 54, f: 1, occ: null }, { x: 212, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.7, 0.5], stamps: 0, party: null, call: false, from: -50 };
   const TB = { id: 'B', x: 1150, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1230, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.6, 0.4], stamps: 0, party: null, call: false, from: 1330 };
   const TABLES = [TA, TB];
-  const URN = { x: 1010, top: 470 }, KDOOR = { x0: 312, x1: 392 }, MOON = { x: 1150, y: 282, r: 112 }, LWIN = { x0: 18, y0: 150, x1: 128, y1: 380 };
+  const URN = { x: 1010, top: 470 }, KDOOR = { x0: 420, x1: 500 }, MOON = { x: 1150, y: 282, r: 112 }, LWIN = { x0: 18, y0: 150, x1: 128, y1: 380 };
   const DISH = { hargow: 'Har gow!', siumai: 'Siu mai!', bao: 'Char siu bao!', chive: 'Chive dumplings!', charsiu: 'Char siu!', taro: 'Taro buns!', sesame: 'Sesame balls!', tart: 'Egg tarts!' };
   const DCOL = { hargow: '#f6d8ce', siumai: '#f2c03a', bao: '#fbf4e6', chive: '#8cd49a', charsiu: '#c4322a', taro: '#b49ae0', sesame: '#d08a3a', tart: '#f6cc3a' };
-  let K, may, lau, trolley = { x: 312, stack: [], dirty: 0, steam: 0 }, tub = 0, lion = null, nextLion = 70, nextArrive = 1, sign = 1, swept = 0;
+  let K, may, lau, trolley = { x: 164, stack: [], dirty: 0, steam: 0 }, tub = 0, lion = null, nextLion = 70, nextArrive = 1, sign = 1, swept = 0;
   const L = (h) => K.L(h), B = GeoKit.body;
   const per = () => { const h = ((K.hour % 24) + 24) % 24; return h < 11 ? 0 : h < 14.5 ? 1 : h < 17.5 ? 2 : h < 21.5 ? 3 : 4; };
   const diners = () => K.actors.filter((a) => a.cust);
@@ -80,8 +80,8 @@ function makeGeoDimsumStage() {
   const potX = (tb) => tb.x + 64, cupX = (tb, i) => tb.x + (i ? 86 : -76), slotX = (tb, i) => tb.x - 40 + i * 36, cardX = (tb) => tb.x - 62;
   /* ---------- staff ---------- */
   function mkStaff() {
-    may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 214, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
-    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1066, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
+    may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 198, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
+    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1080, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
     may.think = mayThink; lau.think = lauThink; fillTrolley();
   }
   const trolleyAt = (a) => { trolley.x = a.hx + a.f * 50; };
@@ -94,7 +94,7 @@ function makeGeoDimsumStage() {
     if (dirty && K.cooled(a, 'clear', 4)) return clearA(a, dirty);
     if (trolley.stack.length < 3 && !night) return restock(a);
     if (!night && Math.random() < 0.35 && K.cooled(a, 'tour', 18)) { const tb = TABLES.find((q) => q.party && q.want > 0 && !q.baskets.some((b) => b.n > 0)); if (tb) { tb.call = true; return; } }
-    if (night && K.cooled(a, 'fold', 6)) return K.start(a, 'fold', [pushTo(214), K.ph(rand(3, 5), (s, u, t) => { s.f = -1; s.tgN = [s.hx - 22 + Math.sin(t * 5) * 6, SF - 92]; s.tgF = [s.hx - 10, SF - 90 + Math.cos(t * 5) * 4]; s.leanT = 0.12; s.lxT = -0.4; })]);
+    if (night && K.cooled(a, 'fold', 6)) return K.start(a, 'fold', [pushTo(198), K.ph(rand(3, 5), (s, u, t) => { s.f = -1; s.tgN = [s.hx - 22 + Math.sin(t * 5) * 6, SF - 92]; s.tgF = [s.hx - 10, SF - 90 + Math.cos(t * 5) * 4]; s.leanT = 0.12; s.lxT = -0.4; })]);
     const r = Math.random();
     if (r < 0.4) return K.start(a, 'check', [K.ph(rand(2, 3), (s, u, t) => { s.tgN = [trolley.x - 4, SF - 96]; s.tgF = [trolley.x + 10, SF - 96]; s.leanT = 0.1; s.look = { x: () => trolley.x, until: K.simT + 0.3 }; if (u > 0.4 && u < 0.45) trolley.steam = 1; })]);
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.lxT = pick([-0.6, 0.6, 0.2]); })]);
@@ -110,10 +110,10 @@ function makeGeoDimsumStage() {
       K.ph(0.4, (s) => { s.lxT = f; s.tgN = [cardX(tb), tb.top - 26]; s.hold.N = H.stamp(); s.leanT = 0.18; }),
       K.ph(0.25, (s) => { s.tgN = [cardX(tb), tb.top - 6]; }, { exit: (s) => { tb.stamps++; K.fx('spark', cardX(tb), tb.top - 4, { life: 0.35, col: '#ff4a3a' }); K.say(a, 'icon:stamp', 0.8); } }),
       K.ph(0.3, (s) => { s.tgN = [cardX(tb), tb.top - 24]; }, { exit: (s) => { s.hold.N = null; s.leanT = 0; } }),
-      pushTo(tb === TB ? 206 : 214)], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.pushing = false; s.farFront = false; } });
+      pushTo(tb === TB ? 192 : 198)], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.pushing = false; s.farFront = false; } });
   }
   function restock(a) {
-    K.start(a, 'restock', [pushTo(KDOOR.x0 + 6), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, 1 - u); trolley.hide = u > 0.5 ? 1 : 0; }), K.ph(2.5, (s) => { s.alpha = 0.03; }, { exit: () => { fillTrolley(); trolley.dirty = 0; tub = 0; } }), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, u); trolley.hide = u < 0.5 ? 1 : 0; }, { enter: () => { trolley.steam = 1.6; }, exit: (s) => { s.alpha = 1; } }), pushTo(214), K.ph(0.4, null, { enter: () => K.say(a, pick(['Fresh from the kitchen!', 'Hot hot hot!', 'icon:steam']), 1.3) })], { onAbort: (s) => { s.alpha = 1; trolley.hide = 0; s.pushing = false; } });
+    K.start(a, 'restock', [pushTo(KDOOR.x0 + 30), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, 1 - u); trolley.hide = u > 0.5 ? 1 : 0; }), K.ph(2.5, (s) => { s.alpha = 0.03; }, { exit: () => { fillTrolley(); trolley.dirty = 0; tub = 0; } }), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, u); trolley.hide = u < 0.5 ? 1 : 0; }, { enter: () => { trolley.steam = 1.6; }, exit: (s) => { s.alpha = 1; } }), pushTo(198), K.ph(0.4, null, { enter: () => K.say(a, pick(['Fresh from the kitchen!', 'Hot hot hot!', 'icon:steam']), 1.3) })], { onAbort: (s) => { s.alpha = 1; trolley.hide = 0; s.pushing = false; } });
   }
   function clearA(a, tb) {
     const n = tb.baskets.length;
@@ -135,7 +135,7 @@ function makeGeoDimsumStage() {
     return K.start(a, 'idle', [K.ph(rand(2, 3.5), (s) => { s.tgN = [s.hx + s.f * 6, s.hy - 20]; s.tgF = [s.hx - s.f * 4, s.hy - 22]; s.lxT = pick([-0.7, 0.5]); })]);
   }
   function refill(a, tb) {
-    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1066;
+    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1080;
     p.held = 1;
     K.start(a, 'refill', [K.ph(0, (s) => { s.walkTo = bx; }, { until: (s) => !s.walking, max: 30 }),
       K.ph(0.5, (s) => { s.f = potX(tb) < s.hx ? -1 : 1; s.tgN = [potX(tb), tb.top - 10]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = H.pot(p); p.away = 1; } }),
@@ -152,7 +152,7 @@ function makeGeoDimsumStage() {
       K.ph(0.6, (s) => { s.f = tb === TA ? -1 : 1; s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; tb.folder = 1; K.say(a, pick(['Thank you!', 'Mm goi!']), 1.1); if (tb.party) tb.party.bill = 3; } }),
       K.ph(rand(2.5, 3.5), (s) => { s.leanT = 0; s.look = { x: () => tb.x, until: K.simT + 0.3 }; }, { until: () => !tb.party || tb.party.bill >= 4, max: 8 }),
       K.ph(0.5, (s) => { s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { tb.folder = 0; s.hold.N = H.folder(); K.say(a, 'icon:heart', 0.8); } }),
-      K.ph(0, (s) => { s.walkTo = 1066; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
+      K.ph(0, (s) => { s.walkTo = 1080; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
   }
   function clearB(a) {
     const tb = TB, n = tb.baskets.length + (tb.empties || 0);
