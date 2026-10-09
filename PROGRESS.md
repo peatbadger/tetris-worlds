@@ -17,7 +17,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 10 | Taiwanese Night Market | nightmarket | live (screenshot-nightmarket.png) |
 | 11 | Boba Milk Tea Shop | boba | live (screenshot-boba.png) |
 | 12 | Yakitori | yakitori | live (geo; skewers grill raw→lacquered, trains overhead, flare-ups; screenshot-yakitori.png) |
-| 13 | Curry House | curry | TODO |
+| 13 | Curry House | curry | live (geo; spice ladder, level-10 challenge, rice jar; screenshot-curry.png) |
 | 14 | Lawson-style Konbini | lawson | TODO |
 | 15 | Japanese Tea House | teahouse | TODO |
 | 16 | Fukuoka Oden Yatai | oden | TODO |
@@ -421,3 +421,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Events: train (rattle, everyone "Kanpai!") · flare-up (flames + smoke). Debug: window.__geoEv.yakitori(n).
 - Blocks: I negima · O uzura · T tebasaki · S shishito · Z kawa · J tsukune · L reba — each on one bamboo skewer through the piece. Values 123/205/100/91/149/60/42, 0 close pairs.
 - Fixed on the way: customer body `skirt` must be a colour name (skirt:1 crashed the stage when the OL spawned). HUD "WORLD n / N" no longer wraps on iPhone (nowrap).
+- 092d492 new world yakitori
+
+## Curry House (new world 13, homage to the big Japanese curry chains — no real logos/names)
+- Files: src/28_28_curry.js, src/28_28a_curry_food.js.
+- Scene: yellow/brown counter; spice ladder 1–10 board and toppings board; giant rice jar (steam), simmering roux pot (bubbles), katsu fryer (oil spits) — an order is really built: rice scoop → ladle of roux → fried cutlet for katsu → plate (held plate fills in stages). Window: covered shōtengai arcade with awnings, shop signs, bicycles, a passer-by (umbrella in rain).
+- Guests: salaryman, student, builder, the level-10 challenger (headband), mum+kid, tourist. Events: level-10 challenge (steam off the eater's head, "辛っ!!", water jug, cheers) · rice jar steam. Debug: window.__geoEv.curry(n).
+- Blocks: I pork katsu (sliced) · O rice · T roux · S fukujinzuke (lotus rings) · Z melted cheese · J fried eggplant · L spinach. Values 148/213/64/102/163/40/82, 0 close pairs.
