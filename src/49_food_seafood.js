@@ -5,6 +5,7 @@
    · L whole grilled branzino (olive-grey scaled skin, pale belly, golden char, grill bars, score cuts).
    Whole-piece drawing in piece space (no seams), matte, no faces/eyes, no garnish clip-art. */
 const SeafoodFood = FoodMass({
+  premium: true,
   FOOD: [null, 'lobster', 'oyster', 'scallop', 'mussel', 'prawn', 'crab', 'grillfish'],
   MAIN: [null, '#b8281a', '#dfe6ea', '#e8cc94', '#262c44', '#ee8e6a', '#b8441a', '#727462'],
   soft: { lobster: 0.7, oyster: 0.8, scallop: 0.9, mussel: 0.8, prawn: 1.2, crab: 0.8, grillfish: 1.1 },

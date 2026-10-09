@@ -387,3 +387,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - 8cdd5fd premium mikes: generic premium pass; pale-food gentle lift; L 23/100/130/160/187/212/231, 0 close — shots/premium/mikes.png
 - 36d7c6b premium speakeasy: generic premium pass (glass masses keep own highlights); L 58/92/125/149/196/207/220, 0 close — shots/premium/speakeasy.png
 - ee857e0 premium dimsum: generic premium pass; chive lift toned so it separates from har gow; 0 close — shots/premium/dimsum.png
+- cfc0ab6 premium gelato: generic premium pass, keeps soft scoop radius 0.26; 0 close — shots/premium/gelato.png
