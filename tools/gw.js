@@ -13,7 +13,7 @@ const [world = 'mikes', out = 'gw.png', hour = '', weather = '', warm = '20', w 
   await pg.waitForTimeout(3300);
   await pg.evaluate(([hour, weather, warm, stack]) => {
     const G = window.__geo; if (G) { if (hour !== '') G.setHour(+hour); if (weather) G.weather(weather); G.timeScale(warm > 0 ? 8 : 1); }
-    const g = window.__tw.game;
+    const g = window.__tw.game; g.gravityMs = () => 1e9;
     if (+stack) { const plan = [['I', 0, 0], ['O', 0, 4], ['S', 0, 5], ['L', 0, 0], ['J', 0, 6], ['Z', 0, 2], ['T', 2, 0], ['O', 0, 7], ['I', 1, 4], ['S', 1, 7], ['T', 0, 3], ['Z', 1, 0], ['L', 2, 5], ['J', 1, 7], ['I', 0, 2], ['T', 3, -1]];
       for (const [type, rot, x] of plan) { g.piece = { type, rot, x, y: 0 }; if (g.collide(g.piece)) continue; g.hardDrop(); if (g.state === 'clearing') g.update(1000); if (g.state !== 'playing') break; }
       g.piece = { type: 'T', rot: 0, x: 3, y: 3 }; }

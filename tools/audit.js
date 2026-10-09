@@ -9,7 +9,7 @@ async function grab(b, id, file) {
   await pg.goto('file://' + path.resolve(__dirname, '../index.html')); await pg.waitForTimeout(1200);
   await pg.evaluate((id) => window.__tw.startGame(STAGES.findIndex((s) => s.id === id)), id); await pg.waitForTimeout(3500);
   await pg.evaluate((hour) => {
-    const g = window.__tw.game; if (window.__sushiGeo) window.__sushiGeo.setHour(+hour); if (window.__geo && window.__geo.setHour) window.__geo.setHour(+hour);
+    const g = window.__tw.game; g.gravityMs = () => 1e9; if (window.__sushiGeo) window.__sushiGeo.setHour(+hour); if (window.__geo && window.__geo.setHour) window.__geo.setHour(+hour);
     const plan = [['I', 0, 0], ['O', 0, 4], ['S', 0, 5], ['L', 0, 0], ['J', 0, 6], ['Z', 0, 2], ['T', 2, 0], ['O', 0, 7], ['I', 1, 4], ['S', 1, 7], ['T', 0, 3], ['Z', 1, 0], ['L', 2, 5], ['J', 1, 7], ['I', 0, 2], ['T', 3, -1]];
     g.board = g.board.map((r) => r.map(() => 0)); if (g.meta) g.meta = g.meta.map((r) => r.map(() => null)); g.clearRows = []; g.linesInStage = 0; g.state = 'playing'; const log = []; for (const [type, rot, x] of plan) { g.piece = { type, rot, x, y: 0 }; if (g.collide(g.piece)) { log.push(type + '!'); continue; } g.hardDrop(); log.push(type + g.state[0]); if (g.state === 'clearing') g.update(1000); if (g.state !== 'playing') break; } window.__cmplog = log.join(' ');
     g.piece = { type: 'T', rot: 0, x: 3, y: 3 }; return g.board.flat().filter((v) => v).length + ' ' + window.__cmplog + ' ' + g.state;
