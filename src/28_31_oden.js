@@ -38,7 +38,7 @@
   let potSteam = 0, tebo = 0, kanpai = 0, fresh = 0, sakeW = 0;
   const K0 = (c, pts) => GeoKit.poly(c, pts);
   const W = {
-    id: 'oden', pal: OdenPal, stationX: 96, startHour: 18, span: 8, font: '800 15px "Trebuchet MS", sans-serif', vign: 'rgba(8,8,20,0.3)', zone: 'rgba(30,30,46,0.3)',
+    id: 'oden', pal: OdenPal, stationX: 40, srvX: 214, spots: [140, 330], maxCust: 2, crowd: 0.7, tagDx: 180, // taishō at the pot (66) and his wife by the sake warmer (214) no longer overlap; one guest between them, a companion waits off-counter startHour: 18, span: 8, font: '800 15px "Trebuchet MS", sans-serif', vign: 'rgba(8,8,20,0.3)', zone: 'rgba(30,30,46,0.3)',
     per: (h) => { const x = h < 6 ? h + 24 : h; return x < 19.5 ? 0 : x < 22 ? 1 : x < 24.5 ? 2 : 3; },
     staff: [{ T: 220, hw: 56, headR: 28, pattern: 'apron', top: 'plum', top2: 'cream', top3: 'coral', hairStyle: 'bun', hair: 'dark', hat: 'kerchief', hatCol: 'coral', pants: 'navy' },
       { T: 236, hw: 62, headR: 29, pattern: 'cardigan', top: 'navy', top2: 'white', hairStyle: 'buzz', hair: 'hairGrey', hat: 'hachimaki', hatCol: 'white', pants: 'navy' }],

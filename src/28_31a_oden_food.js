@@ -5,7 +5,7 @@
    golden yolks) · J kinchaku (fried-tofu pouches tied with a kanpyō ribbon, plump with mochi) · L hanpen (fluffy white
    fish-cake squares, airy pores, a soft sheen) */
 const OdenFood = remakeFood('oden', {
-  premiumOpts: { R: 0.2, grain: { hanpen: 0.06, konnyaku: 0.12, daikon: 0.05 }, lift: { gyusuji: 'brightness(1.1) contrast(1.06)', konnyaku: 'brightness(0.86) contrast(1.06)', tamago: 'brightness(0.92) contrast(1.08) saturate(1.08)', chikuwa: 'brightness(1.14) contrast(1.02)', kinchaku: 'brightness(1.06) contrast(1.06)', daikon: 'brightness(1.07) contrast(1.04)', hanpen: 'brightness(1.06)' } },
+  premiumOpts: { R: 0.2, grain: { hanpen: 0.06, konnyaku: 0.12, daikon: 0.05 }, lift: { gyusuji: 'brightness(1.1) contrast(1.06)', konnyaku: 'brightness(0.86) contrast(1.06)', tamago: 'brightness(0.8) contrast(1.08) saturate(1.1)', chikuwa: 'brightness(1.14) contrast(1.02)', kinchaku: 'brightness(1.06) contrast(1.06)', daikon: 'brightness(1.07) contrast(1.04)', hanpen: 'brightness(1.06)' } },
   FOOD: [null, 'gyusuji', 'daikon', 'konnyaku', 'chikuwa', 'tamago', 'kinchaku', 'hanpen'],
   MAIN: [null, '#5a3420', '#e0b46a', '#7a7470', '#c89a5a', '#d8a848', '#b07a34', '#f4f0e8'],
   soft: { gyusuji: 1.0, daikon: 1.2, konnyaku: 0.9, chikuwa: 1.2, tamago: 1.3, kinchaku: 1.3, hanpen: 1.5 },
@@ -20,8 +20,8 @@ const OdenFood = remakeFood('oden', {
             for (let k = 0; k < n; k++) { const cx = (k + 0.5) * step, rr = Math.min(step, P) * 0.56, sd = k * 13 + r * 7 + 3;
               x.fillStyle = 'rgba(10,4,0,0.5)'; M.blob(cx + P * 0.02, cy + P * 0.04, rr, sd, 8, 0.4); x.fill();
               x.fillStyle = M.rad(cx - rr * 0.35, cy - rr * 0.4, rr * 1.6, [[0, '#a8683a'], [0.5, '#6e3c1e'], [1, '#3a1c0c']]); M.blob(cx, cy, rr, sd, 8, 0.4); x.fill();
-              x.fillStyle = 'rgba(230,200,150,0.45)'; M.blob(cx + rr * 0.15, cy + rr * 0.1, rr * 0.38, sd + 1, 6, 0.6); x.fill(); // translucent gelatinous tendon
-              x.fillStyle = 'rgba(255,230,190,0.55)'; ellipse(x, cx - rr * 0.32, cy - rr * 0.42, rr * 0.28, rr * 0.08, -0.5); x.fill(); } } }); });
+              x.fillStyle = 'rgba(230,200,150,0.3)'; M.blob(cx + rr * 0.15, cy + rr * 0.1, rr * 0.38, sd + 1, 6, 0.6); x.fill(); // translucent gelatinous tendon
+              x.fillStyle = 'rgba(255,230,190,0.3)'; ellipse(x, cx - rr * 0.32, cy - rr * 0.42, rr * 0.3, rr * 0.09, -0.5); x.fill(); } } }); });
         M.form('rgba(255,210,160,0.18)', 'rgba(10,4,0,0.45)'); break; }
       case 'daikon': { M.fill('#8a5a26'); M.piece(() => { // thick translucent rounds, cross-scored
         for (const [a, c] of M.cells) { const cx = (a + 0.5) * P, cy = (c + 0.5) * P, R = P * 0.48;
@@ -36,8 +36,8 @@ const OdenFood = remakeFood('oden', {
         M.axis((len, sp) => { const rows = Math.max(1, Math.round(sp / P));
           for (let r = 0; r < rows; r++) { const n = Math.max(1, Math.round(len / (P * 0.6))), step = len / n;
             for (let k = 0; k < n; k++) { const up = (k + r) % 2 === 0, cx = (k + 0.5) * step, cy = (r + 0.5) * P, hh = P * 0.82, hw = step * 0.98, ty = cy + (up ? -hh / 2 : hh / 2), by = cy + (up ? hh / 2 : -hh / 2);
-              const tri = (dx, dy) => { x.beginPath(); x.moveTo(cx + dx, ty + dy); x.lineTo(cx + hw * 0.92 + dx, by + dy); x.lineTo(cx - hw * 0.92 + dx, by + dy); x.closePath(); };
-              x.fillStyle = 'rgba(0,0,0,0.45)'; tri(P * 0.02, P * 0.035); x.fill();
+              const tri = (dx, dy) => { x.beginPath(); x.moveTo(cx + dx, ty + dy); x.lineTo(cx + hw * 0.96 + dx, by + dy); x.lineTo(cx - hw * 0.96 + dx, by + dy); x.closePath(); };
+              x.fillStyle = 'rgba(0,0,0,0.3)'; tri(P * 0.015, P * 0.03); x.fill();
               x.fillStyle = M.lin(cx - hw, ty, cx + hw, by, [[0, '#a8a29a'], [0.5, '#86807a'], [1, '#5e5a56']]); tri(0, 0); x.fill();
               x.save(); tri(0, 0); x.clip(); x.strokeStyle = 'rgba(60,56,52,0.28)'; x.lineWidth = lw(0.012); for (let q = -3; q < 4; q++) { x.beginPath(); x.moveTo(cx + q * P * 0.26, cy - P); x.lineTo(cx + q * P * 0.26 + P, cy + P); x.moveTo(cx + q * P * 0.26, cy - P); x.lineTo(cx + q * P * 0.26 - P, cy + P); x.stroke(); }
               if (!small) for (let g = 0; g < 26; g++) { x.fillStyle = 'rgba(30,26,24,0.7)'; x.beginPath(); x.arc(cx + (H(k * 26 + g + r * 99, 5) - 0.5) * hw * 1.6, cy + (H(k * 26 + g + r * 99, 6) - 0.5) * hh, P * 0.012, 0, TAU); x.fill(); } // hijiki specks
@@ -57,8 +57,9 @@ const OdenFood = remakeFood('oden', {
         for (const [a, c] of M.cells) { const cx = (a + 0.5) * P, cy = (c + 0.5) * P, rx = P * 0.44, ry = P * 0.47, rot = (H(a * 7 + c, 3) - 0.5) * 0.5;
           x.save(); x.translate(cx, cy); x.rotate(rot); x.fillStyle = 'rgba(30,14,0,0.45)'; ellipse(x, P * 0.02, P * 0.035, rx, ry, 0); x.fill();
           x.fillStyle = M.rad(-rx * 0.3, -ry * 0.35, ry * 1.3, [[0, '#e2b070'], [0.6, '#b07436'], [1, '#6e4016']]); ellipse(x, 0, 0, rx, ry, 0); x.fill();
-          x.fillStyle = M.rad(-rx * 0.1, ry * 0.0, rx * 0.6, [[0, '#ffd460'], [0.7, '#eeac2a'], [1, '#c8861c']]); ellipse(x, 0, ry * 0.06, rx * 0.5, rx * 0.52, 0); x.fill();
-          x.fillStyle = 'rgba(255,240,180,0.6)'; ellipse(x, -rx * 0.14, -ry * 0.06, rx * 0.16, rx * 0.07, -0.4); x.fill();
+          x.fillStyle = M.rad(-rx * 0.1, 0, rx * 0.75, [[0, '#f2e2bc'], [0.7, '#e2c48e'], [1, 'rgba(200,150,90,0)']]); ellipse(x, 0, ry * 0.05, rx * 0.72, rx * 0.74, 0); x.fill(); // the white paling toward the yolk (broth only stains the outside)
+          x.fillStyle = M.rad(-rx * 0.1, 0, rx * 0.55, [[0, '#f0cc6c'], [0.7, '#dca84a'], [1, '#bc8a32']]); ellipse(x, 0, ry * 0.06, rx * 0.44, rx * 0.46, 0); x.fill();
+          x.fillStyle = 'rgba(255,240,190,0.25)'; ellipse(x, -rx * 0.14, -ry * 0.06, rx * 0.16, rx * 0.07, -0.4); x.fill();
           x.fillStyle = 'rgba(255,248,230,0.45)'; ellipse(x, -rx * 0.4, -ry * 0.5, rx * 0.22, ry * 0.07, -0.6); x.fill(); x.restore(); } });
         M.form('rgba(255,236,190,0.2)', 'rgba(50,24,0,0.38)'); break; }
       case 'kinchaku': { M.fill('#4a2a10'); M.piece(() => { // fried-tofu pouches, tied with a kanpyō ribbon
