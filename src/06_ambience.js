@@ -21,7 +21,7 @@ const Amb = (() => {
   const rollW = {};
   let cur = { id: '', p: 0, time: 0 }, flashT = 0, nextThunder = 6;
   const st = { phase: 'dusk', next: 'night', k: 0, sky: ['#000000', '#000000', '#000000'], grade: [0, 0, 0, 0], dark: 0, sun: 0, lights: 1, stars: 0, weather: 'clear', wet: 0, wind: 0, flash: 0, crowd: 1, label: '' };
-  const NOSNOW = { nightmarket: 1, floating: 1, taqueria: 1, laneway: 1, saintpeter: 1, boba: 1 }; // subtropical / temperate coastal: rain instead of snow
+  const NOSNOW = { nightmarket: 1, hotpot: 1, floating: 1, taqueria: 1, laneway: 1, saintpeter: 1, boba: 1 }; // subtropical / temperate coastal: rain instead of snow
   function roll(id) { if (!rollW[id]) { let w = id === 'cosmic' ? 'clear' : WEATHERS[Math.floor(Math.random() * WEATHERS.length)]; if (w === 'snow' && NOSNOW[id]) w = 'rain'; rollW[id] = w; } return rollW[id]; }
   function force(id, w) { rollW[id] = w; }
   function reroll() { for (const k in rollW) delete rollW[k]; }

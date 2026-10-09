@@ -21,7 +21,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 14 | Konbini (Lawson-style, fan tribute) | lawson | live (geo; fluorescent 24h store, hot-snack warmer, nikuman steamer, microwave countdown "chin", delivery truck, fresh-karaage event) |
 | 15 | Japanese Tea House | teahouse | live (geo; Kyoto tea room, matcha whisked the slow way, shishi-odoshi, ceremony) |
 | 16 | Fukuoka Oden Yatai | oden | live (geo; riverside night stall, partitioned oden pot, tebo yuchiri, vinyl curtain onto Nakasu neon) |
-| 17 | Taiwanese Hotpot | hotpot | TODO |
+| 17 | Taiwanese Hotpot | hotpot | live (geo; split yuanyang pot, meat slicer, broth refills, free ice cream, scooter street) |
 | 18 | Ramen Yokocho | ramen | TODO |
 | 19 | Korean BBQ | kbbq | TODO |
 | 20 | Parisian Patisserie | patisserie | TODO |
@@ -472,3 +472,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Blocks src/28_31a_oden_food.js: gyūsuji skewers, daikon (translucent amber rounds), konnyaku (speckled triangles), chikuwa (toasted tubes, hollow ends), tamago (broth-stained halves), kinchaku (tied tofu pouches), hanpen. Luma 73/184/99/153/122/136/217, 0 close.
 - Review notes: daikon cross-score read as hot-cross buns → removed; konnyaku scoring read as chain-link → lighter, wider; chikuwa stripes read as a comb → toasted gradient + blisters; tamago went grey when darkened by filter → re-coloured amber. Weak spot: oden is honestly a brown palette — separation is by value and shape (triangles, tubes, skewers, squares) more than hue; chikuwa's toasted side is subtle on vertical pieces.
 - Images: shots/cmp-oden.png, screenshot-oden.png, oden-dusk-rain.png, oden-event-{kanpai,freshpot}.png, iphone-oden.png.
+- 7bdca78 oden
+
+## Hotpot (hotpot) — new world
+- Scene src/28_32_hotpot.js: red lacquer + gold lattice, red lanterns, upside-down 福 diamond, black menu board in gold (麻辣鍋 380 / 酸菜白肉鍋 360 / 牛肉片 / 鴨血豆腐 / 魚丸 / 冰淇淋 免費), booths with their own steaming pots behind the board. Counter: chilled case of ingredient plates, the split yuānyāng pot (red mala | pale sauerkraut) with bubbles + chillies, a meat slicer whose blade spins while A-Wei shaves beef, sauce bowls, the free-ice-cream freezer; red front 歡迎光臨. Mei carries the long-spouted broth kettle ("Refill?"). Window: Taipei arcade shophouses with vertical neon (藥局/小吃/麻辣/茶), a tall tower lit at night, a two-way river of scooters with headlight cones, 吃到飽 sticker. Events: refill round (steam bloom), ice cream (freezer glow + confetti, everyone cheers). Taipei added to the NOSNOW list (rain instead). Guzheng + erhu, 104 bpm.
+- Blocks src/28_32a_hotpot_food.js: fish balls, duck-blood tofu cubes, mala broth (oil droplets, dried chillies, Sichuan peppercorns), rolled marbled beef, napa cabbage (one leaf per cell: white rib, ruffled green crown), shiitake (star cut), corn kernels. Luma 224/51/68/146/189/125/168, 0 close.
+- Review notes: napa v1 read as a zipper/fish-bone chevron → leaf-per-cell; fish balls sparse on a grey bed → one big ball per cell; mala oil read as orange slices → smaller droplets. Weak spot: duck blood (51) and mala (68) are both dark reds — separated by shape (grid of cubes vs speckled broth) more than value.
+- Images: shots/cmp-hotpot.png, screenshot-hotpot.png, hotpot-night.png, hotpot-event-{refill,icecream}.png, iphone-hotpot.png.
