@@ -7,7 +7,7 @@ js = '\n'.join(open(f, encoding='utf-8').read() for f in src)
 assert '</script' not in js
 ttf = os.path.join(d, 'fonts', 'YujiSyuku-Regular.ttf')
 sub = os.path.join(d, 'fonts', 'YujiSyuku-subset.woff2')
-chars = sorted(set(re.findall(r'[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]', js)) | set('0123456789円'))
+chars = sorted(set(re.findall(r'[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef\uac00-\ud7af]', js)) | set('0123456789円'))
 if os.path.exists(ttf):  # regenerate the subset (needs fonttools + brotli)
     from fontTools import subset
     opts = subset.Options(); opts.flavor = 'woff2'; opts.layout_features = ['*']; opts.hinting = False; opts.desubroutinize = True
