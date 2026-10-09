@@ -8,85 +8,91 @@ const PastryFood = FoodMass({
   FOOD: [null, 'cannoli', 'boston', 'cheesecake', 'pistachio', 'tiramisu', 'ganache', 'rainbow'],
   MAIN: [null, '#c98a45', '#e6c46e', '#efe4cc', '#b9cc8c', '#9a6a44', '#3e2218', '#6e9a5a'],
   soft: { boston: 1.4, cheesecake: 1.5, pistachio: 1.3, tiramisu: 1.2, ganache: 1.0, rainbow: 0.8, cannoli: 0.6 },
-  glisten: { ganache: 0.55, cheesecake: 0.35, boston: 0.4 },
-  vkey: (food, vr) => (food === 'cannoli' ? vr : vr % 4),
-  vpaint: (food, vk) => (food === 'cannoli' ? vk : vk * 13 + 1),
+  shape: true, diag: true, R: 0.22,
+  vkey: (food, vr) => vr, vpaint: (food, vk) => vk,
+  // v4: every piece is drawn in PIECE space — layers span the whole piece (not one stack of layers per cell), one long
+  // cannoli per I piece, ladyfinger joints / pistachio waves / berries placed along the piece, so no cell seams anywhere.
   paint(x, food, Q) {
-    const { P, mask, vr, small, l, t, r, b, C, band, hash, N, E, S, W } = Q;
+    const { P, mask, vr, small, l, t, r, b, C, hash, N, E, S, W, shape } = Q;
+    const lx = vr & 3, ly = (vr >> 2) & 3, cells = shape || [[lx, ly]], lw = (k) => Math.max(1, P * k), A = cells.length;
+    let bx0 = 9, by0 = 9, bx1 = -9, by1 = -9; for (const [a, c] of cells) { bx0 = Math.min(bx0, a); by0 = Math.min(by0, c); bx1 = Math.max(bx1, a + 1); by1 = Math.max(by1, c + 1); }
+    const wide = bx1 - bx0 >= by1 - by0, X0 = bx0 * P, Y0 = by0 * P, BW = (bx1 - bx0) * P, BH = (by1 - by0) * P;
     const fill = (col) => { x.fillStyle = col; x.fillRect(l - 2, t - 2, r - l + 4, b - t + 4); };
     const lin = (x0, y0, x1, y1, st) => { const g = x.createLinearGradient(x0, y0, x1, y1); st.forEach(([o, c]) => g.addColorStop(o, c)); return g; };
-    const specks = (n, col, sz, key, y0 = 0, y1 = 1) => { x.fillStyle = col; for (let i = 0; i < n; i++) { const q = Math.max(1, P * sz * (0.6 + hash(key, i, 9) * 0.8)); x.fillRect(C(hash(key, i, 1)), C(y0 + hash(key, i, 2) * (y1 - y0)), q, q); } };
+    const piece = (fn) => { x.save(); x.translate(C(0) - lx * P, C(0) - ly * P); fn(); x.restore(); };
+    const H = (i, k) => hash(41, i, k);
+    const has = (a, c) => cells.some(([a2, c2]) => a2 === a && c2 === c);
+    const R0 = X0 - P, RW = BW + 2 * P; // full-width rect in piece space
+    const band = (y0, y1, col) => { x.fillStyle = col; x.fillRect(R0, y0, RW, y1 - y0); };
+    const specksP = (n, col, sz, k, y0 = Y0, y1 = Y0 + BH) => { x.fillStyle = col; for (let i = 0; i < n; i++) { const q = Math.max(1, P * sz * (0.6 + H(i + k, 9) * 0.8)); x.fillRect(X0 + H(i + k, 1) * BW, y0 + H(i + k, 2) * (y1 - y0), q, q); } };
     const topLight = (a = 0.16) => { if (!(mask & N)) { x.fillStyle = lin(0, t, 0, t + P * 0.3, [[0, `rgba(255,248,230,${a})`], [1, 'rgba(255,248,230,0)']]); x.fillRect(l - 2, t, r - l + 4, P * 0.3); } };
     const botShade = (a = 0.22) => { if (!(mask & S)) { x.fillStyle = lin(0, b - P * 0.3, 0, b, [[0, 'rgba(30,12,4,0)'], [1, `rgba(30,12,4,${a})`]]); x.fillRect(l - 2, b - P * 0.3, r - l + 4, P * 0.3); } };
+    const tops = cells.filter(([a, c]) => !has(a, c - 1)), bots = cells.filter(([a, c]) => !has(a, c + 1));
+    // drip edge along the real top of the piece (glaze / jam), continuous across neighbouring top cells
+    const glazeTop = (col, depth, drips, k) => { for (const [a, c] of tops) { const y = c * P; x.fillStyle = col; x.fillRect(a * P - 1, y - 2, P + 2, P * depth + 2); for (let i = 0; i < drips; i++) { const dx = a * P + P * (0.15 + (i + H(a * 5 + c, i + k)) / drips * 0.7); x.beginPath(); x.ellipse(dx, y + P * depth, P * 0.05, P * (0.04 + H(a + c * 3, i + k + 7) * 0.06), 0, 0, TAU); x.fill(); } } };
     switch (food) {
-      case 'cannoli': {
-        const horiz = (mask & (E | W)) || !(mask & (N | S)), lx = vr & 3, ly = (vr >> 2) & 3, first = horiz ? lx % 2 === 0 : ly % 2 === 0;
-        // work in a local frame where the tube runs along +u; the open end of THIS cell's cannoli sits at u = 0 (first) or u = 1
-        x.save(); if (!horiz) { x.translate(C(0.5), C(0.5)); x.rotate(Math.PI / 2); x.translate(-C(0.5), -C(0.5)); }
-        const U = (u) => C(u), y0 = t - 2, y1 = b + 2, mid = (t + b) / 2, h = b - t;
-        fill('#f4ecdc'); // ricotta peeking where two cannoli meet
-        const endU = first ? 0.2 : 0.8, sx0 = first ? U(endU) : l - 3, sx1 = first ? r + 3 : U(endU);
-        x.fillStyle = lin(0, t, 0, b, [[0, '#e9b56c'], [0.18, '#d9a058'], [0.55, '#c08040'], [1, '#86501f']]);
-        x.beginPath(); x.moveTo(sx0, t + h * 0.02); x.lineTo(sx1, t + h * 0.02); x.lineTo(sx1, b - h * 0.02); x.lineTo(sx0, b - h * 0.02); x.closePath(); x.fill();
-        // lip of the shell (a slightly flared rim) and the bulging cream face, pressed into mini chips
-        const ex = U(endU), dir = first ? -1 : 1;
-        x.fillStyle = '#a86a32'; x.beginPath(); x.ellipse(ex, mid, P * 0.07, h * 0.5, 0, 0, TAU); x.fill();
-        x.fillStyle = lin(0, t, 0, b, [[0, '#fffaf0'], [1, '#e6dcc6']]); x.beginPath(); x.ellipse(ex + dir * P * 0.07, mid, P * 0.13, h * 0.44, 0, 0, TAU); x.fill();
-        x.fillStyle = 'rgba(255,255,255,0.55)'; x.beginPath(); x.ellipse(ex + dir * P * 0.1, mid - h * 0.2, P * 0.04, h * 0.08, 0, 0, TAU); x.fill();
-        if (!small) { x.fillStyle = '#22140c'; for (let i = 0; i < 9; i++) { const cy = mid + (hash(vr, i, 31) - 0.5) * h * 0.78, cx = ex + dir * P * (0.04 + hash(vr, i, 32) * 0.15); x.beginPath(); x.arc(cx, cy, Math.max(0.8, P * 0.024), 0, TAU); x.fill(); } }
-        // wrap seam + blistered surface + powdered sugar on the light side
-        x.strokeStyle = 'rgba(120,70,30,0.5)'; x.lineWidth = Math.max(0.8, P * 0.02); x.beginPath(); const sm = first ? U(0.62) : U(0.38); x.moveTo(sm - P * 0.1, t + h * 0.04); x.lineTo(sm + P * 0.06, b - h * 0.04); x.stroke();
-        for (let i = 0; i < (small ? 6 : 20); i++) { const bx = lerp(sx0 + P * 0.08, sx1 - P * 0.04, hash(vr, i, 3)), by = t + h * (0.1 + hash(vr, i, 4) * 0.8), q = P * (0.018 + hash(i, vr, 5) * 0.022); x.fillStyle = hash(i, vr, 6) < 0.55 ? 'rgba(250,215,150,0.75)' : 'rgba(110,55,15,0.5)'; x.beginPath(); x.ellipse(bx, by, q * 1.3, q, 0, 0, TAU); x.fill(); }
-        x.fillStyle = 'rgba(255,246,226,0.32)'; x.fillRect(sx0 + P * 0.04, t + h * 0.1, sx1 - sx0 - P * 0.06, h * 0.07);
-        x.fillStyle = 'rgba(255,255,255,0.85)'; for (let i = 0; i < (small ? 5 : 22); i++) { const px = lerp(sx0 + P * 0.06, sx1, hash(vr, i, 7)), py = t + h * (0.05 + Math.pow(hash(vr, i, 8), 1.6) * 0.45), q = Math.max(0.8, P * (0.012 + hash(i, vr, 9) * 0.014)); x.fillRect(px, py, q, q); }
-        x.restore();
-        botShade(0.18);
-        return;
+      case 'cannoli': { // ONE long cannoli per piece: blistered golden shell, wrap seams, ricotta + chips bulging only from the two real ends
+        fill('#c98a45');
+        piece(() => { x.save(); if (!wide) { x.translate(X0 + BW, Y0); x.rotate(Math.PI / 2); } else x.translate(X0, Y0);
+          const L = wide ? BW : BH, h = wide ? BH : BW, mid = h / 2;
+          x.fillStyle = '#f4ecdc'; x.fillRect(-P, -P, L + 2 * P, h + 2 * P);
+          x.fillStyle = lin(0, 0, 0, h, [[0, '#e9b56c'], [0.18, '#d9a058'], [0.55, '#c08040'], [1, '#86501f']]); x.fillRect(P * 0.2, h * 0.02, L - P * 0.4, h * 0.96);
+          for (const [ex, dir] of [[P * 0.2, -1], [L - P * 0.2, 1]]) { x.fillStyle = '#a86a32'; x.beginPath(); x.ellipse(ex, mid, P * 0.07, h * 0.5, 0, 0, TAU); x.fill();
+            x.fillStyle = lin(0, 0, 0, h, [[0, '#fffaf0'], [1, '#e6dcc6']]); x.beginPath(); x.ellipse(ex + dir * P * 0.07, mid, P * 0.13, h * 0.44, 0, 0, TAU); x.fill();
+            if (!small) { x.fillStyle = '#22140c'; for (let i = 0; i < 9; i++) { x.beginPath(); x.arc(ex + dir * P * (0.04 + H(i + (dir > 0 ? 20 : 0), 32) * 0.15), mid + (H(i + (dir > 0 ? 20 : 0), 31) - 0.5) * h * 0.78, Math.max(0.8, P * 0.024), 0, TAU); x.fill(); } } }
+          x.strokeStyle = 'rgba(120,70,30,0.45)'; x.lineWidth = lw(0.02); for (let k = 1; k < L / P * 0.9; k++) { const sm = P * 0.2 + k * (L - P * 0.4) / Math.ceil(L / P * 0.9); x.beginPath(); x.moveTo(sm - P * 0.12, h * 0.04); x.quadraticCurveTo(sm, mid, sm + P * 0.08, h * 0.96); x.stroke(); }
+          for (let i = 0; i < (small ? 10 : L / P * 22); i++) { const bx = P * 0.28 + H(i, 3) * (L - P * 0.56), by = h * (0.1 + H(i, 4) * 0.8), q = P * (0.018 + H(i, 5) * 0.022); x.fillStyle = H(i, 6) < 0.55 ? 'rgba(250,215,150,0.75)' : 'rgba(110,55,15,0.5)'; x.beginPath(); x.ellipse(bx, by, q * 1.4, q, 0, 0, TAU); x.fill(); }
+          x.fillStyle = 'rgba(255,246,226,0.32)'; x.fillRect(P * 0.24, h * 0.1, L - P * 0.48, h * 0.07);
+          x.fillStyle = 'rgba(255,255,255,0.85)'; for (let i = 0; i < (small ? 8 : L / P * 22); i++) { const q = Math.max(0.8, P * (0.012 + H(i, 9) * 0.014)); x.fillRect(P * 0.26 + H(i, 7) * (L - P * 0.5), h * (0.05 + Math.pow(H(i, 8), 1.6) * 0.45), q, q); }
+          x.restore(); });
+        botShade(0.18); return;
       }
-      case 'boston': { // sponge / custard / sponge; ganache with a soft specular streak on top
+      case 'boston': { // sponge / custard / sponge across the whole piece, ganache glaze on the real top with drips
         fill('#e9c878');
-        x.fillStyle = '#f7e3a4'; x.fillRect(l - 2, C(0.44), r - l + 4, P * 0.14); x.fillStyle = 'rgba(160,110,40,0.35)'; x.fillRect(l - 2, C(0.44), r - l + 4, Math.max(1, P * 0.02)); x.fillRect(l - 2, C(0.58), r - l + 4, Math.max(1, P * 0.02));
-        specks(small ? 4 : 18, 'rgba(176,128,56,0.55)', 0.022, vr + 11, 0.05, 0.42); specks(small ? 3 : 14, 'rgba(176,128,56,0.55)', 0.022, vr + 12, 0.62, 0.98);
-        if (!(mask & N)) { x.fillStyle = lin(0, t, 0, t + P * 0.3, [[0, '#2a150c'], [1, '#4a2616']]); x.fillRect(l - 2, t - 2, r - l + 4, P * 0.26); for (let i = 0; i < 3; i++) { const dx = C(0.18 + i * 0.32 + hash(vr, i) * 0.08); x.beginPath(); x.ellipse(dx, t + P * 0.26, P * 0.05, P * (0.05 + hash(i, vr) * 0.06), 0, 0, TAU); x.fill(); }
-          x.fillStyle = 'rgba(255,236,210,0.5)'; x.beginPath(); x.ellipse(C(0.45), t + P * 0.07, P * 0.28, P * 0.022, -0.04, 0, TAU); x.fill(); }
+        piece(() => { const yc = Y0 + BH * 0.5; band(yc - P * 0.08, yc + P * 0.08, '#f7e3a4'); band(yc - P * 0.08, yc - P * 0.08 + lw(0.02), 'rgba(160,110,40,0.35)'); band(yc + P * 0.08, yc + P * 0.08 + lw(0.02), 'rgba(160,110,40,0.35)');
+          specksP(small ? 6 : A * 12, 'rgba(176,128,56,0.5)', 0.022, 11);
+          glazeTop('#3a1e12', 0.24, 3, 5); for (const [a, c] of tops) { x.fillStyle = 'rgba(255,236,210,0.4)'; x.beginPath(); x.ellipse(a * P + P * 0.5, c * P + P * 0.07, P * 0.3, P * 0.02, -0.04, 0, TAU); x.fill(); } });
         topLight(0.1); botShade(0.2); return;
       }
-      case 'cheesecake': {
+      case 'cheesecake': { // creamy body, berry jam + berries along the top, graham base along the real bottom
         fill(lin(0, t, 0, b, [[0, '#f6eedc'], [1, '#ece0c4']]));
-        specks(small ? 2 : 8, 'rgba(200,170,120,0.25)', 0.03, vr + 21);
-        if (!(mask & S)) { x.fillStyle = '#7a4c2a'; x.fillRect(l - 2, b - P * 0.2, r - l + 4, P * 0.22); specks(small ? 3 : 12, '#a06a3e', 0.03, vr + 22, 0.82, 0.98); }
-        if (!(mask & N)) { x.fillStyle = '#a81e2c'; x.fillRect(l - 2, t - 2, r - l + 4, P * 0.2); for (let i = 0; i < 3; i++) { x.beginPath(); x.ellipse(C(0.15 + i * 0.35), t + P * 0.2, P * 0.05, P * (0.04 + hash(vr, i) * 0.06), 0, 0, TAU); x.fill(); }
-          for (let i = 0; i < 2; i++) { const bx = C(0.27 + i * 0.46), by = t + P * 0.08, br = P * 0.15; x.fillStyle = '#c42a36'; x.beginPath(); x.moveTo(bx - br, by); x.quadraticCurveTo(bx - br, by - br * 1.1, bx, by - br * 0.9); x.quadraticCurveTo(bx + br, by - br * 1.1, bx + br, by); x.quadraticCurveTo(bx, by + br * 1.1, bx - br, by); x.fill();
-            x.fillStyle = 'rgba(255,255,255,0.6)'; x.beginPath(); x.ellipse(bx - br * 0.35, by - br * 0.45, br * 0.22, br * 0.12, -0.5, 0, TAU); x.fill(); if (!small) { x.fillStyle = '#f0d070'; for (let k = 0; k < 5; k++) x.fillRect(bx - br * 0.5 + k * br * 0.25, by + (k % 2) * br * 0.25 - br * 0.1, Math.max(1, P * 0.012), Math.max(1, P * 0.018)); } } }
+        piece(() => { specksP(small ? 3 : A * 5, 'rgba(200,170,120,0.25)', 0.03, 21);
+          for (const [a, c] of bots) { x.fillStyle = '#7a4c2a'; x.fillRect(a * P - 1, (c + 1) * P - P * 0.2, P + 2, P * 0.22); x.fillStyle = '#a06a3e'; for (let i = 0; i < 8; i++) x.fillRect(a * P + H(a + c * 7, i) * P, (c + 1) * P - P * 0.18 + H(a + c * 7, i + 9) * P * 0.14, lw(0.03), lw(0.03)); }
+          glazeTop('#a81e2c', 0.18, 3, 25);
+          const bs = []; for (const [a, c] of tops) bs.push([a * P + P * (0.3 + H(a + c, 30) * 0.4), c * P + P * 0.08]);
+          bs.forEach(([bx, by], i) => { const br = P * 0.15; x.fillStyle = '#c42a36'; x.beginPath(); x.moveTo(bx - br, by); x.quadraticCurveTo(bx - br, by - br * 1.1, bx, by - br * 0.9); x.quadraticCurveTo(bx + br, by - br * 1.1, bx + br, by); x.quadraticCurveTo(bx, by + br * 1.1, bx - br, by); x.fill();
+            x.fillStyle = 'rgba(255,255,255,0.45)'; x.beginPath(); x.ellipse(bx - br * 0.35, by - br * 0.45, br * 0.2, br * 0.1, -0.5, 0, TAU); x.fill(); void i; }); });
         topLight(0.08); botShade(0.15); return;
       }
-      case 'pistachio': {
+      case 'pistachio': { // pistachio ricotta: soft folds running across the piece, chopped nuts scattered through it
         fill(lin(0, t, 0, b, [[0, '#cfdcaa'], [1, '#b2c486']]));
-        x.strokeStyle = 'rgba(255,255,240,0.35)'; x.lineWidth = Math.max(1, P * 0.04); for (let k = 0; k < 2; k++) { x.beginPath(); x.moveTo(l - 2, C(0.3 + k * 0.45)); x.bezierCurveTo(C(0.3), C(0.18 + k * 0.45), C(0.6), C(0.42 + k * 0.45), r + 2, C(0.26 + k * 0.45)); x.stroke(); }
-        const g = ['#5e7a2a', '#86a442', '#a8bc5c', '#7a5a4a']; for (let i = 0; i < (small ? 6 : 18); i++) { x.fillStyle = g[i % 4]; const px = C(hash(vr, i, 4)), py = C(hash(vr, i, 5)), q = P * (0.03 + hash(i, vr, 6) * 0.03); x.beginPath(); x.moveTo(px - q, py); x.lineTo(px, py - q * 0.8); x.lineTo(px + q, py + q * 0.2); x.lineTo(px + q * 0.1, py + q); x.closePath(); x.fill(); }
+        piece(() => { x.strokeStyle = 'rgba(255,255,240,0.32)'; x.lineWidth = lw(0.05); x.lineCap = 'round'; const ph = H(A + bx1, 1) * 6;
+          for (let yk = Y0 + P * 0.35, k = 0; yk < Y0 + BH; yk += P * 0.5, k++) { x.beginPath(); for (let i = 0; i <= 16; i++) { const u = X0 - P * 0.2 + (BW + P * 0.4) * i / 16, v = yk + Math.sin(u / P * 1.8 + ph + k) * P * 0.07; i ? x.lineTo(u, v) : x.moveTo(u, v); } x.stroke(); }
+          const g = ['#5e7a2a', '#86a442', '#a8bc5c', '#7a5a4a']; for (let i = 0; i < (small ? 8 : A * 16); i++) { x.fillStyle = g[i % 4]; const px = X0 + H(i, 4) * BW, py = Y0 + H(i, 5) * BH, q = P * (0.03 + H(i, 6) * 0.03); x.beginPath(); x.moveTo(px - q, py); x.lineTo(px, py - q * 0.8); x.lineTo(px + q, py + q * 0.2); x.lineTo(px - q * 0.2, py + q * 0.6); x.closePath(); x.fill(); } });
         topLight(0.18); botShade(0.18); return;
       }
-      case 'tiramisu': {
+      case 'tiramisu': { // mascarpone with two espresso-soaked ladyfinger layers spanning the piece; cocoa on the real top
         fill('#efe2c6');
-        for (const [y, hh] of [[0.24, 0.2], [0.66, 0.2]]) { x.fillStyle = '#8e5e36'; x.fillRect(l - 2, C(y), r - l + 4, P * hh); x.fillStyle = 'rgba(60,30,10,0.35)'; for (let i = 0; i < 4; i++) x.fillRect(C(i * 0.27 + 0.1), C(y), Math.max(1, P * 0.015), P * hh); x.fillStyle = 'rgba(255,230,190,0.18)'; x.fillRect(l - 2, C(y), r - l + 4, P * 0.04); }
-        if (!(mask & N)) { x.fillStyle = '#5a3622'; x.fillRect(l - 2, t - 2, r - l + 4, P * 0.12); specks(small ? 6 : 26, '#3a2014', 0.02, vr + 41, 0.0, 0.16); }
+        piece(() => { const nL = 2, lh = Math.min(P * 0.24, BH / 5);
+          for (let k = 0; k < nL; k++) { const y = Y0 + BH * (k + 0.55) / (nL + 0.4) - lh / 2; band(y, y + lh, '#8e5e36'); band(y, y + lw(0.03), 'rgba(255,230,190,0.2)');
+            x.fillStyle = 'rgba(60,30,10,0.3)'; for (let u = X0 + P * (0.25 + H(k, 40) * 0.4); u < X0 + BW; u += P * (0.7 + H(Math.round(u), k) * 0.3)) x.fillRect(u, y, lw(0.015), lh); }
+          for (const [a, c] of tops) { x.fillStyle = '#5a3622'; x.fillRect(a * P - 1, c * P - 2, P + 2, P * 0.13); x.fillStyle = '#3a2014'; for (let i = 0; i < 12; i++) x.fillRect(a * P + H(a * 3 + c, i) * P, c * P + H(a + c * 5, i + 20) * P * 0.16, lw(0.02), lw(0.02)); } });
         topLight(0.06); botShade(0.2); return;
       }
-      case 'ganache': {
-        fill(lin(0, t, 0, b, [[0, '#4a2a1c'], [1, '#2e180e']]));
-        x.fillStyle = 'rgba(255,220,190,0.07)'; x.fillRect(l - 2, C(0.48), r - l + 4, P * 0.04);
-        if (!(mask & N)) { x.fillStyle = 'rgba(255,232,210,0.45)'; x.beginPath(); x.ellipse(C(0.42), t + P * 0.08, P * 0.3, P * 0.03, -0.05, 0, TAU); x.fill(); x.fillStyle = 'rgba(255,255,255,0.7)'; x.beginPath(); x.ellipse(C(0.3), t + P * 0.075, P * 0.07, P * 0.012, 0, 0, TAU); x.fill(); }
-        if (!(mask & W)) { x.fillStyle = lin(l, 0, l + P * 0.2, 0, [[0, 'rgba(255,220,190,0.16)'], [1, 'rgba(255,220,190,0)']]); x.fillRect(l, t, P * 0.2, b - t); }
+      case 'ganache': { // chocolate torte: deep gradient over the whole piece, one soft sheen on the top, no per-cell lines
+        fill('#3e2218');
+        piece(() => { x.fillStyle = lin(0, Y0, 0, Y0 + BH, [[0, '#4e2c1e'], [1, '#2a160c']]); x.fillRect(R0, Y0 - P, RW, BH + 2 * P);
+          for (const [a, c] of tops) { x.fillStyle = 'rgba(255,232,210,0.4)'; x.beginPath(); x.ellipse(a * P + P * 0.5, c * P + P * 0.08, P * 0.34, P * 0.028, -0.05, 0, TAU); x.fill(); } });
+        if (!(mask & W)) { x.fillStyle = lin(l, 0, l + P * 0.2, 0, [[0, 'rgba(255,220,190,0.14)'], [1, 'rgba(255,220,190,0)']]); x.fillRect(l, t, P * 0.2, b - t); }
         botShade(0.3); return;
       }
-      case 'rainbow': {
+      case 'rainbow': { // rainbow cookie: green / almond-white / red bands spanning the piece height, chocolate on the real top and bottom
         fill('#f2e6c8');
-        x.fillStyle = '#5f8f4a'; x.fillRect(l - 2, t - 2, r - l + 4, C(0.36) - t + 2); x.fillStyle = '#c43a34'; x.fillRect(l - 2, C(0.64), r - l + 4, b - C(0.64) + 2);
-        x.fillStyle = 'rgba(255,255,255,0.12)'; x.fillRect(l - 2, C(0.08), r - l + 4, P * 0.05); x.fillRect(l - 2, C(0.68), r - l + 4, P * 0.05);
-        x.fillStyle = '#d8a0a0'; x.fillRect(l - 2, C(0.36), r - l + 4, Math.max(1, P * 0.02)); x.fillRect(l - 2, C(0.62), r - l + 4, Math.max(1, P * 0.02));
-        if (!(mask & N)) { x.fillStyle = '#3a2116'; x.fillRect(l - 2, t - 2, r - l + 4, P * 0.12); x.fillStyle = 'rgba(255,230,200,0.3)'; x.fillRect(C(0.1), t + P * 0.03, P * 0.5, Math.max(1, P * 0.015)); }
-        if (!(mask & S)) { x.fillStyle = '#3a2116'; x.fillRect(l - 2, b - P * 0.08, r - l + 4, P * 0.1); }
-        specks(small ? 3 : 10, 'rgba(0,0,0,0.08)', 0.025, vr + 51);
+        piece(() => { const y1 = Y0 + BH * 0.36, y2 = Y0 + BH * 0.64; band(Y0 - P, y1, '#5f8f4a'); band(y2, Y0 + BH + P, '#c43a34');
+          band(y1, y1 + lw(0.02), '#d8a0a0'); band(y2 - lw(0.02), y2, '#d8a0a0'); band(Y0 + BH * 0.08, Y0 + BH * 0.08 + lw(0.05), 'rgba(255,255,255,0.12)'); band(y2 + BH * 0.04, y2 + BH * 0.04 + lw(0.05), 'rgba(255,255,255,0.12)');
+          for (const [a, c] of tops) { x.fillStyle = '#3a2116'; x.fillRect(a * P - 1, c * P - 2, P + 2, P * 0.12); }
+          for (const [a, c] of bots) { x.fillStyle = '#3a2116'; x.fillRect(a * P - 1, (c + 1) * P - P * 0.08, P + 2, P * 0.1); }
+          specksP(small ? 3 : A * 6, 'rgba(0,0,0,0.08)', 0.025, 51); });
         botShade(0.12); return;
       }
     }
