@@ -20,7 +20,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 13 | Curry House | curry | live (geo; spice ladder, level-10 challenge, rice jar; screenshot-curry.png) |
 | 14 | Konbini (Lawson-style, fan tribute) | lawson | live (geo; fluorescent 24h store, hot-snack warmer, nikuman steamer, microwave countdown "chin", delivery truck, fresh-karaage event) |
 | 15 | Japanese Tea House | teahouse | live (geo; Kyoto tea room, matcha whisked the slow way, shishi-odoshi, ceremony) |
-| 16 | Fukuoka Oden Yatai | oden | TODO |
+| 16 | Fukuoka Oden Yatai | oden | live (geo; riverside night stall, partitioned oden pot, tebo yuchiri, vinyl curtain onto Nakasu neon) |
 | 17 | Taiwanese Hotpot | hotpot | TODO |
 | 18 | Ramen Yokocho | ramen | TODO |
 | 19 | Korean BBQ | kbbq | TODO |
@@ -465,3 +465,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Blocks src/28_30a_teahouse_food.js: hanami dango, yōkan (translucent ruby slab + chestnuts), matcha (micro-foam), dorayaki, nerikiri (violet bellflowers), warabi kinako, ichigo daifuku (strawberry blush through mochi). Luma 202/57/132/97/155/189/225, 0 close.
 - Review notes: matcha whisk strokes read as ECG lines → foam drifts; kuromitsu pools read as olives, then as a twig → removed; cut daifuku read as an eyeball → whole ichigo daifuku with soft blush; dorayaki read as amber jelly → darker mahogany centre; garden v1: lantern hidden behind the shoji, maple a red cloud → moved + star leaves.
 - Images: shots/cmp-teahouse.png, screenshot-teahouse.png, teahouse-night.png, teahouse-event-{shishi,ceremony}.png, iphone-teahouse.png.
+- aa8838c teahouse
+
+## Oden Yatai (oden) — new world
+- Scene src/28_31_oden.js: outdoors at night — blue/white scalloped tarp, red おでん chōchin lanterns, the cart's plank back panel with isshōbin sake bottles, wooden menu tags (大根 200, 玉子 150, 牛すじ 300 …), indigo noren おでん酒; behind, Nakasu buildings with generic neon (スナック/BAR/カラオケ/居酒屋/ラーメン) and the river with wobbling reflections; wet paving. The "window" is the yatai's clear vinyl curtain (creases, rolled top, raindrops when it rains) onto the bridge, a taxi and the neon river. Counter: tonkotsu stockpot, partitioned oden pot with bobbing items + steam, copper sake warmer with tokkuri, beer server; red cart skirt 屋台おでん, wheels. Taishō (hachimaki) ladles oden + karashi, flicks the tebo ("Yuchiri!"), warms atsukan; Mitsuko wipes and calls in customers. Always evening (18:00 → 02:00). Events: kanpai, fresh-pot ("Shimitemasu yo~").
+- Blocks src/28_31a_oden_food.js: gyūsuji skewers, daikon (translucent amber rounds), konnyaku (speckled triangles), chikuwa (toasted tubes, hollow ends), tamago (broth-stained halves), kinchaku (tied tofu pouches), hanpen. Luma 73/184/99/153/122/136/217, 0 close.
+- Review notes: daikon cross-score read as hot-cross buns → removed; konnyaku scoring read as chain-link → lighter, wider; chikuwa stripes read as a comb → toasted gradient + blisters; tamago went grey when darkened by filter → re-coloured amber. Weak spot: oden is honestly a brown palette — separation is by value and shape (triangles, tubes, skewers, squares) more than hue; chikuwa's toasted side is subtle on vertical pieces.
+- Images: shots/cmp-oden.png, screenshot-oden.png, oden-dusk-rain.png, oden-event-{kanpai,freshpot}.png, iphone-oden.png.
