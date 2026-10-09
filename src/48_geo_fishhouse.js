@@ -19,9 +19,9 @@ const FishPal = GeoKit.palette({
 
 function makeGeoFishhouseStage() {
   const BAR = { x0: 24, x1: 452, top: 500 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
-  const STOOLS = [{ x: 96, occ: null }, { x: 236, occ: null }];
-  const TB = { x: 1128, top: 566, seats: [{ x: 1052, f: 1, occ: null }, { x: 1204, f: -1, occ: null }] };
-  const WIN = { x0: 300, y0: 96, x1: 990, y1: 470 }, PASS = { x: 1262 }, BUCKET = { x: 1000 };
+  const STOOLS = [{ x: 84, occ: null }, { x: 204, occ: null }];
+  const TB = { x: 1148, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1222, f: -1, occ: null }] };
+  const WIN = { x0: 300, y0: 96, x1: 990, y1: 470 }, PASS = { x: 1262 }, BUCKET = { x: 1036 };
   const DISHES = [{ n: 'Oysters', k: 'oyster', c: '#bccad2' }, { n: 'Seared scallops', k: 'scallop', c: '#e8b060' }, { n: 'Lobster thermidor', k: 'lobster', c: '#d8341e' }, { n: 'Salmon, dill', k: 'salmon', c: '#ff8a62' }, { n: 'Grilled octopus', k: 'octopus', c: '#b0607a' }, { n: 'Moules marinières', k: 'mussel', c: '#2a3050' }];
   let K, ana, henri, platter = { n: 0, x: 0, on: false, owner: null, shells: 0 }, tray = 0, shellBucket = 0, table = { plates: [], glasses: [{ lv: 0 }, { lv: 0 }], bottle: 0, candle: 0, cloche: null, party: null, menu: 0, ring: 0 }, boat = null, gull = null, nextArrive = 2, nextBoat = 60, nextGull = 40, bell = 0, sign = 1;
   const L = (h) => K.L(h), B = GeoKit.body;
@@ -64,8 +64,8 @@ function makeGeoFishhouseStage() {
     const g = STOOLS.map((st) => st.occ).find((q) => q && q.phase === 'wantOysters' && !platter.on);
     if (g) return shuck(a, g);
     const r = Math.random();
-    if (r < 0.3) return K.start(a, 'ice', [K.ph(0, (s) => { s.walkTo = rand(110, 260); }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(2, 3), (s, u, t) => { s.tgN = [s.hx + 26 + Math.sin(t * 5) * 10, BAR.top - 14 + Math.abs(Math.sin(t * 5)) * -6]; s.tgF = [s.hx + 10, BAR.top - 10]; s.leanT = 0.2; })]);
-    if (r < 0.5 && K.cooled(a, 'crack', 20)) return K.start(a, 'crack', [K.ph(0, (s) => { s.walkTo = 300; }, { until: (s) => !s.walking, max: 10 }), K.ph(2, (s, u, t) => { s.hold.N = H.mallet(); const hit = Math.sin(t * 8); s.tgN = [s.hx + 30, BAR.top - 30 + hit * 14]; s.leanT = 0.15; if (hit > 0.98 && Math.random() < 0.3) K.fx('spark', s.hx + 30, BAR.top - 18, { life: 0.25, col: '#ffffff' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.3) return K.start(a, 'ice', [K.ph(0, (s) => { s.walkTo = rand(100, 200); }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(2, 3), (s, u, t) => { s.tgN = [s.hx + 26 + Math.sin(t * 5) * 10, BAR.top - 14 + Math.abs(Math.sin(t * 5)) * -6]; s.tgF = [s.hx + 10, BAR.top - 10]; s.leanT = 0.2; })]);
+    if (r < 0.5 && K.cooled(a, 'crack', 20)) return K.start(a, 'crack', [K.ph(0, (s) => { s.walkTo = 206; }, { until: (s) => !s.walking, max: 10 }), K.ph(2, (s, u, t) => { s.hold.N = H.mallet(); const hit = Math.sin(t * 8); s.tgN = [s.hx + 30, BAR.top - 30 + hit * 14]; s.leanT = 0.15; if (hit > 0.98 && Math.random() < 0.3) K.fx('spark', s.hx + 30, BAR.top - 18, { life: 0.25, col: '#ffffff' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.tgN = [s.hx + 18, BAR.top - 8]; s.tgF = [s.hx + 4, BAR.top - 8]; s.lxT = pick([0.6, 0.2, -0.4]); })]);
   }
   function shuck(a, g) {
@@ -263,7 +263,7 @@ function makeGeoFishhouseStage() {
   function draw(c, t, Kk) {
     const P = K.P;
     drawRoom(c, t);
-    for (const x of [130, 330, 1128]) { c.strokeStyle = P.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, 59); c.lineTo(x, 200); c.stroke(); c.fillStyle = P.brass; c.beginPath(); c.arc(x, 214, 16, Math.PI, TAU); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 214, 12, 3); c.fill(); K.glow(c, x, 224, 150, P.glow, P.glowA); }
+    for (const x of [130, 330, 1148]) { c.strokeStyle = P.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, 59); c.lineTo(x, 200); c.stroke(); c.fillStyle = P.brass; c.beginPath(); c.arc(x, 214, 16, Math.PI, TAU); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 214, 12, 3); c.fill(); K.glow(c, x, 224, 150, P.glow, P.glowA); }
     c.fillStyle = P.floor; c.fillRect(-60, 640, 1400, 100 + K.extraB); for (let i = 0; i < 34; i++) { c.fillStyle = P.floor2; c.fillRect(-60 + i * 42, 640, 3, 100 + K.extraB); }
     K.drawBody(c, ana, true); drawBar(c, t);
     drawTable(c, false);

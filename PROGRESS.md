@@ -236,3 +236,41 @@ Shared engine (new):
 - Calm centre: street of far stalls, lanterns and bulb strings under the ZoneMask. Buyers (max one per stall) order, reach for the food, eat a few bites on the spot and stroll off; 1–2 strollers drift through and browse only an empty stall (no piling up). Rain: tarps drip, wet-street reflections, strollers carry umbrellas.
 - Clock 17:00 → 02:00 (dusk → night → late), crowd density follows the hour.
 - Shots: screenshot-geo-nightmarket-day.png (17:36 dusk), -night.png (21:30 rain).
+
+## Block-skin audit (2026-10-09, step 0)
+Method: runtime STAGES→SKINSETS map (headless), grep of every skin/food file for cross-world painter calls,
+shared helpers (SkinKit, sushiTex, FoodMass defaults), plus a concept/visual look-alike pass.
+
+Runtime map (later assignment wins): sushi→SushiFood(14a) · mikes→PastryFood(41) · speakeasy→CocktailFood(43) ·
+dimsum→DimsumFood(45) · gelato→GelatoFood(47) · fishhouse→SeafoodFood(49) · pizzeria→PizzaFood(51) ·
+fastfood→FastFood(53) · nightmarket→NightFood(56) · boba→BobaFood(55) · ocean/desert/neon/aurora/cosmic → built-in
+16_skins styles glass/sandstone/neon/ice/gem (originals, untouched).
+
+Code-level findings
+- No active food file calls another world's painter; FoodMass (14) is an engine only (no default/fallback painter,
+  every skin sets noFace). The old tile skins 14b–14h and 28_10s/28_11s are dead (overridden by 41–56).
+- SkinKit (14a) is not referenced by any active skin. 16_skins.sushiTex is dead code.
+Concept / look-alike leaks (to fix in each world's turn)
+- Trattoria Z "prosciutto": pink/white diagonal ribbons = visual clone of Kaiten salmon → replace.
+- Fish House: salmon fillet (sushi), seaweed salad (sushi edamame/wakame family), octopus (tako) → whole new set:
+  oysters on ice, lobster tail, prawns, mussels, scallops in shell, crab, whole grilled fish.
+- Night Market J pearl milk tea duplicates Boba's whole set → replace (e.g. grilled squid / scallion pancake).
+- Golden Arches L strawberry shake ≈ Boba Z strawberry milk; cola uses the same glass-wall recipe as Speakeasy → keep
+  shake (different vessel/whip) but re-tone Boba strawberry; cola stays a paper cup look, not glass.
+- Mike's Z tiramisu: Trattoria must NOT use tiramisu (use e.g. ravioli/cannelloni instead).
+- Gelato pistachio/cioccolato vs Mike's pistachio-ricotta/ganache: different forms (sculpted waves vs layered
+  slices) — acceptable, but keep tones distinct.
+
+## Step 0 — global (QA round 2)
+- HUD panels: --panel rgba(12,10,16,0.93) + backdrop blur 14px on .box/.stats → nothing reads through.
+- ZoneMask: after the blur, the board/HUD zone is flattened toward its average colour (0.62) + stage tint, so no
+  figure/facade shape shows through the board in any GeoKit world.
+- Rig life layer (12b stepActor): breathing, slow weight shifts, gaze drift, hand micro-drift for calm acts (opt-out a.noLife).
+- tools/gutter.js measures the HUD-hidden zone per viewport (1024x594…1920x1080): common safe strips are
+  scene x < ~216 (left, for a standing adult centre) and x > ~1064 (right). Fixed stationary spots:
+  Speakeasy stools 88/206 · Dim Sum table A 134 (seats 54/212), trolley home 214, waiter 1066 · Golden Arches grill
+  220–262, Jay 214–216, takeaway spawns hidden at 380 · Fish House stools 84/204, shucker ≤206, table 1148 · Night
+  Market Kai 1066 (flour 1046 / pot 1104 / bags 1144), SPOT_L 216 · Mike's: staff clamp (Gina ≤214, Sal ≥1068), right
+  queue 1108/1220. Remaining gutter hits are walkers crossing behind the board (transient). Trattoria and Gelato
+  (work stations inside the zone) are fixed in their own remake turns.
+- tools/cmp.js <world>: 4x stack vs 4x Kaiten stack → /workspace/shots/cmp-<world>.png.

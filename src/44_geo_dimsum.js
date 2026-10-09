@@ -19,7 +19,7 @@ const DimPal = GeoKit.palette({
 
 function makeGeoDimsumStage() {
   const SF = 604, SSC = 0.8, FL = 712, SC = 0.84;
-  const TA = { id: 'A', x: 150, top: 566, seats: [{ x: 66, f: 1, occ: null }, { x: 236, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.7, 0.5], stamps: 0, party: null, call: false, from: -50 };
+  const TA = { id: 'A', x: 134, top: 566, seats: [{ x: 54, f: 1, occ: null }, { x: 212, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.7, 0.5], stamps: 0, party: null, call: false, from: -50 };
   const TB = { id: 'B', x: 1150, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1230, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.6, 0.4], stamps: 0, party: null, call: false, from: 1330 };
   const TABLES = [TA, TB];
   const URN = { x: 1010, top: 470 }, KDOOR = { x0: 312, x1: 392 }, MOON = { x: 1150, y: 282, r: 112 }, LWIN = { x0: 18, y0: 150, x1: 128, y1: 380 };
@@ -80,8 +80,8 @@ function makeGeoDimsumStage() {
   const potX = (tb) => tb.x + 64, cupX = (tb, i) => tb.x + (i ? 86 : -76), slotX = (tb, i) => tb.x - 40 + i * 36, cardX = (tb) => tb.x - 62;
   /* ---------- staff ---------- */
   function mkStaff() {
-    may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 262, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
-    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1035, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
+    may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 214, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
+    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1066, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
     may.think = mayThink; lau.think = lauThink; fillTrolley();
   }
   const trolleyAt = (a) => { trolley.x = a.hx + a.f * 50; };
@@ -94,7 +94,7 @@ function makeGeoDimsumStage() {
     if (dirty && K.cooled(a, 'clear', 4)) return clearA(a, dirty);
     if (trolley.stack.length < 3 && !night) return restock(a);
     if (!night && Math.random() < 0.35 && K.cooled(a, 'tour', 18)) { const tb = TABLES.find((q) => q.party && q.want > 0 && !q.baskets.some((b) => b.n > 0)); if (tb) { tb.call = true; return; } }
-    if (night && K.cooled(a, 'fold', 6)) return K.start(a, 'fold', [pushTo(262), K.ph(rand(3, 5), (s, u, t) => { s.f = -1; s.tgN = [s.hx - 22 + Math.sin(t * 5) * 6, SF - 92]; s.tgF = [s.hx - 10, SF - 90 + Math.cos(t * 5) * 4]; s.leanT = 0.12; s.lxT = -0.4; })]);
+    if (night && K.cooled(a, 'fold', 6)) return K.start(a, 'fold', [pushTo(214), K.ph(rand(3, 5), (s, u, t) => { s.f = -1; s.tgN = [s.hx - 22 + Math.sin(t * 5) * 6, SF - 92]; s.tgF = [s.hx - 10, SF - 90 + Math.cos(t * 5) * 4]; s.leanT = 0.12; s.lxT = -0.4; })]);
     const r = Math.random();
     if (r < 0.4) return K.start(a, 'check', [K.ph(rand(2, 3), (s, u, t) => { s.tgN = [trolley.x - 4, SF - 96]; s.tgF = [trolley.x + 10, SF - 96]; s.leanT = 0.1; s.look = { x: () => trolley.x, until: K.simT + 0.3 }; if (u > 0.4 && u < 0.45) trolley.steam = 1; })]);
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.lxT = pick([-0.6, 0.6, 0.2]); })]);
@@ -110,10 +110,10 @@ function makeGeoDimsumStage() {
       K.ph(0.4, (s) => { s.lxT = f; s.tgN = [cardX(tb), tb.top - 26]; s.hold.N = H.stamp(); s.leanT = 0.18; }),
       K.ph(0.25, (s) => { s.tgN = [cardX(tb), tb.top - 6]; }, { exit: (s) => { tb.stamps++; K.fx('spark', cardX(tb), tb.top - 4, { life: 0.35, col: '#ff4a3a' }); K.say(a, 'icon:stamp', 0.8); } }),
       K.ph(0.3, (s) => { s.tgN = [cardX(tb), tb.top - 24]; }, { exit: (s) => { s.hold.N = null; s.leanT = 0; } }),
-      pushTo(tb === TB ? 250 : 262)], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.pushing = false; s.farFront = false; } });
+      pushTo(tb === TB ? 206 : 214)], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.pushing = false; s.farFront = false; } });
   }
   function restock(a) {
-    K.start(a, 'restock', [pushTo(KDOOR.x0 + 6), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, 1 - u); trolley.hide = u > 0.5 ? 1 : 0; }), K.ph(2.5, (s) => { s.alpha = 0.03; }, { exit: () => { fillTrolley(); trolley.dirty = 0; tub = 0; } }), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, u); trolley.hide = u < 0.5 ? 1 : 0; }, { enter: () => { trolley.steam = 1.6; }, exit: (s) => { s.alpha = 1; } }), pushTo(262), K.ph(0.4, null, { enter: () => K.say(a, pick(['Fresh from the kitchen!', 'Hot hot hot!', 'icon:steam']), 1.3) })], { onAbort: (s) => { s.alpha = 1; trolley.hide = 0; s.pushing = false; } });
+    K.start(a, 'restock', [pushTo(KDOOR.x0 + 6), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, 1 - u); trolley.hide = u > 0.5 ? 1 : 0; }), K.ph(2.5, (s) => { s.alpha = 0.03; }, { exit: () => { fillTrolley(); trolley.dirty = 0; tub = 0; } }), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, u); trolley.hide = u < 0.5 ? 1 : 0; }, { enter: () => { trolley.steam = 1.6; }, exit: (s) => { s.alpha = 1; } }), pushTo(214), K.ph(0.4, null, { enter: () => K.say(a, pick(['Fresh from the kitchen!', 'Hot hot hot!', 'icon:steam']), 1.3) })], { onAbort: (s) => { s.alpha = 1; trolley.hide = 0; s.pushing = false; } });
   }
   function clearA(a, tb) {
     const n = tb.baskets.length;
@@ -129,13 +129,13 @@ function makeGeoDimsumStage() {
     const lid = TABLES.find((tb) => tb.pot.lid && !tb.pot.held);
     if (lid) return refill(a, lid);
     if (!TB.party && (TB.baskets.length || TB.empties)) return clearB(a);
-    if (night && K.cooled(a, 'sweep', 10)) return K.start(a, 'sweep', [K.ph(0, (s) => { s.walkTo = rand(1030, 1060); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(4, 6), (s, u, t) => { s.hold.N = H.broom(); s.carryUp = false; s.tgN = [s.hx + s.f * 10 + Math.sin(t * 4) * 16, s.hy - 30]; s.tgF = [s.hx + s.f * 4 + Math.sin(t * 4) * 12, s.hy - 60]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; s.carryUp = true; swept++; } })], { onAbort: (s) => { s.hold.N = null; s.carryUp = true; } });
+    if (night && K.cooled(a, 'sweep', 10)) return K.start(a, 'sweep', [K.ph(0, (s) => { s.walkTo = rand(1062, 1086); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(4, 6), (s, u, t) => { s.hold.N = H.broom(); s.carryUp = false; s.tgN = [s.hx + s.f * 10 + Math.sin(t * 4) * 16, s.hy - 30]; s.tgF = [s.hx + s.f * 4 + Math.sin(t * 4) * 12, s.hy - 60]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; s.carryUp = true; swept++; } })], { onAbort: (s) => { s.hold.N = null; s.carryUp = true; } });
     const r = Math.random();
     if (r < 0.3) return K.start(a, 'towel', [K.ph(0, (s) => { s.walkTo = URN.x + 40; }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(2.5, 4), (s, u, t) => { s.f = -1; s.hold.N = H.cloth(); s.tgN = [URN.x + 8 + Math.sin(t * 6) * 14, URN.top - 4]; s.leanT = 0.15; s.lxT = 0.8; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     return K.start(a, 'idle', [K.ph(rand(2, 3.5), (s) => { s.tgN = [s.hx + s.f * 6, s.hy - 20]; s.tgF = [s.hx - s.f * 4, s.hy - 22]; s.lxT = pick([-0.7, 0.5]); })]);
   }
   function refill(a, tb) {
-    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1035;
+    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1066;
     p.held = 1;
     K.start(a, 'refill', [K.ph(0, (s) => { s.walkTo = bx; }, { until: (s) => !s.walking, max: 30 }),
       K.ph(0.5, (s) => { s.f = potX(tb) < s.hx ? -1 : 1; s.tgN = [potX(tb), tb.top - 10]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = H.pot(p); p.away = 1; } }),
@@ -152,7 +152,7 @@ function makeGeoDimsumStage() {
       K.ph(0.6, (s) => { s.f = tb === TA ? -1 : 1; s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; tb.folder = 1; K.say(a, pick(['Thank you!', 'Mm goi!']), 1.1); if (tb.party) tb.party.bill = 3; } }),
       K.ph(rand(2.5, 3.5), (s) => { s.leanT = 0; s.look = { x: () => tb.x, until: K.simT + 0.3 }; }, { until: () => !tb.party || tb.party.bill >= 4, max: 8 }),
       K.ph(0.5, (s) => { s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { tb.folder = 0; s.hold.N = H.folder(); K.say(a, 'icon:heart', 0.8); } }),
-      K.ph(0, (s) => { s.walkTo = 1035; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
+      K.ph(0, (s) => { s.walkTo = 1066; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
   }
   function clearB(a) {
     const tb = TB, n = tb.baskets.length + (tb.empties || 0);

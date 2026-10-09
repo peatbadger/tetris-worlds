@@ -24,7 +24,7 @@ const FFPal = GeoKit.palette({
 
 function makeGeoFastfoodStage() {
   const DT = { x0: 22, x1: 102, y0: 300, y1: 470 }, CTR = { x0: -20, x1: 292, top: 520 }, SF = 640, SSC = 0.8, FL = 712, SC = 0.84;
-  const FOUNT = 123, FRYST = 157, CHUTE = 157, FRYER = 191, GRILL = { x0: 216, x1: 280 }, BAG = 71, SHAKE = 123;
+  const FOUNT = 123, FRYST = 157, CHUTE = 157, FRYER = 191, GRILL = { x0: 220, x1: 262 }, BAG = 71, SHAKE = 123;
   const WIN = { x0: 520, y0: 110, x1: 930, y1: 470 }, KIOSK = 1026, BIN = 1250, TAKE = { x: 156 };
   const TB = { x: 1158, top: 566, seats: [{ x: 1100, f: 1, occ: null }, { x: 1216, f: -1, occ: null }] };
   let K, jay, mia, orders = [], chute = 0, fries = 0, fryer = { basket: 'up', t: 0, load: 0, bub: 0 }, grill = { p: [], smoke: 0 }, cup = null, bag = null, car = null, nextCar = 6, nextArrive = 2, num = 40, balloon = null, ceilBalloon = null, shakeDown = 0, nextShake = 60, cars = [], nextPass = 3, table = { tent: 0, tray: null, folder: 0 }, kioskT = 0, receipt = 0, beep = 0, sign = 1;
@@ -82,7 +82,7 @@ function makeGeoFastfoodStage() {
   };
   /* ---------- crew ---------- */
   function mkStaff() {
-    jay = K.mk(B({ T: 240, hw: 62, headR: 28, pattern: 'polo', top: 'red', pants: 'dark', hat: 'visor', hatCol: 'red', hairStyle: 'short', hair: 'dark' }), { role: 'grill', staff: 1, hx: 233, f: 1, floorY: SF, sc: SSC, faceDir: 0.4 });
+    jay = K.mk(B({ T: 240, hw: 62, headR: 28, pattern: 'polo', top: 'red', pants: 'dark', hat: 'visor', hatCol: 'red', hairStyle: 'short', hair: 'dark' }), { role: 'grill', staff: 1, hx: 214, f: 1, floorY: SF, sc: SSC, faceDir: 0.4 });
     mia = K.mk(B({ T: 232, hw: 58, headR: 28, pattern: 'polo', top: 'red', pants: 'dark', hat: 'cap', hatCol: 'red', hairStyle: 'pony', hair: 'brown' }), { role: 'drive', staff: 1, hx: 86, f: -1, floorY: SF, sc: SSC * 0.97, faceDir: -0.4, speed: 1.2 });
     jay.think = jayThink; mia.think = miaThink;
   }
@@ -94,12 +94,12 @@ function makeGeoFastfoodStage() {
     if (needF > 0 && fryer.basket === 'up') return fry(a);
     if (needB > 0 && !grill.p.length) return cook(a, Math.min(2, needB));
     const r = Math.random();
-    if (r < 0.4) return K.start(a, 'scrape', [walk(243), K.ph(rand(2, 3), (s, u, t) => { s.f = 1; s.hold.N = H.spatula(); s.tgN = [GRILL.x0 + 34 + Math.sin(t * 6) * 22, 494]; s.leanT = 0.15; if (Math.random() < 0.04) K.fx('puff', s.tgN[0], 486, { life: 0.8, col: '#dddddd' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
-    if (r < 0.6) return K.start(a, 'wipe', [walk(232), K.ph(rand(1.5, 2.5), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [243 + Math.sin(t * 5) * 18, CT - 6]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
-    return K.start(a, 'idle', [walk(238), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 6, CT - 8]; s.lxT = pick([0.6, 0.2, -0.6]); })]);
+    if (r < 0.4) return K.start(a, 'scrape', [walk(216), K.ph(rand(2, 3), (s, u, t) => { s.f = 1; s.hold.N = H.spatula(); s.tgN = [GRILL.x0 + 34 + Math.sin(t * 6) * 22, 494]; s.leanT = 0.15; if (Math.random() < 0.04) K.fx('puff', s.tgN[0], 486, { life: 0.8, col: '#dddddd' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.6) return K.start(a, 'wipe', [walk(212), K.ph(rand(1.5, 2.5), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [238 + Math.sin(t * 5) * 18, CT - 6]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    return K.start(a, 'idle', [walk(216), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 6, CT - 8]; s.lxT = pick([0.6, 0.2, -0.6]); })]);
   }
   function cook(a, n) {
-    const egg = breakfast(), ph = [walk(239)];
+    const egg = breakfast(), ph = [walk(216)];
     for (let i = 0; i < n; i++) ph.push(K.ph(0.45, (s) => { s.f = 1; s.tgN = [GRILL.x0 + 10, 556]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = H.patty(); } }), K.ph(0.45, (s) => { s.tgN = [GRILL.x0 + 17 + i * 30, 488]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; grill.p.push({ x: GRILL.x0 + 17 + i * 30, cook: 0, flip: 0, ft: 0, cheese: 0, egg }); K.fx('puff', GRILL.x0 + 17 + i * 30, 484, { life: 0.9, col: '#ffffff' }); } }));
     ph.push(K.ph(1.6, (s, u, t) => { s.hold.N = H.spatula(); const q = grill.p[Math.floor(t * 1.5) % grill.p.length]; if (q) s.tgN = [q.x - 4, 478 + Math.abs(Math.sin(t * 6)) * 6]; s.leanT = 0.12; for (const q of grill.p) q.cook = Math.min(1, q.cook + 0.01); }));
     for (let i = 0; i < n; i++) ph.push(K.ph(0.6, (s, u) => { const q = grill.p[i]; if (!q) return; s.tgN = [q.x - 10 + u * 8, 484 - Math.sin(u * Math.PI) * 18]; q.ft = u; }, { exit: () => { const q = grill.p[i]; if (q) { q.flip = 1; q.ft = 0; K.fx('puff', q.x, 482, { life: 0.8, col: '#ffffff' }); } } }));
@@ -109,10 +109,10 @@ function makeGeoFastfoodStage() {
     for (let i = 0; i < n; i++) ph.push(
       K.ph(0.4, (s) => { s.hold.N = null; s.tgF = [GRILL.x1 - 10, 440]; s.farFront = true; }, { exit: (s) => { s.hold.F = H.bun(); } }),
       K.ph(0.4, (s) => { s.tgF = [249, CT - 6]; }, { exit: (s) => { s.hold.F = null; s.farFront = false; grill.board = 1; } }),
-      K.ph(0.5, (s) => { s.hold.N = H.spatula(true); const q = grill.p[0]; s.tgN = [q ? q.x : 233, 484]; }, { exit: () => { grill.p.shift(); } }),
+      K.ph(0.5, (s) => { s.hold.N = H.spatula(true); const q = grill.p[0]; s.tgN = [q ? q.x : 236, 484]; }, { exit: () => { grill.p.shift(); } }),
       K.ph(0.5, (s) => { s.hold.N = H.spatula(true); s.tgN = [245, CT - 18]; }, { exit: (s) => { s.hold.N = null; grill.board = 2; } }),
       K.ph(0.8, (s, u, t) => { s.tgN = [250 + Math.sin(t * 12) * 6, CT - 8]; s.tgF = [244 - Math.sin(t * 12) * 6, CT - 8]; s.leanT = 0.15; }, { exit: () => { grill.board = 0; grill.wrapped = (grill.wrapped || 0) + 1; } }));
-    ph.push(K.ph(0.4, (s) => { s.tgN = [248, CT - 10]; }, { exit: (s) => { s.hold.N = H.wrapped(); grill.wrapped = 0; s.nW = n; } }), walk(174), K.ph(0.5, (s) => { s.f = -1; s.tgN = [CHUTE + 10, 462]; s.leanT = 0.1; }, { exit: (s) => { s.hold.N = null; chute += s.nW; } }), walk(239));
+    ph.push(K.ph(0.4, (s) => { s.tgN = [248, CT - 10]; }, { exit: (s) => { s.hold.N = H.wrapped(); grill.wrapped = 0; s.nW = n; } }), walk(174), K.ph(0.5, (s) => { s.f = -1; s.tgN = [CHUTE + 10, 462]; s.leanT = 0.1; }, { exit: (s) => { s.hold.N = null; chute += s.nW; } }), walk(216));
     K.start(a, 'cook', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.farFront = false; chute += grill.p.length + (grill.wrapped || 0) + (grill.board ? 1 : 0); grill.p = []; grill.board = 0; grill.wrapped = 0; } });
   }
   function fry(a) {
@@ -130,7 +130,7 @@ function makeGeoFastfoodStage() {
   }
   function fixShake(a) {
     shakeDown = 2;
-    K.start(a, 'fix', [walk(149), K.ph(0.6, (s) => { s.f = -1; s.hold.N = H.wrench(); s.tgN = [SHAKE + 14, 380]; }, { enter: () => K.say(a, pick(['Not again…', 'Hold on…']), 1.2) }), K.ph(1.4, (s, u, t) => { s.tgN = [SHAKE + 14, 372 + Math.abs(Math.sin(t * 10)) * 14]; if (Math.abs(Math.sin(t * 10)) > 0.97) K.fx('spark', SHAKE + 8, 372, { life: 0.2, col: '#ffffff' }); }), K.ph(0.6, (s) => { s.hold.N = null; s.tgN = [SHAKE + 4, 360]; s.tgF = [SHAKE - 8, 364]; }, { exit: () => { shakeDown = 0; K.fx('spark', SHAKE, 350, { life: 0.8, col: '#7aff8a' }); K.say(a, 'Fixed it!', 1.2); K.say(mia, 'icon:laugh', 1.2); } }), walk(239)], { onAbort: (s) => { s.hold.N = null; shakeDown = 0; } });
+    K.start(a, 'fix', [walk(149), K.ph(0.6, (s) => { s.f = -1; s.hold.N = H.wrench(); s.tgN = [SHAKE + 14, 380]; }, { enter: () => K.say(a, pick(['Not again…', 'Hold on…']), 1.2) }), K.ph(1.4, (s, u, t) => { s.tgN = [SHAKE + 14, 372 + Math.abs(Math.sin(t * 10)) * 14]; if (Math.abs(Math.sin(t * 10)) > 0.97) K.fx('spark', SHAKE + 8, 372, { life: 0.2, col: '#ffffff' }); }), K.ph(0.6, (s) => { s.hold.N = null; s.tgN = [SHAKE + 4, 360]; s.tgF = [SHAKE - 8, 364]; }, { exit: () => { shakeDown = 0; K.fx('spark', SHAKE, 350, { life: 0.8, col: '#7aff8a' }); K.say(a, 'Fixed it!', 1.2); K.say(mia, 'icon:laugh', 1.2); } }), walk(216)], { onAbort: (s) => { s.hold.N = null; shakeDown = 0; } });
   }
   /* ---------- Mia: drive-thru, fountain, bagging, table runner ---------- */
   function miaThink(a) {
@@ -202,7 +202,7 @@ function makeGeoFastfoodStage() {
   }
   function arriveTake() { // takeaway guest: steps up to the counter end, orders with Mia, waits, takes the bag (busier at lunch / dinner, never more than one)
     if (!lobbyOpen() || guests().some((g) => g.take)) return;
-    const a = mkGuest(pick(['worker', 'suit', 'teen', 'gf', 'trucker', 'mom']), TAKE.x + 110); a.take = 1; a.phase = 'tkIn'; a.walkTo = TAKE.x;
+    const a = mkGuest(pick(['worker', 'suit', 'teen', 'gf', 'trucker', 'mom']), TAKE.x + 224); a.take = 1; a.phase = 'tkIn'; a.walkTo = TAKE.x;
   }
   function mkGuest(type, x) {
     const T0 = TYPES[type]; const a = K.mk(Object.assign({}, T0.body), { type, T0, cust: 1, hx: x, f: -1, floorY: FL - 6, sc: SC * (T0.sc || 1), alpha: 0, fade: 1.5, speed: rand(0.95, 1.08) * (T0.kid ? 1.1 : 1), bfrac: 1 });

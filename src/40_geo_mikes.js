@@ -153,12 +153,13 @@ function makeGeoMikesStage() {
     sal = K.mk(B({ T: 240, hw: 60, headR: 27, pattern: 'polo', top: 'royal', top2: 'royal', hair: 'hairGrey', glasses: 1, pants: 'dark', shortSleeve: 1 }), { role: 'sal', staff: 1, hx: 1070, f: -1, floorY: STAFF_FLOOR, sc: STAFF_SC, layer: 'staff', faceDir: -0.4, speed: 0.9 });
     tony = K.mk(B({ T: 244, hw: 62, headR: 27, pattern: 'bib', top: 'royal', top2: 'white', coat: 0.3, hat: 'chef', pants: 'dark', shortSleeve: 1 }), { role: 'tony', staff: 1, hx: -50, f: 1, floorY: STAFF_FLOOR, sc: STAFF_SC, layer: 'staff', alpha: 0, away: 1 });
     QL = { side: 'L', spots: [196, 66], q: [], staff: gina, box: null, boxX: 112, reg: 226, regOpen: 0, ding: 0, c: CL, globe: GLOBES[1], orders: [], string: null };
-    QR = { side: 'R', spots: [1122, 990], q: [], staff: sal, box: null, boxX: 1062, reg: 1152, regOpen: 0, ding: 0, c: CR, globe: GLOBES[3], orders: [], string: null };
+    QR = { side: 'R', spots: [1108, 1220], q: [], staff: sal, box: null, boxX: 1062, reg: 1152, regOpen: 0, ding: 0, c: CR, globe: GLOBES[3], orders: [], string: null };
     gina.Q = QL; sal.Q = QR; gina.think = staffThink; sal.think = staffThink;
   }
   /* ---------- staff jobs ---------- */
   const reach = (a, x, sh) => { a.tgN = [x, SHELF_Y[sh] - 10]; a.leanT = 0.3; a.lxT = 0.15 * a.f; };
-  const walkP = (fx, max = 10) => K.ph(0, null, { enter: (s) => { s.walkTo = typeof fx === 'function' ? fx(s) : fx; }, until: (s) => !s.walking && s.walkTo == null, max });
+  const safeX = (s, x) => s === gina ? (x < 0 ? x : Math.min(x, 214)) : s === sal ? (x > 1290 ? x : Math.max(x, 1068)) : x; // keep staff clear of the HUD gutters
+  const walkP = (fx, max = 10) => K.ph(0, null, { enter: (s) => { s.walkTo = safeX(s, typeof fx === 'function' ? fx(s) : fx); }, until: (s) => !s.walking && s.walkTo == null, max });
   function pickPh(a, kind, onLift) {
     const t = trayOf(kind); let tx = 0;
     return [walkP((s) => (tx = clamp(slotX(t, Math.max(0, t.n - 1)), 30, 1160)) - s.f * 0 + (s.hx > tx ? 22 : -22), 9),

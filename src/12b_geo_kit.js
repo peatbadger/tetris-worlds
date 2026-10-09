@@ -163,6 +163,15 @@ const GeoKit = (() => {
       const w = 9 * Math.sqrt(a.speed) * (a.quick || 1);
       a.lean = ease(a.lean, a.leanT, 6, dt); a.lx = ease(a.lx, a.lxT, 5 * a.speed, dt); a.tilt = ease(a.tilt, a.tiltT, 6, dt);
       a.hy += Math.sin(a.t * 1.7) * 0.012;
+      if (!a.walking && !a.noLife) { // life layer: breathing, slow weight shifts, drifting gaze, tiny hand settle — nobody is ever a statue
+        const ph = a.id * 1.37, t0 = a.t - dt, t1 = a.t, d = (fn) => fn(t1) - fn(t0), seat = a.state === 'seated';
+        const calm = !a.act || /idle|wait|watch|listen|chat|stand|browse|arms|look|sway|seated|lean|phone|pose/.test(a.act.name);
+        a.hy += Math.sin(t1 * 1.85 + ph) * 1.1 * a.sc;
+        a.lean += d((t) => Math.sin(t * 0.43 + ph) * (seat ? 0.022 : 0.016) + Math.sin(t * 0.17 + ph * 2) * 0.01);
+        if (calm) { a.lx += d((t) => Math.sin(t * 0.29 + ph * 2.1) * 0.32 + Math.sin(t * 0.71 + ph) * 0.1);
+          const hx = d((t) => Math.sin(t * 0.9 + ph) * 1.6), hy = d((t) => Math.sin(t * 1.85 + ph) * 1.0 + Math.sin(t * 0.53 + ph * 3) * 1.4);
+          a.hN.x += hx; a.hN.y += hy; a.hF.x -= hx * 0.7; a.hF.y += hy * 0.8; }
+      }
       F.rig(a);
       spring(a.hN, a.tgN[0], a.tgN[1], w, dt); spring(a.hF, a.tgF[0], a.tgF[1], w * 0.9, dt);
       if (a.bub) { a.bub.t += dt; if (a.bub.t > a.bub.d) a.bub = null; }
@@ -302,7 +311,7 @@ const GeoKit = (() => {
       ctx.save(); ctx.globalAlpha = spec.grain ?? 0.06; ctx.globalCompositeOperation = 'overlay'; ctx.fillStyle = grainPat; ctx.fillRect(0, 0, W, H); ctx.restore();
       ctx.drawImage(vign, 0, 0, W, H);
       if (Amb.st.flash) { ctx.fillStyle = `rgba(220,230,255,${Amb.st.flash * 0.18})`; ctx.fillRect(0, 0, W, H); }
-      if (!env.thumb) window.__geo = { id: spec.id, K, S, setHour: (h) => { S.hourOverride = h; }, lapse: (rate, from) => { S.hourOverride = null; S.lapse = rate; if (from != null) S.lapseH = from; }, timeScale: (v) => { S.timeScale = v; }, weather: (w) => { S.weather = w; }, get debug() { return spec.debug ? spec.debug(K) : null; } };
+      if (!env.thumb) window.__geo = { id: spec.id, K, S, setHour: (h) => { S.hourOverride = h; }, lapse: (rate, from) => { S.hourOverride = null; S.lapse = rate; if (from != null) S.lapseH = from; }, timeScale: (v) => { S.timeScale = v; }, weather: (w) => { S.weather = w; }, get debug() { return spec.debug ? spec.debug(K) : null; }, get view() { return { ox, oy, k, cam: K.cam || 0, W, H }; } };
     }
     return { resize, draw, selfGrade: true, K, get zone() { return spec.zone || K.P.zone; } };
   }
@@ -313,7 +322,7 @@ const GeoKit = (() => {
 const ZoneMask = (() => {
     /* board-zone backdrop: everything behind the well + HOLD / NEXT panels is softly blurred and dimmed so no text,
        figures or high-contrast detail compete with the stack (applies to every GeoKit world) */
-  let zoneR = null, zoneAt = -1, zc1 = null, zc2 = null;
+  let zoneR = null, zoneAt = -1, zc1 = null, zc2 = null, zc3 = null, avgC = null, avgAt = -1;
   function zoneRect(ctx, t) {
       if (t - zoneAt < 0.5 && zoneR !== undefined) return zoneR; zoneAt = t; zoneR = null;
       if (typeof document === 'undefined') return null; const cv = ctx.canvas; if (!cv.getBoundingClientRect) return null;
@@ -333,6 +342,9 @@ const ZoneMask = (() => {
       a.drawImage(ctx.canvas, z.x, z.y, z.w, z.h, 0, 0, w1, h1); b.drawImage(zc1, 0, 0, w2, h2);
       ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(z.x, z.y, z.w, z.h, z.r); else ctx.rect(z.x, z.y, z.w, z.h); ctx.clip();
       ctx.imageSmoothingEnabled = true; ctx.drawImage(zc2, z.x - z.w * 0.03, z.y - z.h * 0.03, z.w * 1.06, z.h * 1.06);
+      // flatten: lay the zone's own average colour over the blur so no silhouette (people, signs, facades) survives behind the board / HUD
+      if (t - avgAt > 0.4 || !avgC) { avgAt = t; try { if (!zc3) zc3 = makeCanvas(1, 1); const q = zc3.getContext('2d'); q.drawImage(zc2, 0, 0, 1, 1); const px = q.getImageData(0, 0, 1, 1).data; avgC = `rgba(${px[0]},${px[1]},${px[2]},0.62)`; } catch (e) { avgC = 'rgba(30,26,30,0.5)'; } }
+      ctx.fillStyle = avgC; ctx.fillRect(z.x, z.y, z.w, z.h);
       ctx.fillStyle = tint || 'rgba(22,20,28,0.42)'; ctx.fillRect(z.x, z.y, z.w, z.h);
       ctx.restore();
     }

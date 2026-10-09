@@ -1,0 +1,33 @@
+// node tools/cmp.js <world> [out=/workspace/shots/cmp-<world>.png] [hour=12.5]
+// Same hand-built 16-piece stack in <world> and in Kaiten Sushi; crops the bottom 7 rows x 10 cols at 4x and puts them side by side.
+const { chromium } = require('/usr/local/lib/pnpm/5/.pnpm/playwright-core@1.59.1/node_modules/playwright-core');
+const path = require('path'); const { execFileSync } = require('child_process');
+const [world, outArg, hour = '12.5'] = process.argv.slice(2); const out = outArg || `/workspace/shots/cmp-${world}.png`;
+async function grab(b, id, file) {
+  const pg = await b.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 4 }); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.goto('file://' + path.resolve(__dirname, '../index.html')); await pg.waitForTimeout(1200);
+  await pg.evaluate((id) => window.__tw.startGame(STAGES.findIndex((s) => s.id === id)), id); await pg.waitForTimeout(3500);
+  await pg.evaluate((hour) => {
+    const g = window.__tw.game; if (window.__sushiGeo) window.__sushiGeo.setHour(+hour); if (window.__geo && window.__geo.setHour) window.__geo.setHour(+hour);
+    const plan = [['I', 0, 0], ['O', 0, 4], ['S', 0, 5], ['L', 0, 0], ['J', 0, 6], ['Z', 0, 2], ['T', 2, 0], ['O', 0, 7], ['I', 1, 4], ['S', 1, 7], ['T', 0, 3], ['Z', 1, 0], ['L', 2, 5], ['J', 1, 7], ['I', 0, 2], ['T', 3, -1]];
+    for (const [type, rot, x] of plan) { g.piece = { type, rot, x, y: 0 }; if (g.collide(g.piece)) continue; g.hardDrop(); if (g.state === 'clearing') g.update(1000); if (g.state !== 'playing') break; }
+    g.piece = { type: 'T', rot: 0, x: 3, y: 3 };
+  }, hour);
+  await pg.waitForTimeout(2500);
+  const r = await pg.evaluate(() => { const r = document.getElementById('matrix').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
+  const cw = r.w / 10, rows = 8; // bottom 8 rows, full width
+  await pg.screenshot({ path: file, clip: { x: r.x, y: r.y + r.h - cw * rows, width: r.w, height: cw * rows } });
+  await pg.close(); return errs;
+}
+(async () => {
+  const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+  const e1 = await grab(b, world, '/tmp/cmp_a.png'), e2 = await grab(b, 'sushi', '/tmp/cmp_b.png'); await b.close();
+  execFileSync('python3', ['-c', `
+from PIL import Image, ImageDraw
+a=Image.open('/tmp/cmp_a.png').convert('RGB'); b=Image.open('/tmp/cmp_b.png').convert('RGB')
+h=max(a.height,b.height); im=Image.new('RGB',(a.width+b.width+30,h+60),(20,20,24)); im.paste(a,(0,60)); im.paste(b,(a.width+30,60))
+d=ImageDraw.Draw(im); d.text((10,15),'${world} (4x)',fill=(255,255,255)); d.text((a.width+40,15),'Kaiten Sushi benchmark (4x)',fill=(255,255,255))
+im.save('${out}'); im.resize((im.width//4, im.height//4)).save('${out}'.replace('.png','-small.png'))
+`]);
+  console.log('ok', out, 'errs', JSON.stringify([e1, e2]));
+})();

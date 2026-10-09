@@ -20,7 +20,7 @@ const SpeakPal = GeoKit.palette({
 function makeGeoSpeakeasyStage() {
   const BAR = { x0: 92, x1: 470, top: 488, base: 652 };
   const BT_FLOOR = 612, BT_SC = 0.86, FL = 712, SC = 0.84;
-  const STOOLS = [{ x: 100, occ: null }, { x: 246, occ: null }];
+  const STOOLS = [{ x: 88, occ: null }, { x: 206, occ: null }];
   const STANDS = []; // max 2 patrons at the bar (+ bartender) so the left strip stays readable
   const STAGE = { x0: 950, top: 616 };
   const MIC_X = 972;

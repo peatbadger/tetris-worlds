@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>Delicious Tetris — a world tour of food, one line at a time</title>
 <style>
-:root { --accent: #ffb35c; --accent2: #e8c04a; --cell: 32px; --pulse: 0; --panel: rgba(8,6,14,0.58); }
+:root { --accent: #ffb35c; --accent2: #e8c04a; --cell: 32px; --pulse: 0; --panel: rgba(12,10,16,0.93); }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; position: fixed; inset: 0; touch-action: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; background: #000; color: #f4f1ea;
   font-family: "Segoe UI", "Helvetica Neue", Roboto, Ubuntu, system-ui, sans-serif; user-select: none; }
@@ -45,7 +45,7 @@ canvas { display: block; }
 .portrait .box, .portrait .stats { padding: 6px 8px; }
 .compact .stage-info, .compact #combo { display: none; }
 .box, .stats { background: var(--panel); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 12px; padding: 10px 12px;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.45), inset 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); backdrop-filter: blur(6px); }
+  box-shadow: 0 6px 24px rgba(0,0,0,0.45), inset 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .label { font-size: clamp(9px, calc(var(--cell) * 0.3), 12px); letter-spacing: 0.22em; color: var(--accent); font-weight: 700; opacity: 0.95; }
 .stat { display: flex; flex-direction: column; margin-bottom: 8px; }
 .stat .v { font-size: clamp(13px, calc(var(--cell) * 0.5), 26px); font-weight: 700; font-variant-numeric: tabular-nums; text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
@@ -4447,6 +4447,15 @@ const GeoKit = (() => {
       const w = 9 * Math.sqrt(a.speed) * (a.quick || 1);
       a.lean = ease(a.lean, a.leanT, 6, dt); a.lx = ease(a.lx, a.lxT, 5 * a.speed, dt); a.tilt = ease(a.tilt, a.tiltT, 6, dt);
       a.hy += Math.sin(a.t * 1.7) * 0.012;
+      if (!a.walking && !a.noLife) { // life layer: breathing, slow weight shifts, drifting gaze, tiny hand settle — nobody is ever a statue
+        const ph = a.id * 1.37, t0 = a.t - dt, t1 = a.t, d = (fn) => fn(t1) - fn(t0), seat = a.state === 'seated';
+        const calm = !a.act || /idle|wait|watch|listen|chat|stand|browse|arms|look|sway|seated|lean|phone|pose/.test(a.act.name);
+        a.hy += Math.sin(t1 * 1.85 + ph) * 1.1 * a.sc;
+        a.lean += d((t) => Math.sin(t * 0.43 + ph) * (seat ? 0.022 : 0.016) + Math.sin(t * 0.17 + ph * 2) * 0.01);
+        if (calm) { a.lx += d((t) => Math.sin(t * 0.29 + ph * 2.1) * 0.32 + Math.sin(t * 0.71 + ph) * 0.1);
+          const hx = d((t) => Math.sin(t * 0.9 + ph) * 1.6), hy = d((t) => Math.sin(t * 1.85 + ph) * 1.0 + Math.sin(t * 0.53 + ph * 3) * 1.4);
+          a.hN.x += hx; a.hN.y += hy; a.hF.x -= hx * 0.7; a.hF.y += hy * 0.8; }
+      }
       F.rig(a);
       spring(a.hN, a.tgN[0], a.tgN[1], w, dt); spring(a.hF, a.tgF[0], a.tgF[1], w * 0.9, dt);
       if (a.bub) { a.bub.t += dt; if (a.bub.t > a.bub.d) a.bub = null; }
@@ -4586,7 +4595,7 @@ const GeoKit = (() => {
       ctx.save(); ctx.globalAlpha = spec.grain ?? 0.06; ctx.globalCompositeOperation = 'overlay'; ctx.fillStyle = grainPat; ctx.fillRect(0, 0, W, H); ctx.restore();
       ctx.drawImage(vign, 0, 0, W, H);
       if (Amb.st.flash) { ctx.fillStyle = `rgba(220,230,255,${Amb.st.flash * 0.18})`; ctx.fillRect(0, 0, W, H); }
-      if (!env.thumb) window.__geo = { id: spec.id, K, S, setHour: (h) => { S.hourOverride = h; }, lapse: (rate, from) => { S.hourOverride = null; S.lapse = rate; if (from != null) S.lapseH = from; }, timeScale: (v) => { S.timeScale = v; }, weather: (w) => { S.weather = w; }, get debug() { return spec.debug ? spec.debug(K) : null; } };
+      if (!env.thumb) window.__geo = { id: spec.id, K, S, setHour: (h) => { S.hourOverride = h; }, lapse: (rate, from) => { S.hourOverride = null; S.lapse = rate; if (from != null) S.lapseH = from; }, timeScale: (v) => { S.timeScale = v; }, weather: (w) => { S.weather = w; }, get debug() { return spec.debug ? spec.debug(K) : null; }, get view() { return { ox, oy, k, cam: K.cam || 0, W, H }; } };
     }
     return { resize, draw, selfGrade: true, K, get zone() { return spec.zone || K.P.zone; } };
   }
@@ -4597,7 +4606,7 @@ const GeoKit = (() => {
 const ZoneMask = (() => {
     /* board-zone backdrop: everything behind the well + HOLD / NEXT panels is softly blurred and dimmed so no text,
        figures or high-contrast detail compete with the stack (applies to every GeoKit world) */
-  let zoneR = null, zoneAt = -1, zc1 = null, zc2 = null;
+  let zoneR = null, zoneAt = -1, zc1 = null, zc2 = null, zc3 = null, avgC = null, avgAt = -1;
   function zoneRect(ctx, t) {
       if (t - zoneAt < 0.5 && zoneR !== undefined) return zoneR; zoneAt = t; zoneR = null;
       if (typeof document === 'undefined') return null; const cv = ctx.canvas; if (!cv.getBoundingClientRect) return null;
@@ -4617,6 +4626,9 @@ const ZoneMask = (() => {
       a.drawImage(ctx.canvas, z.x, z.y, z.w, z.h, 0, 0, w1, h1); b.drawImage(zc1, 0, 0, w2, h2);
       ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(z.x, z.y, z.w, z.h, z.r); else ctx.rect(z.x, z.y, z.w, z.h); ctx.clip();
       ctx.imageSmoothingEnabled = true; ctx.drawImage(zc2, z.x - z.w * 0.03, z.y - z.h * 0.03, z.w * 1.06, z.h * 1.06);
+      // flatten: lay the zone's own average colour over the blur so no silhouette (people, signs, facades) survives behind the board / HUD
+      if (t - avgAt > 0.4 || !avgC) { avgAt = t; try { if (!zc3) zc3 = makeCanvas(1, 1); const q = zc3.getContext('2d'); q.drawImage(zc2, 0, 0, 1, 1); const px = q.getImageData(0, 0, 1, 1).data; avgC = `rgba(${px[0]},${px[1]},${px[2]},0.62)`; } catch (e) { avgC = 'rgba(30,26,30,0.5)'; } }
+      ctx.fillStyle = avgC; ctx.fillRect(z.x, z.y, z.w, z.h);
       ctx.fillStyle = tint || 'rgba(22,20,28,0.42)'; ctx.fillRect(z.x, z.y, z.w, z.h);
       ctx.restore();
     }
@@ -11910,12 +11922,13 @@ function makeGeoMikesStage() {
     sal = K.mk(B({ T: 240, hw: 60, headR: 27, pattern: 'polo', top: 'royal', top2: 'royal', hair: 'hairGrey', glasses: 1, pants: 'dark', shortSleeve: 1 }), { role: 'sal', staff: 1, hx: 1070, f: -1, floorY: STAFF_FLOOR, sc: STAFF_SC, layer: 'staff', faceDir: -0.4, speed: 0.9 });
     tony = K.mk(B({ T: 244, hw: 62, headR: 27, pattern: 'bib', top: 'royal', top2: 'white', coat: 0.3, hat: 'chef', pants: 'dark', shortSleeve: 1 }), { role: 'tony', staff: 1, hx: -50, f: 1, floorY: STAFF_FLOOR, sc: STAFF_SC, layer: 'staff', alpha: 0, away: 1 });
     QL = { side: 'L', spots: [196, 66], q: [], staff: gina, box: null, boxX: 112, reg: 226, regOpen: 0, ding: 0, c: CL, globe: GLOBES[1], orders: [], string: null };
-    QR = { side: 'R', spots: [1122, 990], q: [], staff: sal, box: null, boxX: 1062, reg: 1152, regOpen: 0, ding: 0, c: CR, globe: GLOBES[3], orders: [], string: null };
+    QR = { side: 'R', spots: [1108, 1220], q: [], staff: sal, box: null, boxX: 1062, reg: 1152, regOpen: 0, ding: 0, c: CR, globe: GLOBES[3], orders: [], string: null };
     gina.Q = QL; sal.Q = QR; gina.think = staffThink; sal.think = staffThink;
   }
   /* ---------- staff jobs ---------- */
   const reach = (a, x, sh) => { a.tgN = [x, SHELF_Y[sh] - 10]; a.leanT = 0.3; a.lxT = 0.15 * a.f; };
-  const walkP = (fx, max = 10) => K.ph(0, null, { enter: (s) => { s.walkTo = typeof fx === 'function' ? fx(s) : fx; }, until: (s) => !s.walking && s.walkTo == null, max });
+  const safeX = (s, x) => s === gina ? (x < 0 ? x : Math.min(x, 214)) : s === sal ? (x > 1290 ? x : Math.max(x, 1068)) : x; // keep staff clear of the HUD gutters
+  const walkP = (fx, max = 10) => K.ph(0, null, { enter: (s) => { s.walkTo = safeX(s, typeof fx === 'function' ? fx(s) : fx); }, until: (s) => !s.walking && s.walkTo == null, max });
   function pickPh(a, kind, onLift) {
     const t = trayOf(kind); let tx = 0;
     return [walkP((s) => (tx = clamp(slotX(t, Math.max(0, t.n - 1)), 30, 1160)) - s.f * 0 + (s.hx > tx ? 22 : -22), 9),
@@ -12415,7 +12428,7 @@ const SpeakPal = GeoKit.palette({
 function makeGeoSpeakeasyStage() {
   const BAR = { x0: 92, x1: 470, top: 488, base: 652 };
   const BT_FLOOR = 612, BT_SC = 0.86, FL = 712, SC = 0.84;
-  const STOOLS = [{ x: 100, occ: null }, { x: 246, occ: null }];
+  const STOOLS = [{ x: 88, occ: null }, { x: 206, occ: null }];
   const STANDS = []; // max 2 patrons at the bar (+ bartender) so the left strip stays readable
   const STAGE = { x0: 950, top: 616 };
   const MIC_X = 972;
@@ -12916,7 +12929,7 @@ const DimPal = GeoKit.palette({
 
 function makeGeoDimsumStage() {
   const SF = 604, SSC = 0.8, FL = 712, SC = 0.84;
-  const TA = { id: 'A', x: 150, top: 566, seats: [{ x: 66, f: 1, occ: null }, { x: 236, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.7, 0.5], stamps: 0, party: null, call: false, from: -50 };
+  const TA = { id: 'A', x: 134, top: 566, seats: [{ x: 54, f: 1, occ: null }, { x: 212, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.7, 0.5], stamps: 0, party: null, call: false, from: -50 };
   const TB = { id: 'B', x: 1150, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1230, f: -1, occ: null }], baskets: [], pot: { level: 1, lid: 0, held: 0 }, cups: [0.6, 0.4], stamps: 0, party: null, call: false, from: 1330 };
   const TABLES = [TA, TB];
   const URN = { x: 1010, top: 470 }, KDOOR = { x0: 312, x1: 392 }, MOON = { x: 1150, y: 282, r: 112 }, LWIN = { x0: 18, y0: 150, x1: 128, y1: 380 };
@@ -12977,8 +12990,8 @@ function makeGeoDimsumStage() {
   const potX = (tb) => tb.x + 64, cupX = (tb, i) => tb.x + (i ? 86 : -76), slotX = (tb, i) => tb.x - 40 + i * 36, cardX = (tb) => tb.x - 62;
   /* ---------- staff ---------- */
   function mkStaff() {
-    may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 262, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
-    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1035, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
+    may = K.mk(B({ T: 222, hw: 62, headR: 30, torso: 'round', pattern: 'apron', top: 'cream', top2: 'red', shirt: 'cream', pants: 'dark', hairStyle: 'bun', hair: 'dark' }), { role: 'auntie', staff: 1, hx: 214, f: -1, floorY: SF, sc: SSC, faceDir: -0.6 });
+    lau = K.mk(B({ T: 244, hw: 60, headR: 29, pattern: 'vest', top: 'dark', shirt: 'white', tie: 'red', sleeve: 'white', pants: 'dark', hairStyle: 'short', hairD: 0.02 }), { role: 'waiter', staff: 1, hx: 1066, f: 1, floorY: SF, sc: SSC, faceDir: 0.5, speed: 1.35 });
     may.think = mayThink; lau.think = lauThink; fillTrolley();
   }
   const trolleyAt = (a) => { trolley.x = a.hx + a.f * 50; };
@@ -12991,7 +13004,7 @@ function makeGeoDimsumStage() {
     if (dirty && K.cooled(a, 'clear', 4)) return clearA(a, dirty);
     if (trolley.stack.length < 3 && !night) return restock(a);
     if (!night && Math.random() < 0.35 && K.cooled(a, 'tour', 18)) { const tb = TABLES.find((q) => q.party && q.want > 0 && !q.baskets.some((b) => b.n > 0)); if (tb) { tb.call = true; return; } }
-    if (night && K.cooled(a, 'fold', 6)) return K.start(a, 'fold', [pushTo(262), K.ph(rand(3, 5), (s, u, t) => { s.f = -1; s.tgN = [s.hx - 22 + Math.sin(t * 5) * 6, SF - 92]; s.tgF = [s.hx - 10, SF - 90 + Math.cos(t * 5) * 4]; s.leanT = 0.12; s.lxT = -0.4; })]);
+    if (night && K.cooled(a, 'fold', 6)) return K.start(a, 'fold', [pushTo(214), K.ph(rand(3, 5), (s, u, t) => { s.f = -1; s.tgN = [s.hx - 22 + Math.sin(t * 5) * 6, SF - 92]; s.tgF = [s.hx - 10, SF - 90 + Math.cos(t * 5) * 4]; s.leanT = 0.12; s.lxT = -0.4; })]);
     const r = Math.random();
     if (r < 0.4) return K.start(a, 'check', [K.ph(rand(2, 3), (s, u, t) => { s.tgN = [trolley.x - 4, SF - 96]; s.tgF = [trolley.x + 10, SF - 96]; s.leanT = 0.1; s.look = { x: () => trolley.x, until: K.simT + 0.3 }; if (u > 0.4 && u < 0.45) trolley.steam = 1; })]);
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.lxT = pick([-0.6, 0.6, 0.2]); })]);
@@ -13007,10 +13020,10 @@ function makeGeoDimsumStage() {
       K.ph(0.4, (s) => { s.lxT = f; s.tgN = [cardX(tb), tb.top - 26]; s.hold.N = H.stamp(); s.leanT = 0.18; }),
       K.ph(0.25, (s) => { s.tgN = [cardX(tb), tb.top - 6]; }, { exit: (s) => { tb.stamps++; K.fx('spark', cardX(tb), tb.top - 4, { life: 0.35, col: '#ff4a3a' }); K.say(a, 'icon:stamp', 0.8); } }),
       K.ph(0.3, (s) => { s.tgN = [cardX(tb), tb.top - 24]; }, { exit: (s) => { s.hold.N = null; s.leanT = 0; } }),
-      pushTo(tb === TB ? 250 : 262)], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.pushing = false; s.farFront = false; } });
+      pushTo(tb === TB ? 206 : 214)], { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.pushing = false; s.farFront = false; } });
   }
   function restock(a) {
-    K.start(a, 'restock', [pushTo(KDOOR.x0 + 6), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, 1 - u); trolley.hide = u > 0.5 ? 1 : 0; }), K.ph(2.5, (s) => { s.alpha = 0.03; }, { exit: () => { fillTrolley(); trolley.dirty = 0; tub = 0; } }), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, u); trolley.hide = u < 0.5 ? 1 : 0; }, { enter: () => { trolley.steam = 1.6; }, exit: (s) => { s.alpha = 1; } }), pushTo(262), K.ph(0.4, null, { enter: () => K.say(a, pick(['Fresh from the kitchen!', 'Hot hot hot!', 'icon:steam']), 1.3) })], { onAbort: (s) => { s.alpha = 1; trolley.hide = 0; s.pushing = false; } });
+    K.start(a, 'restock', [pushTo(KDOOR.x0 + 6), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, 1 - u); trolley.hide = u > 0.5 ? 1 : 0; }), K.ph(2.5, (s) => { s.alpha = 0.03; }, { exit: () => { fillTrolley(); trolley.dirty = 0; tub = 0; } }), K.ph(0.7, (s, u) => { s.alpha = Math.max(0.03, u); trolley.hide = u < 0.5 ? 1 : 0; }, { enter: () => { trolley.steam = 1.6; }, exit: (s) => { s.alpha = 1; } }), pushTo(214), K.ph(0.4, null, { enter: () => K.say(a, pick(['Fresh from the kitchen!', 'Hot hot hot!', 'icon:steam']), 1.3) })], { onAbort: (s) => { s.alpha = 1; trolley.hide = 0; s.pushing = false; } });
   }
   function clearA(a, tb) {
     const n = tb.baskets.length;
@@ -13026,13 +13039,13 @@ function makeGeoDimsumStage() {
     const lid = TABLES.find((tb) => tb.pot.lid && !tb.pot.held);
     if (lid) return refill(a, lid);
     if (!TB.party && (TB.baskets.length || TB.empties)) return clearB(a);
-    if (night && K.cooled(a, 'sweep', 10)) return K.start(a, 'sweep', [K.ph(0, (s) => { s.walkTo = rand(1030, 1060); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(4, 6), (s, u, t) => { s.hold.N = H.broom(); s.carryUp = false; s.tgN = [s.hx + s.f * 10 + Math.sin(t * 4) * 16, s.hy - 30]; s.tgF = [s.hx + s.f * 4 + Math.sin(t * 4) * 12, s.hy - 60]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; s.carryUp = true; swept++; } })], { onAbort: (s) => { s.hold.N = null; s.carryUp = true; } });
+    if (night && K.cooled(a, 'sweep', 10)) return K.start(a, 'sweep', [K.ph(0, (s) => { s.walkTo = rand(1062, 1086); }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(4, 6), (s, u, t) => { s.hold.N = H.broom(); s.carryUp = false; s.tgN = [s.hx + s.f * 10 + Math.sin(t * 4) * 16, s.hy - 30]; s.tgF = [s.hx + s.f * 4 + Math.sin(t * 4) * 12, s.hy - 60]; s.leanT = 0.15; }, { exit: (s) => { s.hold.N = null; s.carryUp = true; swept++; } })], { onAbort: (s) => { s.hold.N = null; s.carryUp = true; } });
     const r = Math.random();
     if (r < 0.3) return K.start(a, 'towel', [K.ph(0, (s) => { s.walkTo = URN.x + 40; }, { until: (s) => !s.walking, max: 12 }), K.ph(rand(2.5, 4), (s, u, t) => { s.f = -1; s.hold.N = H.cloth(); s.tgN = [URN.x + 8 + Math.sin(t * 6) * 14, URN.top - 4]; s.leanT = 0.15; s.lxT = 0.8; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     return K.start(a, 'idle', [K.ph(rand(2, 3.5), (s) => { s.tgN = [s.hx + s.f * 6, s.hy - 20]; s.tgF = [s.hx - s.f * 4, s.hy - 22]; s.lxT = pick([-0.7, 0.5]); })]);
   }
   function refill(a, tb) {
-    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1035;
+    const p = tb.pot, bx = tb === TA ? tb.x + 60 : tb.x + 40, back = 1066;
     p.held = 1;
     K.start(a, 'refill', [K.ph(0, (s) => { s.walkTo = bx; }, { until: (s) => !s.walking, max: 30 }),
       K.ph(0.5, (s) => { s.f = potX(tb) < s.hx ? -1 : 1; s.tgN = [potX(tb), tb.top - 10]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = H.pot(p); p.away = 1; } }),
@@ -13049,7 +13062,7 @@ function makeGeoDimsumStage() {
       K.ph(0.6, (s) => { s.f = tb === TA ? -1 : 1; s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; tb.folder = 1; K.say(a, pick(['Thank you!', 'Mm goi!']), 1.1); if (tb.party) tb.party.bill = 3; } }),
       K.ph(rand(2.5, 3.5), (s) => { s.leanT = 0; s.look = { x: () => tb.x, until: K.simT + 0.3 }; }, { until: () => !tb.party || tb.party.bill >= 4, max: 8 }),
       K.ph(0.5, (s) => { s.tgN = [cardX(tb) + 10, tb.top - 6]; s.leanT = 0.2; }, { exit: (s) => { tb.folder = 0; s.hold.N = H.folder(); K.say(a, 'icon:heart', 0.8); } }),
-      K.ph(0, (s) => { s.walkTo = 1035; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
+      K.ph(0, (s) => { s.walkTo = 1066; }, { until: (s) => !s.walking, max: 30 }), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; tb.folder = 0; if (tb.party && tb.party.bill < 4) tb.party.bill = 4; } });
   }
   function clearB(a) {
     const tb = TB, n = tb.baskets.length + (tb.empties || 0);
@@ -13830,9 +13843,9 @@ const FishPal = GeoKit.palette({
 
 function makeGeoFishhouseStage() {
   const BAR = { x0: 24, x1: 452, top: 500 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
-  const STOOLS = [{ x: 96, occ: null }, { x: 236, occ: null }];
-  const TB = { x: 1128, top: 566, seats: [{ x: 1052, f: 1, occ: null }, { x: 1204, f: -1, occ: null }] };
-  const WIN = { x0: 300, y0: 96, x1: 990, y1: 470 }, PASS = { x: 1262 }, BUCKET = { x: 1000 };
+  const STOOLS = [{ x: 84, occ: null }, { x: 204, occ: null }];
+  const TB = { x: 1148, top: 566, seats: [{ x: 1074, f: 1, occ: null }, { x: 1222, f: -1, occ: null }] };
+  const WIN = { x0: 300, y0: 96, x1: 990, y1: 470 }, PASS = { x: 1262 }, BUCKET = { x: 1036 };
   const DISHES = [{ n: 'Oysters', k: 'oyster', c: '#bccad2' }, { n: 'Seared scallops', k: 'scallop', c: '#e8b060' }, { n: 'Lobster thermidor', k: 'lobster', c: '#d8341e' }, { n: 'Salmon, dill', k: 'salmon', c: '#ff8a62' }, { n: 'Grilled octopus', k: 'octopus', c: '#b0607a' }, { n: 'Moules marinières', k: 'mussel', c: '#2a3050' }];
   let K, ana, henri, platter = { n: 0, x: 0, on: false, owner: null, shells: 0 }, tray = 0, shellBucket = 0, table = { plates: [], glasses: [{ lv: 0 }, { lv: 0 }], bottle: 0, candle: 0, cloche: null, party: null, menu: 0, ring: 0 }, boat = null, gull = null, nextArrive = 2, nextBoat = 60, nextGull = 40, bell = 0, sign = 1;
   const L = (h) => K.L(h), B = GeoKit.body;
@@ -13875,8 +13888,8 @@ function makeGeoFishhouseStage() {
     const g = STOOLS.map((st) => st.occ).find((q) => q && q.phase === 'wantOysters' && !platter.on);
     if (g) return shuck(a, g);
     const r = Math.random();
-    if (r < 0.3) return K.start(a, 'ice', [K.ph(0, (s) => { s.walkTo = rand(110, 260); }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(2, 3), (s, u, t) => { s.tgN = [s.hx + 26 + Math.sin(t * 5) * 10, BAR.top - 14 + Math.abs(Math.sin(t * 5)) * -6]; s.tgF = [s.hx + 10, BAR.top - 10]; s.leanT = 0.2; })]);
-    if (r < 0.5 && K.cooled(a, 'crack', 20)) return K.start(a, 'crack', [K.ph(0, (s) => { s.walkTo = 300; }, { until: (s) => !s.walking, max: 10 }), K.ph(2, (s, u, t) => { s.hold.N = H.mallet(); const hit = Math.sin(t * 8); s.tgN = [s.hx + 30, BAR.top - 30 + hit * 14]; s.leanT = 0.15; if (hit > 0.98 && Math.random() < 0.3) K.fx('spark', s.hx + 30, BAR.top - 18, { life: 0.25, col: '#ffffff' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.3) return K.start(a, 'ice', [K.ph(0, (s) => { s.walkTo = rand(100, 200); }, { until: (s) => !s.walking, max: 10 }), K.ph(rand(2, 3), (s, u, t) => { s.tgN = [s.hx + 26 + Math.sin(t * 5) * 10, BAR.top - 14 + Math.abs(Math.sin(t * 5)) * -6]; s.tgF = [s.hx + 10, BAR.top - 10]; s.leanT = 0.2; })]);
+    if (r < 0.5 && K.cooled(a, 'crack', 20)) return K.start(a, 'crack', [K.ph(0, (s) => { s.walkTo = 206; }, { until: (s) => !s.walking, max: 10 }), K.ph(2, (s, u, t) => { s.hold.N = H.mallet(); const hit = Math.sin(t * 8); s.tgN = [s.hx + 30, BAR.top - 30 + hit * 14]; s.leanT = 0.15; if (hit > 0.98 && Math.random() < 0.3) K.fx('spark', s.hx + 30, BAR.top - 18, { life: 0.25, col: '#ffffff' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
     return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.tgN = [s.hx + 18, BAR.top - 8]; s.tgF = [s.hx + 4, BAR.top - 8]; s.lxT = pick([0.6, 0.2, -0.4]); })]);
   }
   function shuck(a, g) {
@@ -14074,7 +14087,7 @@ function makeGeoFishhouseStage() {
   function draw(c, t, Kk) {
     const P = K.P;
     drawRoom(c, t);
-    for (const x of [130, 330, 1128]) { c.strokeStyle = P.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, 59); c.lineTo(x, 200); c.stroke(); c.fillStyle = P.brass; c.beginPath(); c.arc(x, 214, 16, Math.PI, TAU); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 214, 12, 3); c.fill(); K.glow(c, x, 224, 150, P.glow, P.glowA); }
+    for (const x of [130, 330, 1148]) { c.strokeStyle = P.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(x, 59); c.lineTo(x, 200); c.stroke(); c.fillStyle = P.brass; c.beginPath(); c.arc(x, 214, 16, Math.PI, TAU); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 214, 12, 3); c.fill(); K.glow(c, x, 224, 150, P.glow, P.glowA); }
     c.fillStyle = P.floor; c.fillRect(-60, 640, 1400, 100 + K.extraB); for (let i = 0; i < 34; i++) { c.fillStyle = P.floor2; c.fillRect(-60 + i * 42, 640, 3, 100 + K.extraB); }
     K.drawBody(c, ana, true); drawBar(c, t);
     drawTable(c, false);
@@ -14708,7 +14721,7 @@ const FFPal = GeoKit.palette({
 
 function makeGeoFastfoodStage() {
   const DT = { x0: 22, x1: 102, y0: 300, y1: 470 }, CTR = { x0: -20, x1: 292, top: 520 }, SF = 640, SSC = 0.8, FL = 712, SC = 0.84;
-  const FOUNT = 123, FRYST = 157, CHUTE = 157, FRYER = 191, GRILL = { x0: 216, x1: 280 }, BAG = 71, SHAKE = 123;
+  const FOUNT = 123, FRYST = 157, CHUTE = 157, FRYER = 191, GRILL = { x0: 220, x1: 262 }, BAG = 71, SHAKE = 123;
   const WIN = { x0: 520, y0: 110, x1: 930, y1: 470 }, KIOSK = 1026, BIN = 1250, TAKE = { x: 156 };
   const TB = { x: 1158, top: 566, seats: [{ x: 1100, f: 1, occ: null }, { x: 1216, f: -1, occ: null }] };
   let K, jay, mia, orders = [], chute = 0, fries = 0, fryer = { basket: 'up', t: 0, load: 0, bub: 0 }, grill = { p: [], smoke: 0 }, cup = null, bag = null, car = null, nextCar = 6, nextArrive = 2, num = 40, balloon = null, ceilBalloon = null, shakeDown = 0, nextShake = 60, cars = [], nextPass = 3, table = { tent: 0, tray: null, folder: 0 }, kioskT = 0, receipt = 0, beep = 0, sign = 1;
@@ -14766,7 +14779,7 @@ function makeGeoFastfoodStage() {
   };
   /* ---------- crew ---------- */
   function mkStaff() {
-    jay = K.mk(B({ T: 240, hw: 62, headR: 28, pattern: 'polo', top: 'red', pants: 'dark', hat: 'visor', hatCol: 'red', hairStyle: 'short', hair: 'dark' }), { role: 'grill', staff: 1, hx: 233, f: 1, floorY: SF, sc: SSC, faceDir: 0.4 });
+    jay = K.mk(B({ T: 240, hw: 62, headR: 28, pattern: 'polo', top: 'red', pants: 'dark', hat: 'visor', hatCol: 'red', hairStyle: 'short', hair: 'dark' }), { role: 'grill', staff: 1, hx: 214, f: 1, floorY: SF, sc: SSC, faceDir: 0.4 });
     mia = K.mk(B({ T: 232, hw: 58, headR: 28, pattern: 'polo', top: 'red', pants: 'dark', hat: 'cap', hatCol: 'red', hairStyle: 'pony', hair: 'brown' }), { role: 'drive', staff: 1, hx: 86, f: -1, floorY: SF, sc: SSC * 0.97, faceDir: -0.4, speed: 1.2 });
     jay.think = jayThink; mia.think = miaThink;
   }
@@ -14778,12 +14791,12 @@ function makeGeoFastfoodStage() {
     if (needF > 0 && fryer.basket === 'up') return fry(a);
     if (needB > 0 && !grill.p.length) return cook(a, Math.min(2, needB));
     const r = Math.random();
-    if (r < 0.4) return K.start(a, 'scrape', [walk(243), K.ph(rand(2, 3), (s, u, t) => { s.f = 1; s.hold.N = H.spatula(); s.tgN = [GRILL.x0 + 34 + Math.sin(t * 6) * 22, 494]; s.leanT = 0.15; if (Math.random() < 0.04) K.fx('puff', s.tgN[0], 486, { life: 0.8, col: '#dddddd' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
-    if (r < 0.6) return K.start(a, 'wipe', [walk(232), K.ph(rand(1.5, 2.5), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [243 + Math.sin(t * 5) * 18, CT - 6]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
-    return K.start(a, 'idle', [walk(238), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 6, CT - 8]; s.lxT = pick([0.6, 0.2, -0.6]); })]);
+    if (r < 0.4) return K.start(a, 'scrape', [walk(216), K.ph(rand(2, 3), (s, u, t) => { s.f = 1; s.hold.N = H.spatula(); s.tgN = [GRILL.x0 + 34 + Math.sin(t * 6) * 22, 494]; s.leanT = 0.15; if (Math.random() < 0.04) K.fx('puff', s.tgN[0], 486, { life: 0.8, col: '#dddddd' }); }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.6) return K.start(a, 'wipe', [walk(212), K.ph(rand(1.5, 2.5), (s, u, t) => { s.f = 1; s.hold.N = H.cloth(); s.tgN = [238 + Math.sin(t * 5) * 18, CT - 6]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    return K.start(a, 'idle', [walk(216), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 6, CT - 8]; s.lxT = pick([0.6, 0.2, -0.6]); })]);
   }
   function cook(a, n) {
-    const egg = breakfast(), ph = [walk(239)];
+    const egg = breakfast(), ph = [walk(216)];
     for (let i = 0; i < n; i++) ph.push(K.ph(0.45, (s) => { s.f = 1; s.tgN = [GRILL.x0 + 10, 556]; s.leanT = 0.25; }, { exit: (s) => { s.hold.N = H.patty(); } }), K.ph(0.45, (s) => { s.tgN = [GRILL.x0 + 17 + i * 30, 488]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; grill.p.push({ x: GRILL.x0 + 17 + i * 30, cook: 0, flip: 0, ft: 0, cheese: 0, egg }); K.fx('puff', GRILL.x0 + 17 + i * 30, 484, { life: 0.9, col: '#ffffff' }); } }));
     ph.push(K.ph(1.6, (s, u, t) => { s.hold.N = H.spatula(); const q = grill.p[Math.floor(t * 1.5) % grill.p.length]; if (q) s.tgN = [q.x - 4, 478 + Math.abs(Math.sin(t * 6)) * 6]; s.leanT = 0.12; for (const q of grill.p) q.cook = Math.min(1, q.cook + 0.01); }));
     for (let i = 0; i < n; i++) ph.push(K.ph(0.6, (s, u) => { const q = grill.p[i]; if (!q) return; s.tgN = [q.x - 10 + u * 8, 484 - Math.sin(u * Math.PI) * 18]; q.ft = u; }, { exit: () => { const q = grill.p[i]; if (q) { q.flip = 1; q.ft = 0; K.fx('puff', q.x, 482, { life: 0.8, col: '#ffffff' }); } } }));
@@ -14793,10 +14806,10 @@ function makeGeoFastfoodStage() {
     for (let i = 0; i < n; i++) ph.push(
       K.ph(0.4, (s) => { s.hold.N = null; s.tgF = [GRILL.x1 - 10, 440]; s.farFront = true; }, { exit: (s) => { s.hold.F = H.bun(); } }),
       K.ph(0.4, (s) => { s.tgF = [249, CT - 6]; }, { exit: (s) => { s.hold.F = null; s.farFront = false; grill.board = 1; } }),
-      K.ph(0.5, (s) => { s.hold.N = H.spatula(true); const q = grill.p[0]; s.tgN = [q ? q.x : 233, 484]; }, { exit: () => { grill.p.shift(); } }),
+      K.ph(0.5, (s) => { s.hold.N = H.spatula(true); const q = grill.p[0]; s.tgN = [q ? q.x : 236, 484]; }, { exit: () => { grill.p.shift(); } }),
       K.ph(0.5, (s) => { s.hold.N = H.spatula(true); s.tgN = [245, CT - 18]; }, { exit: (s) => { s.hold.N = null; grill.board = 2; } }),
       K.ph(0.8, (s, u, t) => { s.tgN = [250 + Math.sin(t * 12) * 6, CT - 8]; s.tgF = [244 - Math.sin(t * 12) * 6, CT - 8]; s.leanT = 0.15; }, { exit: () => { grill.board = 0; grill.wrapped = (grill.wrapped || 0) + 1; } }));
-    ph.push(K.ph(0.4, (s) => { s.tgN = [248, CT - 10]; }, { exit: (s) => { s.hold.N = H.wrapped(); grill.wrapped = 0; s.nW = n; } }), walk(174), K.ph(0.5, (s) => { s.f = -1; s.tgN = [CHUTE + 10, 462]; s.leanT = 0.1; }, { exit: (s) => { s.hold.N = null; chute += s.nW; } }), walk(239));
+    ph.push(K.ph(0.4, (s) => { s.tgN = [248, CT - 10]; }, { exit: (s) => { s.hold.N = H.wrapped(); grill.wrapped = 0; s.nW = n; } }), walk(174), K.ph(0.5, (s) => { s.f = -1; s.tgN = [CHUTE + 10, 462]; s.leanT = 0.1; }, { exit: (s) => { s.hold.N = null; chute += s.nW; } }), walk(216));
     K.start(a, 'cook', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.farFront = false; chute += grill.p.length + (grill.wrapped || 0) + (grill.board ? 1 : 0); grill.p = []; grill.board = 0; grill.wrapped = 0; } });
   }
   function fry(a) {
@@ -14814,7 +14827,7 @@ function makeGeoFastfoodStage() {
   }
   function fixShake(a) {
     shakeDown = 2;
-    K.start(a, 'fix', [walk(149), K.ph(0.6, (s) => { s.f = -1; s.hold.N = H.wrench(); s.tgN = [SHAKE + 14, 380]; }, { enter: () => K.say(a, pick(['Not again…', 'Hold on…']), 1.2) }), K.ph(1.4, (s, u, t) => { s.tgN = [SHAKE + 14, 372 + Math.abs(Math.sin(t * 10)) * 14]; if (Math.abs(Math.sin(t * 10)) > 0.97) K.fx('spark', SHAKE + 8, 372, { life: 0.2, col: '#ffffff' }); }), K.ph(0.6, (s) => { s.hold.N = null; s.tgN = [SHAKE + 4, 360]; s.tgF = [SHAKE - 8, 364]; }, { exit: () => { shakeDown = 0; K.fx('spark', SHAKE, 350, { life: 0.8, col: '#7aff8a' }); K.say(a, 'Fixed it!', 1.2); K.say(mia, 'icon:laugh', 1.2); } }), walk(239)], { onAbort: (s) => { s.hold.N = null; shakeDown = 0; } });
+    K.start(a, 'fix', [walk(149), K.ph(0.6, (s) => { s.f = -1; s.hold.N = H.wrench(); s.tgN = [SHAKE + 14, 380]; }, { enter: () => K.say(a, pick(['Not again…', 'Hold on…']), 1.2) }), K.ph(1.4, (s, u, t) => { s.tgN = [SHAKE + 14, 372 + Math.abs(Math.sin(t * 10)) * 14]; if (Math.abs(Math.sin(t * 10)) > 0.97) K.fx('spark', SHAKE + 8, 372, { life: 0.2, col: '#ffffff' }); }), K.ph(0.6, (s) => { s.hold.N = null; s.tgN = [SHAKE + 4, 360]; s.tgF = [SHAKE - 8, 364]; }, { exit: () => { shakeDown = 0; K.fx('spark', SHAKE, 350, { life: 0.8, col: '#7aff8a' }); K.say(a, 'Fixed it!', 1.2); K.say(mia, 'icon:laugh', 1.2); } }), walk(216)], { onAbort: (s) => { s.hold.N = null; shakeDown = 0; } });
   }
   /* ---------- Mia: drive-thru, fountain, bagging, table runner ---------- */
   function miaThink(a) {
@@ -14886,7 +14899,7 @@ function makeGeoFastfoodStage() {
   }
   function arriveTake() { // takeaway guest: steps up to the counter end, orders with Mia, waits, takes the bag (busier at lunch / dinner, never more than one)
     if (!lobbyOpen() || guests().some((g) => g.take)) return;
-    const a = mkGuest(pick(['worker', 'suit', 'teen', 'gf', 'trucker', 'mom']), TAKE.x + 110); a.take = 1; a.phase = 'tkIn'; a.walkTo = TAKE.x;
+    const a = mkGuest(pick(['worker', 'suit', 'teen', 'gf', 'trucker', 'mom']), TAKE.x + 224); a.take = 1; a.phase = 'tkIn'; a.walkTo = TAKE.x;
   }
   function mkGuest(type, x) {
     const T0 = TYPES[type]; const a = K.mk(Object.assign({}, T0.body), { type, T0, cust: 1, hx: x, f: -1, floorY: FL - 6, sc: SC * (T0.sc || 1), alpha: 0, fade: 1.5, speed: rand(0.95, 1.08) * (T0.kid ? 1.1 : 1), bfrac: 1 });
@@ -15225,8 +15238,8 @@ const NMPal = GeoKit.palette({
 function makeGeoNightMarketStage() {
   const CT = 520, SF = 640, SSC = 0.8, FL = 712, SC = 0.84;
   const GR = { x0: 108, x1: 214, y: 500 }, BEEF = { x: 58 }, SLEEVE = 244, COOL = 34;      // left stall
-  const POT = { x: 1078 }, FLOUR = 1018, BAGS = 1122, CUPS = 1178, KETTLE = 1248;          // right stall
-  const SPOT_L = 268, SPOT_R = 1146;
+  const POT = { x: 1104 }, FLOUR = 1046, BAGS = 1144, CUPS = 1178, KETTLE = 1248;          // right stall
+  const SPOT_L = 216, SPOT_R = 1150;
   let K, lin, kai, mei, sausages = [], beef = { sear: 0, n: 6 }, coals = 1, pot = { cut: null, bub: 0.2 }, board = null, cupFill = null, steamT = 0, nextStroll = 2, nextBuyer = 1.5, buyL = null, buyR = null, glaze = 0, fanT = 0, torchOn = 0, flourPuff = 0;
   const L = (h) => K.L(h), B = GeoKit.body;
   const H24 = () => ((K.hour % 24) + 24) % 24;
@@ -15261,7 +15274,7 @@ function makeGeoNightMarketStage() {
   /* ---------- vendors ---------- */
   function mkStaff() {
     lin = K.mk(B({ T: 232, hw: 60, headR: 28, pattern: 'apron', top: 'teal', top2: 'cream', pants: 'dark', hairStyle: 'bob', hair: 'hairGrey', sleeve: 'teal' }), { role: 'lin', staff: 1, hx: 160, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
-    kai = K.mk(B({ T: 244, hw: 64, headR: 28, pattern: 'apron', top: 'charcoal', top2: 'khaki', pants: 'dark', hairStyle: 'short', hair: 'dark', hat: 'beanie', hatCol: 'charcoal', shortSleeve: 1 }), { role: 'kai', staff: 1, hx: 1036, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
+    kai = K.mk(B({ T: 244, hw: 64, headR: 28, pattern: 'apron', top: 'charcoal', top2: 'khaki', pants: 'dark', hairStyle: 'short', hair: 'dark', hat: 'beanie', hatCol: 'charcoal', shortSleeve: 1 }), { role: 'kai', staff: 1, hx: 1066, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
     mei = K.mk(B({ T: 228, hw: 54, headR: 27, pattern: 'tee', top: 'mustard', pants: 'navy', hairStyle: 'pony', hair: 'dark', shortSleeve: 1 }), { role: 'mei', staff: 1, hx: 1214, f: -1, floorY: SF, sc: SSC * 0.97, faceDir: -0.5 });
     lin.think = linThink; kai.think = kaiThink; mei.think = meiThink;
   }
@@ -15308,13 +15321,13 @@ function makeGeoNightMarketStage() {
   function kaiThink(a) {
     if (waiting(buyR, 'cutlet')) return fryCutlet(a, buyR);
     const r = Math.random();
-    if (r < 0.4) return K.start(a, 'skim', [walk(1040), K.ph(rand(1.6, 2.6), (s, u, t) => { s.f = 1; s.hold.N = H.spider(); s.tgN = [POT.x - 30 + Math.sin(t * 3) * 8, CT - 30]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
-    if (r < 0.65) return K.start(a, 'prep', [walk(1036), K.ph(rand(1.5, 2.4), (s, u, t) => { s.f = 1; s.tgN = [FLOUR + 4 + Math.sin(t * 7) * 3, CT - 10 + Math.abs(Math.sin(t * 7)) * 4]; s.tgF = [FLOUR - 6, CT - 8]; s.leanT = 0.2; if (Math.random() < 0.05) flourPuff = 1; })]);
-    return K.start(a, 'idle', [walk(1036), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 8, CT - 8]; s.lxT = pick([0.6, -0.3, 0.3]); })]);
+    if (r < 0.4) return K.start(a, 'skim', [walk(1068), K.ph(rand(1.6, 2.6), (s, u, t) => { s.f = 1; s.hold.N = H.spider(); s.tgN = [POT.x - 30 + Math.sin(t * 3) * 8, CT - 30]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.65) return K.start(a, 'prep', [walk(1066), K.ph(rand(1.5, 2.4), (s, u, t) => { s.f = 1; s.tgN = [FLOUR + 4 + Math.sin(t * 7) * 3, CT - 10 + Math.abs(Math.sin(t * 7)) * 4]; s.tgF = [FLOUR - 6, CT - 8]; s.leanT = 0.2; if (Math.random() < 0.05) flourPuff = 1; })]);
+    return K.start(a, 'idle', [walk(1066), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 8, CT - 8]; s.lxT = pick([0.6, -0.3, 0.3]); })]);
   }
   function fryCutlet(a, b) {
     b.served = 1;
-    K.start(a, 'fry', [walk(1036), K.ph(0.5, (s) => { s.f = 1; s.tgN = [FLOUR, CT - 8]; s.leanT = 0.22; }, { exit: (s) => { s.hold.N = H.rawCut(); flourPuff = 1; } }),
+    K.start(a, 'fry', [walk(1066), K.ph(0.5, (s) => { s.f = 1; s.tgN = [FLOUR, CT - 8]; s.leanT = 0.22; }, { exit: (s) => { s.hold.N = H.rawCut(); flourPuff = 1; } }),
       K.ph(0.8, (s, u, t) => { s.tgN = [FLOUR + 2, CT - 10 + Math.abs(Math.sin(t * 10)) * 4]; s.tgF = [FLOUR - 8, CT - 8]; }, { exit: () => { flourPuff = 1; } }),
       K.ph(0.5, (s) => { s.tgN = [POT.x - 22, CT - 34]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; pot.cut = { cook: 0 }; pot.bub = 1; K.fx('puff', POT.x, CT - 30, { life: 1, col: '#ffffff' }); } }),
       K.ph(2.6, (s, u, t) => { s.hold.N = H.spider(); s.tgN = [POT.x - 32 + Math.sin(t * 2.4) * 5, CT - 30]; pot.cut.cook = u; s.look = { x: () => POT.x, until: K.simT + 0.3 }; }),

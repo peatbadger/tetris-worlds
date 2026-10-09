@@ -20,8 +20,8 @@ const NMPal = GeoKit.palette({
 function makeGeoNightMarketStage() {
   const CT = 520, SF = 640, SSC = 0.8, FL = 712, SC = 0.84;
   const GR = { x0: 108, x1: 214, y: 500 }, BEEF = { x: 58 }, SLEEVE = 244, COOL = 34;      // left stall
-  const POT = { x: 1078 }, FLOUR = 1018, BAGS = 1122, CUPS = 1178, KETTLE = 1248;          // right stall
-  const SPOT_L = 268, SPOT_R = 1146;
+  const POT = { x: 1104 }, FLOUR = 1046, BAGS = 1144, CUPS = 1178, KETTLE = 1248;          // right stall
+  const SPOT_L = 216, SPOT_R = 1150;
   let K, lin, kai, mei, sausages = [], beef = { sear: 0, n: 6 }, coals = 1, pot = { cut: null, bub: 0.2 }, board = null, cupFill = null, steamT = 0, nextStroll = 2, nextBuyer = 1.5, buyL = null, buyR = null, glaze = 0, fanT = 0, torchOn = 0, flourPuff = 0;
   const L = (h) => K.L(h), B = GeoKit.body;
   const H24 = () => ((K.hour % 24) + 24) % 24;
@@ -56,7 +56,7 @@ function makeGeoNightMarketStage() {
   /* ---------- vendors ---------- */
   function mkStaff() {
     lin = K.mk(B({ T: 232, hw: 60, headR: 28, pattern: 'apron', top: 'teal', top2: 'cream', pants: 'dark', hairStyle: 'bob', hair: 'hairGrey', sleeve: 'teal' }), { role: 'lin', staff: 1, hx: 160, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
-    kai = K.mk(B({ T: 244, hw: 64, headR: 28, pattern: 'apron', top: 'charcoal', top2: 'khaki', pants: 'dark', hairStyle: 'short', hair: 'dark', hat: 'beanie', hatCol: 'charcoal', shortSleeve: 1 }), { role: 'kai', staff: 1, hx: 1036, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
+    kai = K.mk(B({ T: 244, hw: 64, headR: 28, pattern: 'apron', top: 'charcoal', top2: 'khaki', pants: 'dark', hairStyle: 'short', hair: 'dark', hat: 'beanie', hatCol: 'charcoal', shortSleeve: 1 }), { role: 'kai', staff: 1, hx: 1066, f: 1, floorY: SF, sc: SSC, faceDir: 0.5 });
     mei = K.mk(B({ T: 228, hw: 54, headR: 27, pattern: 'tee', top: 'mustard', pants: 'navy', hairStyle: 'pony', hair: 'dark', shortSleeve: 1 }), { role: 'mei', staff: 1, hx: 1214, f: -1, floorY: SF, sc: SSC * 0.97, faceDir: -0.5 });
     lin.think = linThink; kai.think = kaiThink; mei.think = meiThink;
   }
@@ -103,13 +103,13 @@ function makeGeoNightMarketStage() {
   function kaiThink(a) {
     if (waiting(buyR, 'cutlet')) return fryCutlet(a, buyR);
     const r = Math.random();
-    if (r < 0.4) return K.start(a, 'skim', [walk(1040), K.ph(rand(1.6, 2.6), (s, u, t) => { s.f = 1; s.hold.N = H.spider(); s.tgN = [POT.x - 30 + Math.sin(t * 3) * 8, CT - 30]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
-    if (r < 0.65) return K.start(a, 'prep', [walk(1036), K.ph(rand(1.5, 2.4), (s, u, t) => { s.f = 1; s.tgN = [FLOUR + 4 + Math.sin(t * 7) * 3, CT - 10 + Math.abs(Math.sin(t * 7)) * 4]; s.tgF = [FLOUR - 6, CT - 8]; s.leanT = 0.2; if (Math.random() < 0.05) flourPuff = 1; })]);
-    return K.start(a, 'idle', [walk(1036), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 8, CT - 8]; s.lxT = pick([0.6, -0.3, 0.3]); })]);
+    if (r < 0.4) return K.start(a, 'skim', [walk(1068), K.ph(rand(1.6, 2.6), (s, u, t) => { s.f = 1; s.hold.N = H.spider(); s.tgN = [POT.x - 30 + Math.sin(t * 3) * 8, CT - 30]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; } })], { onAbort: (s) => { s.hold.N = null; } });
+    if (r < 0.65) return K.start(a, 'prep', [walk(1066), K.ph(rand(1.5, 2.4), (s, u, t) => { s.f = 1; s.tgN = [FLOUR + 4 + Math.sin(t * 7) * 3, CT - 10 + Math.abs(Math.sin(t * 7)) * 4]; s.tgF = [FLOUR - 6, CT - 8]; s.leanT = 0.2; if (Math.random() < 0.05) flourPuff = 1; })]);
+    return K.start(a, 'idle', [walk(1066), K.ph(rand(1.5, 3), (s) => { s.f = 1; s.tgN = [s.hx + 20, CT - 8]; s.tgF = [s.hx + 8, CT - 8]; s.lxT = pick([0.6, -0.3, 0.3]); })]);
   }
   function fryCutlet(a, b) {
     b.served = 1;
-    K.start(a, 'fry', [walk(1036), K.ph(0.5, (s) => { s.f = 1; s.tgN = [FLOUR, CT - 8]; s.leanT = 0.22; }, { exit: (s) => { s.hold.N = H.rawCut(); flourPuff = 1; } }),
+    K.start(a, 'fry', [walk(1066), K.ph(0.5, (s) => { s.f = 1; s.tgN = [FLOUR, CT - 8]; s.leanT = 0.22; }, { exit: (s) => { s.hold.N = H.rawCut(); flourPuff = 1; } }),
       K.ph(0.8, (s, u, t) => { s.tgN = [FLOUR + 2, CT - 10 + Math.abs(Math.sin(t * 10)) * 4]; s.tgF = [FLOUR - 8, CT - 8]; }, { exit: () => { flourPuff = 1; } }),
       K.ph(0.5, (s) => { s.tgN = [POT.x - 22, CT - 34]; s.leanT = 0.12; }, { exit: (s) => { s.hold.N = null; pot.cut = { cook: 0 }; pot.bub = 1; K.fx('puff', POT.x, CT - 30, { life: 1, col: '#ffffff' }); } }),
       K.ph(2.6, (s, u, t) => { s.hold.N = H.spider(); s.tgN = [POT.x - 32 + Math.sin(t * 2.4) * 5, CT - 30]; pot.cut.cook = u; s.look = { x: () => POT.x, until: K.simT + 0.3 }; }),
