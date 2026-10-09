@@ -47,7 +47,7 @@
   let kama = 0, whisk = 0, shishi = 0, shishiT = 0, knockFx = 0;
   const K0 = (c, pts) => GeoKit.poly(c, pts);
   const W = {
-    id: 'teahouse', pal: TeaPal, stationX: 104, startHour: 9, span: 11, font: '700 15px Georgia, serif', vign: 'rgba(40,24,10,0.22)', zone: 'rgba(250,240,220,0.22)',
+    id: 'teahouse', pal: TeaPal, stationX: 44, srvX: 240, spots: [156, 330], maxCust: 2, crowd: 0.6, tagDx: 180, // calm room: two guests at most; the tea master (70) and server (240) flank the one guest at the counter (156); a companion waits off-counter startHour: 9, span: 11, font: '700 15px Georgia, serif', vign: 'rgba(40,24,10,0.22)', zone: 'rgba(250,240,220,0.22)',
     per: (h) => { const x = h < 5 ? h + 24 : h; return x < 11 ? 0 : x < 14 ? 1 : x < 17.5 ? 2 : 3; },
     staff: [{ T: 222, hw: 54, headR: 27, pattern: 'kimono', top: '#3a4a6a', top2: '#d8c8a0', top3: '#a83a30', shirt: 'white', hairStyle: 'bun', hair: 'dark', skirt: '#3a4a6a' },
       { T: 236, hw: 58, headR: 28, pattern: 'kimono', top: '#6a6460', top2: '#5e6e3a', top3: '#e8dcc0', shirt: 'white', hairStyle: 'short', hair: 'hairGrey', skirt: '#6a6460' }],

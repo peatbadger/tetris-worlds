@@ -14,7 +14,7 @@ const GeoCafePal = (base, keys, label) => {
 function makeGeoCafe(W) {
   return function () {
     const CNT = { x0: 14, x1: 250, top: 500, base: 650 }, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
-    const SPOTS = (W.spots || [118, 214]).map((x) => ({ x, occ: null })), WAIT = { x: 40 }, MAXC = W.maxCust || 4; // optional per-world queue spacing / crowd cap
+    const SPOTS = (W.spots || [118, 214]).map((x) => ({ x, occ: null })), WAIT = { x: 40 }, MAXC = W.maxCust || 4, TAG = W.tagDx || -46; // TAG: where a party companion waits relative to the lead // optional per-world queue spacing / crowd cap
     const WIN = W.win || { x0: 1036, y0: 112, x1: 1244, y1: 468 };
     const LEDGE = [{ x: 1092, occ: null }, { x: 1188, occ: null }], LEDGE_Y = 548, EXIT = 1350, ST = { x: W.stationX || 66 };
     let K, srv, mk, nextArrive = 2; const S = { orders: [], coins: 0, ev: null, evT: 0 };
@@ -94,10 +94,10 @@ function makeGeoCafe(W) {
     }
     function custThink(a) {
       const P = a.party, lead = P.members[0];
-      if (a.phase === 'enter') { if (a.walking) return; if (a === lead) { const sp = SPOTS.find((s) => !s.occ); if (sp && !SPOTS.some((s) => s.occ && s.occ.party !== P && SPOTS.indexOf(s) > SPOTS.indexOf(sp))) { if (sp === SPOTS[1] && !SPOTS[0].occ) { SPOTS[0].occ = a; a.spot = SPOTS[0]; } else { sp.occ = a; a.spot = sp; } a.walkTo = a.spot.x; a.phase = 'queue'; return; } } else if (lead.spot) { a.walkTo = Math.max(-20, lead.hx - 46); a.phase = 'tag'; return; }
+      if (a.phase === 'enter') { if (a.walking) return; if (a === lead) { const sp = SPOTS.find((s) => !s.occ); if (sp && !SPOTS.some((s) => s.occ && s.occ.party !== P && SPOTS.indexOf(s) > SPOTS.indexOf(sp))) { if (sp === SPOTS[1] && !SPOTS[0].occ) { SPOTS[0].occ = a; a.spot = SPOTS[0]; } else { sp.occ = a; a.spot = sp; } a.walkTo = a.spot.x; a.phase = 'queue'; return; } } else if (lead.spot) { a.walkTo = Math.max(-20, lead.hx + TAG); a.phase = 'tag'; return; }
         return K.start(a, 'wait', [K.ph(rand(1, 2), (s) => { s.look = { x: () => 200, until: K.simT + 0.3 }; })]); }
       if (a.phase === 'tag') { if (a.walking) return; if (['eat', 'toLedge', 'leave', 'out'].includes(lead.phase)) { if (!a.item && lead.items && lead.items.length > 1) { const it = lead.items.find((q) => q !== lead.item && !q.taken); if (it) { it.taken = 1; a.item = it; a.hold.N = H.item(it.m, it); } } a.phase = lead.phase === 'leave' || lead.phase === 'out' ? 'leave' : 'toLedge'; return; }
-        if (a.walkTo == null && Math.abs(a.hx - (lead.hx - 46)) > 6) a.walkTo = Math.max(-20, lead.hx - 46); return K.start(a, 'tagwait', [K.ph(rand(0.8, 1.6), (s) => { s.look = { x: () => (lead.item ? lead.hx : 160), until: K.simT + 0.3 }; })]); }
+        if (a.walkTo == null && Math.abs(a.hx - (lead.hx + TAG)) > 6) a.walkTo = Math.max(-20, lead.hx + TAG); return K.start(a, 'tagwait', [K.ph(rand(0.8, 1.6), (s) => { s.look = { x: () => (lead.item ? lead.hx : 160), until: K.simT + 0.3 }; })]); }
       if (a.phase === 'queue') { if (a.walking) return; if (a.spot === SPOTS[1] && !SPOTS[0].occ) { SPOTS[1].occ = null; SPOTS[0].occ = a; a.spot = SPOTS[0]; a.walkTo = SPOTS[0].x; return; }
         if (a.spot === SPOTS[0]) { a.phase = 'front'; a.f = 1; a.faceDir = 0.8; }
         return K.start(a, 'look', [K.ph(rand(1.5, 2.5), (s) => { s.look = { x: () => pick([60, 160, 240]), until: K.simT + 0.8 }; })]); }
