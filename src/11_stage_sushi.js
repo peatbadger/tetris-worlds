@@ -482,19 +482,31 @@ function makeSushiStage() {
     const w = 360 * u, h = 300 * u;
     const [c, ctx] = hiCanvas(w, h, D);
     ctx.filter = `blur(${1.6 * u * D}px)`;
-    const cx = w / 2, hy = h * 0.42, hr = right ? 54 * u : 60 * u;
-    // shoulders
-    ctx.beginPath(); ctx.moveTo(cx - 175 * u, h); ctx.bezierCurveTo(cx - 170 * u, h * 0.62, cx - 60 * u, h * 0.6, cx, h * 0.6); ctx.bezierCurveTo(cx + 60 * u, h * 0.6, cx + 170 * u, h * 0.62, cx + 175 * u, h); ctx.closePath();
-    ctx.fillStyle = right ? '#1a0e10' : '#0c0d14'; ctx.fill();
-    // head + hair
-    ellipse(ctx, cx, hy, hr * 0.92, hr); ctx.fillStyle = '#0a0605'; ctx.fill();
-    if (right) { ellipse(ctx, cx + 8 * u, hy - hr * 0.95, hr * 0.42, hr * 0.36); ctx.fill(); ctx.strokeStyle = '#c9a040'; ctx.lineWidth = 3 * u; ctx.beginPath(); ctx.moveTo(cx - 30 * u, hy - hr * 1.15); ctx.lineTo(cx + 50 * u, hy - hr * 0.8); ctx.stroke(); }
-    ctx.fillStyle = '#0a0605'; ctx.fillRect(cx - hr * 0.4, hy + hr * 0.5, hr * 0.8, h * 0.18);
+    const cx = w / 2, hy = h * 0.4, hr = right ? 50 * u : 55 * u, body = right ? '#1a0e10' : '#0c0d14', hair = '#0a0605';
+    // shoulders seen from behind: neck -> trapezius slope -> deltoid caps -> upper arms
+    ctx.beginPath(); ctx.moveTo(cx - hr * 0.36, hy + hr * 0.7);
+    ctx.bezierCurveTo(cx - hr * 0.5, hy + hr * 1.05, cx - 110 * u, h * 0.6, cx - 150 * u, h * 0.66);
+    ctx.bezierCurveTo(cx - 182 * u, h * 0.7, cx - 185 * u, h * 0.86, cx - 178 * u, h);
+    ctx.lineTo(cx + 178 * u, h); ctx.bezierCurveTo(cx + 185 * u, h * 0.86, cx + 182 * u, h * 0.7, cx + 150 * u, h * 0.66);
+    ctx.bezierCurveTo(cx + 110 * u, h * 0.6, cx + hr * 0.5, hy + hr * 1.05, cx + hr * 0.36, hy + hr * 0.7); ctx.closePath();
+    ctx.fillStyle = body; ctx.fill();
+    // collar / shirt seam and shoulder-blade folds
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 3 * u; ctx.beginPath(); ctx.moveTo(cx - hr * 0.5, hy + hr * 1.1); ctx.quadraticCurveTo(cx, hy + hr * 1.3, cx + hr * 0.5, hy + hr * 1.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 90 * u, h * 0.78); ctx.quadraticCurveTo(cx - 60 * u, h * 0.86, cx - 70 * u, h); ctx.moveTo(cx + 90 * u, h * 0.78); ctx.quadraticCurveTo(cx + 60 * u, h * 0.86, cx + 70 * u, h); ctx.stroke();
+    // nape of the neck (skin in shadow)
+    ctx.fillStyle = '#1e120c'; ctx.beginPath(); ctx.moveTo(cx - hr * 0.38, hy + hr * 0.4); ctx.lineTo(cx - hr * 0.42, hy + hr * 1.08); ctx.quadraticCurveTo(cx, hy + hr * 1.2, cx + hr * 0.42, hy + hr * 1.08); ctx.lineTo(cx + hr * 0.38, hy + hr * 0.4); ctx.closePath(); ctx.fill();
+    // ears
+    [-1, 1].forEach((d) => { ellipse(ctx, cx + d * hr * 0.88, hy + hr * 0.14, hr * 0.08, hr * 0.17, d * 0.25); ctx.fillStyle = '#20140e'; ctx.fill(); });
+    // skull from behind with hair mass, nape hairline and crown whorl
+    ctx.beginPath(); ctx.moveTo(cx, hy - hr); ctx.bezierCurveTo(cx + hr * 0.75, hy - hr, cx + hr * 0.98, hy - hr * 0.4, cx + hr * 0.9, hy + hr * 0.25); ctx.bezierCurveTo(cx + hr * 0.82, hy + hr * 0.6, cx + hr * 0.5, hy + hr * 0.72, cx, hy + hr * 0.62);
+    ctx.bezierCurveTo(cx - hr * 0.5, hy + hr * 0.72, cx - hr * 0.82, hy + hr * 0.6, cx - hr * 0.9, hy + hr * 0.25); ctx.bezierCurveTo(cx - hr * 0.98, hy - hr * 0.4, cx - hr * 0.75, hy - hr, cx, hy - hr); ctx.closePath(); ctx.fillStyle = hair; ctx.fill();
+    if (right) { ctx.beginPath(); ctx.ellipse(cx + 4 * u, hy - hr * 0.9, hr * 0.4, hr * 0.33, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#c9a040'; ctx.lineWidth = 3 * u; ctx.beginPath(); ctx.moveTo(cx - 28 * u, hy - hr * 1.05); ctx.lineTo(cx + 46 * u, hy - hr * 0.75); ctx.stroke(); }
+    ctx.strokeStyle = 'rgba(120,90,60,0.12)'; ctx.lineWidth = 1.2 * u; for (let k = 0; k < 14; k++) { const a = -2.6 + k * 0.4; ctx.beginPath(); ctx.moveTo(cx + 6 * u, hy - hr * 0.55); ctx.quadraticCurveTo(cx + Math.cos(a) * hr * 0.6, hy - hr * 0.3 + Math.sin(a) * hr * 0.4, cx + Math.cos(a + 0.4) * hr * 0.9, hy + Math.sin(a + 0.4) * hr * 0.8); ctx.stroke(); }
     // rim light
     ctx.globalCompositeOperation = 'source-atop';
     const lx = right ? cx - hr * 0.9 : cx + hr * 0.9;
     ctx.fillStyle = radial(ctx, lx, hy - hr * 0.5, hr * 1.1, [[0, 'rgba(255,160,80,0.55)'], [0.4, 'rgba(255,130,60,0.15)'], [1, 'rgba(0,0,0,0)']]); ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = radial(ctx, right ? cx - 140 * u : cx + 140 * u, h * 0.62, 90 * u, [[0, 'rgba(255,150,70,0.35)'], [1, 'rgba(0,0,0,0)']]); ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = radial(ctx, right ? cx - 140 * u : cx + 140 * u, h * 0.66, 90 * u, [[0, 'rgba(255,150,70,0.35)'], [1, 'rgba(0,0,0,0)']]); ctx.fillRect(0, 0, w, h);
     return c;
   }
   function buildFarDiner(seed) {
@@ -574,59 +586,27 @@ function makeSushiStage() {
     ctx.restore();
     ctx.restore();
   }
-  function drawChef(ctx, cx, t, pulse) {
-    const top = H * 0.4, s = u;
-    // body (white kappogi)
-    ctx.save();
-    ctx.beginPath(); ctx.moveTo(cx - 50 * s, H * 0.52); ctx.bezierCurveTo(cx - 50 * s, top + 22 * s, cx - 38 * s, top + 8 * s, cx - 14 * s, top + 4 * s);
-    ctx.lineTo(cx + 14 * s, top + 4 * s); ctx.bezierCurveTo(cx + 38 * s, top + 8 * s, cx + 50 * s, top + 22 * s, cx + 50 * s, H * 0.52); ctx.closePath();
-    ctx.fillStyle = linear(ctx, cx - 50 * s, 0, cx + 50 * s, 0, [[0, '#bdb2a4'], [0.35, '#fffaf2'], [0.7, '#efe6da'], [1, '#a89c8e']]); ctx.fill();
-    ctx.strokeStyle = 'rgba(120,100,80,0.25)'; ctx.lineWidth = 1 * s;
-    [[-30, 0], [26, 0], [-12, 10]].forEach(([dx]) => { ctx.beginPath(); ctx.moveTo(cx + dx * s, top + 30 * s); ctx.quadraticCurveTo(cx + dx * s + 4 * s, top + 50 * s, cx + dx * s - 2 * s, H * 0.52); ctx.stroke(); });
-    // collar (navy V)
-    ctx.strokeStyle = '#1d2d55'; ctx.lineWidth = 5 * s;
-    ctx.beginPath(); ctx.moveTo(cx - 12 * s, top + 5 * s); ctx.lineTo(cx + 6 * s, top + 38 * s); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + 12 * s, top + 5 * s); ctx.lineTo(cx + 2 * s, top + 22 * s); ctx.stroke();
-    ctx.restore();
-    // head
-    const bob = Math.sin(t * 2.2) * 1.2 * s + pulse * 1.5 * s;
-    ctx.save(); ctx.translate(cx, top - 16 * s + bob); ctx.rotate(Math.sin(t * 1.1) * 0.04);
-    ctx.fillStyle = '#c99068'; ctx.fillRect(-6 * s, 10 * s, 12 * s, 12 * s);
-    ellipse(ctx, 0, 0, 17 * s, 20 * s); ctx.fillStyle = radial(ctx, -5 * s, -4 * s, 24 * s, [[0, '#f6cfaa'], [0.7, '#d9a074'], [1, '#a8704a']]); ctx.fill();
-    [-1, 1].forEach((d) => { ellipse(ctx, d * 17 * s, 2 * s, 3 * s, 5 * s); ctx.fillStyle = '#d29a6e'; ctx.fill(); });
-    ctx.beginPath(); ctx.ellipse(0, -6 * s, 17.5 * s, 15 * s, 0, Math.PI, 0); ctx.fillStyle = '#1a1210'; ctx.fill();
-    // hachimaki headband
-    ctx.fillStyle = linear(ctx, 0, -12 * s, 0, -4 * s, [[0, '#ffffff'], [1, '#d8d0c4']]); roundRect(ctx, -18.5 * s, -12 * s, 37 * s, 7 * s, 3 * s); ctx.fill();
-    ctx.strokeStyle = '#c0282c'; ctx.lineWidth = 1.2 * s; ctx.beginPath(); ctx.moveTo(-18 * s, -8.5 * s); ctx.lineTo(18 * s, -8.5 * s); ctx.stroke();
-    ctx.fillStyle = '#f2ece2'; ellipse(ctx, 17 * s, -9 * s, 4 * s, 3.5 * s); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(19 * s, -8 * s); ctx.lineTo(27 * s, -3 * s + Math.sin(t * 3) * 1.5 * s); ctx.lineTo(25 * s, 0); ctx.closePath(); ctx.fill();
-    // face
-    ctx.strokeStyle = '#3a2216'; ctx.lineWidth = 1.4 * s; ctx.lineCap = 'round';
-    [-1, 1].forEach((d) => { ctx.beginPath(); ctx.arc(d * 6.5 * s, 2 * s, 3 * s, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke(); ctx.beginPath(); ctx.moveTo(d * 3.5 * s, -3 * s); ctx.lineTo(d * 10 * s, -3.6 * s); ctx.stroke(); });
-    ctx.beginPath(); ctx.arc(0, 8 * s, 4.5 * s, 0.25, Math.PI - 0.25); ctx.stroke();
-    ctx.fillStyle = 'rgba(230,110,90,0.25)'; [-1, 1].forEach((d) => { ellipse(ctx, d * 10 * s, 7 * s, 3.5 * s, 2 * s); ctx.fill(); });
-    ctx.restore();
+  // itamae: a real proportioned person (kappogi, hachimaki); body drawn behind the counter, arms over it
+  let chefP = null;
+  const yanagiba = (slice) => (c, x, y, ang) => { c.save(); c.translate(x, y); c.rotate(Math.PI + 0.05 + slice * 0.04 - ang + 2.6 - Math.PI + Math.PI);
+    c.fillStyle = '#3a2416'; roundRect(c, -8, -1.1, 9, 2.2, 1); c.fill(); c.fillStyle = '#111'; c.fillRect(0.6, -1.2, 1.4, 2.4);
+    c.beginPath(); c.moveTo(2, -1.2); c.lineTo(30, -0.5); c.lineTo(32, 0.3); c.lineTo(2, 1.3); c.closePath(); c.fillStyle = linear(c, 0, -1.2, 0, 1.3, [[0, '#f8f8f8'], [0.5, '#a8b0b8'], [1, '#606870']]); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,0.9)'; c.lineWidth = 0.3; c.beginPath(); c.moveTo(3, 1.1); c.lineTo(31, 0.3); c.stroke(); c.restore(); };
+  const fishBlock = (c, x, y) => { c.save(); c.translate(x, y); c.fillStyle = '#e8584a'; roundRect(c, -2, -2, 12, 5, 1.5); c.fill(); c.strokeStyle = 'rgba(255,230,220,0.7)'; c.lineWidth = 0.4; for (let k = 0; k < 4; k++) { c.beginPath(); c.moveTo(k * 3, -2); c.quadraticCurveTo(k * 3 + 1.4, 0.5, k * 3, 3); c.stroke(); } c.restore(); };
+  function chefPose(t, pulse) {
+    const slice = Math.sin(t * 2.4), lift = Math.max(0, Math.sin(t * 2.4 + 1.2)) * 1.6;
+    return { slice, ps: { breath: Math.sin(t * 1.8), face: { blink: People.blinkAt(t, 7), mouth: Math.sin(t * 0.3) > 0.6 ? 'big' : 'smile', lookY: 1, lookX: 0.3 }, head: { nod: 1.4 + pulse, tilt: Math.sin(t * 1.1) * 0.04, turn: 0.15 },
+      arms: [{ side: -1, x: -17, y: 28.5, grip: 'open', handAng: 0.25, behind: (c, x, y) => fishBlock(c, x + 4, y + 1.5) }, { side: 1, x: 13 + slice * 5, y: 27.5 - lift, grip: 'fist', item: yanagiba(slice), handAng: 2.6 }] } };
   }
-  function drawChefArms(ctx, cx, t) {
-    const s = u, by = H * 0.49;
-    const slice = Math.sin(t * 2.4), lift = Math.max(0, Math.sin(t * 2.4 + 1.2)) * 3 * s;
-    const sh = [cx + 40 * s, H * 0.43], hand = [cx + 52 * s + slice * 12 * s, by - 6 * s - lift], el = [cx + 64 * s, H * 0.47];
-    const sh2 = [cx - 40 * s, H * 0.43], hand2 = [cx - 26 * s, by - 7 * s], el2 = [cx - 52 * s, H * 0.475];
-    [[sh2, el2, hand2], [sh, el, hand]].forEach(([a, b, cpt], i) => {
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.strokeStyle = '#9a8e80'; ctx.lineWidth = 15 * s; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(cpt[0], cpt[1]); ctx.stroke();
-      ctx.strokeStyle = '#f6efe4'; ctx.lineWidth = 12 * s; ctx.stroke();
-      ellipse(ctx, cpt[0], cpt[1], 6 * s, 5 * s); ctx.fillStyle = radial(ctx, cpt[0] - 2 * s, cpt[1] - 2 * s, 8 * s, [[0, '#f2c8a0'], [1, '#b8805a']]); ctx.fill();
-      if (i === 1) { // yanagiba knife
-        ctx.save(); ctx.translate(cpt[0], cpt[1]); ctx.rotate(Math.PI + 0.12 + slice * 0.04);
-        ctx.fillStyle = '#3a2416'; roundRect(ctx, -16 * s, -2.2 * s, 18 * s, 4.4 * s, 2 * s); ctx.fill();
-        ctx.fillStyle = '#111'; ctx.fillRect(1 * s, -2.4 * s, 3 * s, 4.8 * s);
-        ctx.beginPath(); ctx.moveTo(4 * s, -2.4 * s); ctx.lineTo(62 * s, -1 * s); ctx.lineTo(66 * s, 0.6 * s); ctx.lineTo(4 * s, 2.6 * s); ctx.closePath();
-        ctx.fillStyle = linear(ctx, 0, -2.4 * s, 0, 2.6 * s, [[0, '#f8f8f8'], [0.5, '#a8b0b8'], [1, '#606870']]); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 0.6 * s; ctx.beginPath(); ctx.moveTo(6 * s, 2.2 * s); ctx.lineTo(64 * s, 0.6 * s); ctx.stroke();
-        ctx.restore();
-      }
-    });
+  function drawChef(ctx, cx, t, pulse) { const { ps } = chefPose(t, pulse); ps.noArms = true; People.draw(ctx, chefP, cx, H * 0.415 + Math.sin(t * 2.2) * 0.8 * u, ps); }
+  function drawChefArms(ctx, cx, t) { const { ps } = chefPose(t, 0); ps.only = 'arms'; People.draw(ctx, chefP, cx, H * 0.415 + Math.sin(t * 2.2) * 0.8 * u, ps); }
+  // far diners: real people seated behind the far belt, chatting, sipping tea, eyeing plates as they pass
+  function drawFarDiner(ctx, d, fx, t, i) {
+    const lift = i === 2 ? Math.max(0, Math.sin(t * 0.6 + 1)) : 0, talk = i === 1 && Math.sin(t * 0.7) > 0.2;
+    const ps = { breath: Math.sin(t * 1.6 + i), face: { blink: People.blinkAt(t, 30 + i), mouth: talk ? 'talk' : lift > 0.8 ? 'o' : 'smile', open: talk ? Math.abs(Math.sin(t * 8)) * 0.6 : 0.2, lookY: 0.4, lookX: Math.sin(t * 0.4 + d.ph) },
+      head: { turn: Math.sin(t * 0.35 + d.ph) * 0.6, tilt: Math.sin(t * 0.5 + d.ph) * 0.05, nod: lift * 0.6 },
+      arms: i === 2 ? [{ side: -1, x: -10, y: 44, grip: 'open' }, { side: 1, x: lerp(14, 5, lift), y: lerp(44, -2, lift), grip: 'fist', item: Items.teacup }] : i === 1 ? [{ side: -1, x: -12, y: 44, grip: 'open' }, { side: 1, x: 18 + Math.sin(t * 2) * 3, y: 26 + Math.cos(t * 3) * 3, grip: 'open' }] : [{ side: -1, x: -12, y: 44, grip: 'open' }, { side: 1, x: 12, y: 44, grip: 'fist', item: Items.chopsticks }] };
+    People.draw(ctx, d.P, fx, H * 0.455 + 52 * u + Math.sin(t * 0.9 + d.ph) * 1.2 * u, ps);
   }
   function drawSteam(ctx, x, y, t, ph, sc) {
     ctx.save(); ctx.lineCap = 'round';
@@ -741,7 +721,12 @@ function makeSushiStage() {
     manekiTxt = Ink.sprite('千万両', 3.4 * u, { D, rnd: mulberry32(9), color: '#6a1a0a', vertical: false, bleed: 0.02, dry: 0 });
     norenChars = [...'回転寿司'].map((c, k) => Ink.sprite(c, H * 0.085, { D, rnd: mulberry32(70 + k), color: '#f3ecdc', bleed: 0.05, dry: 1.2, heavy: true }));
     fgLeft = buildFg(false); fgRight = buildFg(true);
-    farDiners = [0, 1, 2, 3].map((i) => ({ c: buildFarDiner(100 + i), x: [0.715, 0.795, 0.87, 0.945][i], ph: i * 1.7 }));
+    chefP = People.make({ skin: 'light', hair: 'black', hairStyle: 'short', top: { type: 'kappogi', col: '#f6f0e4' }, sleeves: 'long', acc: { hat: 'hachimaki' }, eyes: '#2a1a10', seed: 4242 }, 2.15 * u, D);
+    const dl = [{ female: true, lashes: true, skin: 'light', hair: 'dbrown', hairStyle: 'bob', top: { type: 'blouse', col: '#c8d8e8' }, lips: '#b8505a', acc: { earrings: '#e8c050' } },
+      { skin: 'light', hair: 'black', hairStyle: 'side', top: { type: 'suit', col: '#2a2e3a', tie: '#7a1a22' }, sleeves: 'long', acc: { glasses: '#2a2a2a' } },
+      { skin: 'pale', hair: 'grey', hairStyle: 'short', age: 'old', top: { type: 'cardigan', col: '#7a5a3a', shirt: '#e8e0d0' }, sleeves: 'long' },
+      { female: true, lashes: true, skin: 'tan', hair: 'black', hairStyle: 'long', top: { type: 'sweater', col: '#a83a4a' }, sleeves: 'long', lips: '#a8404a' }];
+    farDiners = [0, 1, 2, 3].map((i) => ({ P: People.make(Object.assign({ seed: 900 + i }, dl[i]), 1.62 * u, D), x: [0.715, 0.795, 0.87, 0.945][i], ph: i * 1.7 }));
     lanterns = [[0.055, 0.1, 1.0, true], [0.19, 0.06, 0.82, false], [0.33, 0.13, 1.05, true], [0.67, 0.12, 1.0, true], [0.81, 0.05, 0.85, false], [0.95, 0.1, 1.0, true]]
       .map(([x, len, s, red], i) => ({ x, len: len * H, s, sp: buildLantern(s, red, 300 + i), ph: i * 1.9, red }));
     nearSprites = []; farSprites = [];
@@ -770,13 +755,7 @@ function makeSushiStage() {
     farDiners.forEach((d, i) => {
       const bob = Math.sin(t * 0.9 + d.ph) * 1.5 * u + (i === 1 ? Math.max(0, Math.sin(t * 0.5)) * -3 * u : 0);
       const fx = X(d.x) + P(0.5);
-      ctx.drawImage(d.c, fx - d.c.cssW * 0.62, H * 0.455 + bob, d.c.cssW * 1.24, d.c.cssH * 1.24);
-      if (i === 2) { // sipping tea
-        const lift = Math.max(0, Math.sin(t * 0.6 + 1));
-        const cxp = fx + 18 * u, cyp = H * 0.585 - lift * 30 * u;
-        ctx.fillStyle = '#9fc5a8'; roundRect(ctx, cxp - 5 * u, cyp - 9 * u, 10 * u, 10 * u, 2 * u); ctx.fill();
-        ctx.fillStyle = '#b07a52'; ellipse(ctx, cxp, cyp + 2 * u, 5 * u, 3.5 * u); ctx.fill();
-      }
+      drawFarDiner(ctx, d, fx, t, i);
     });
     // 3. lanterns
     lanterns.forEach((L) => {
@@ -824,15 +803,11 @@ function makeSushiStage() {
       const ax = X(0.06) + 70 * u + fg, ay = H * 1.0;
       const ex = ax + 40 * u + reach * 30 * u, ey = ay - 50 * u - reach * 40 * u;
       const hx = ax + 30 * u + reach * 85 * u, hy = ay - 60 * u - reach * 120 * u;
-      ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      // soft (out-of-focus) edge: a faint wider stroke under the solid one instead of a costly ctx.filter blur
-      ctx.strokeStyle = 'rgba(12,13,20,0.35)'; ctx.lineWidth = 33 * u; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.stroke();
-      ctx.lineWidth = 23 * u; ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
-      ctx.strokeStyle = '#0c0d14'; ctx.lineWidth = 30 * u; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.stroke();
-      ctx.lineWidth = 20 * u; ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
-      ctx.strokeStyle = 'rgba(255,150,70,0.35)'; ctx.lineWidth = 2 * u; ctx.beginPath(); ctx.moveTo(ax + 12 * u, ay - 10 * u); ctx.lineTo(ex + 8 * u, ey - 8 * u); ctx.lineTo(hx + 6 * u, hy - 6 * u); ctx.stroke();
-      ellipse(ctx, hx + 4 * u, hy - 4 * u, 10 * u, 8 * u, -0.6); ctx.fillStyle = '#2a1810'; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,170,90,0.4)'; ctx.lineWidth = 1.5 * u; ctx.stroke();
+      const k = 4.4 * u; ctx.save(); ctx.translate(ax, ay); ctx.scale(k, k);
+      const e = [(ex - ax) / k, (ey - ay) / k], hd = [(hx - ax) / k, (hy - ay) / k];
+      ctx.globalAlpha = 0.35; People.chain(ctx, [[0, 0], e, hd], [[[0, 4.6], [1, 3.9]], [[0, 3.9], [0.8, 3.2], [1, 3.4]]], '#0c0d14', 1, { outline: false }); ctx.globalAlpha = 1;
+      People.chain(ctx, [[0, 0], e, [lerp(e[0], hd[0], 0.86), lerp(e[1], hd[1], 0.86)]], [[[0, 4.1], [0.5, 3.8], [1, 3.4]], [[0, 3.4], [0.7, 3.0], [1, 3.2]]], '#12141e', 1, { line: 'rgba(255,150,70,0.35)' });
+      People.hand(ctx, { skin: '#3a2418', age: 'adult' }, hd[0], hd[1], Math.atan2(hd[1] - e[1], hd[0] - e[0]), reach > 0.9 ? 'fist' : 'open');
       ctx.restore();
     }
     // 9. lighting

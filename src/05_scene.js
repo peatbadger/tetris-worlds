@@ -56,15 +56,15 @@ const Crowd = (() => {
     const breath = Math.sin(t * 1.8 + a.seed) * 1;
     const ps = { breath, flip: a.face < 0, face: { blink: bl, mouth: a.mood, open: 0 }, head: { turn: 0, tilt: Math.sin(t * 0.4 + a.seed) * 0.03 }, arms: [] };
     const ha = (side, x, y, extra = {}) => ps.arms.push(Object.assign({ side, x, y }, extra));
-    const rest = (side) => ha(side, side * (s.sw - 1), 44, { grip: 'fist', item: side < 0 ? a.item : null });
+    const rest = (side) => ha(side, side * (s.sw + 0.5), 48.5, { grip: 'fist', item: side < 0 ? a.item : null });
     const act = a.cheer > 0 ? 'cheer' : a.act;
-    if (!a.sitting && !opt.noLegs) ps.legs = (a.walking || act === 'walk' || act === 'carry') ? People.walkLegs(a.phase) : People.STAND;
+    if (!a.sitting && !opt.noLegs) ps.legs = (a.walking || act === 'walk' || act === 'carry') ? People.walkLegs(a.phase) : (a.seed % 2 ? People.STAND2 : People.STAND);
     else if (a.sitting && a.seat && a.seat.legs) { const sw = Math.sin(t * 1.3 + a.seed) * 2, st = a.seat.legs === 'stool'; ps.legs = st ? { k1: [-9, 72], f1: [-10 + sw, 104], k2: [9, 72], f2: [11 - sw * 0.6, 102] } : { k1: [-9, 76], f1: [-11 + sw * 0.5, 116], k2: [9, 76], f2: [11, 116] }; }
     if (a.walking) ps.lean = 0.03 * a.face * (ps.flip ? -1 : 1);
     const lk = a.look; if (lk !== null && lk !== undefined) ps.head.turn = clamp((lk - a.x) / 120, -1, 1) * (a.face < 0 ? -1 : 1);
     const k = a.actT;
     switch (act) {
-      case 'walk': { const sw = Math.sin(a.phase) * 7; ha(-1, -s.sw + 1 - sw * 0.2, 42 + sw, { grip: 'fist', item: a.item }); if (a.item2) ha(1, 14, 26 - sw * 0.2, { grip: 'fist', item: a.item2 }); else ha(1, s.sw - 1 + sw * 0.2, 42 - sw, { grip: 'fist' }); ps.face.mouth = a.mood; break; }
+      case 'walk': { const sw = Math.sin(a.phase); ha(-1, -s.sw - 0.5 + sw * 2.2, 47.5 - Math.abs(sw) * 1.2, { grip: 'fist', item: a.item }); if (a.item2) ha(1, 14, 28, { grip: 'fist', item: a.item2 }); else ha(1, s.sw + 0.5 + sw * 2.2, 47.5 - Math.abs(sw) * 1.2, { grip: 'fist' }); ps.face.mouth = a.mood; break; }
       case 'carry': ha(-1, -9, 30, { grip: 'fist' }); ha(1, 9, 30, { grip: 'fist' }); ps.over = a.carry; break;
       case 'point': { const p = 0.5 + 0.5 * Math.sin(k * 3); rest(-1); ha(1, 30, 14 + p * 4, { grip: 'point' }); ps.head.turn = 0.6; ps.face.mouth = 'talk'; ps.face.open = Math.abs(Math.sin(k * 9)) * 0.6; ps.face.lookX = 1; break; }
       case 'talk': rest(-1); ha(1, 18 + Math.sin(k * 2) * 4, 28 + Math.cos(k * 3) * 5, { grip: 'open', item: a.item2 }); ps.face.mouth = 'talk'; ps.face.open = Math.abs(Math.sin(k * 8)) * 0.7; ps.head.nod = Math.sin(k * 4) * 0.4; break;

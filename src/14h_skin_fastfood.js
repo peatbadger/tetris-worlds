@@ -71,5 +71,5 @@ SKINSETS.fastfood = (() => {
     if (t === 6) { const w = Math.sin(T * 3 + st.ph) * 0.03; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ellipse(ctx, (-0.08 + w) * s, -0.18 * s, s * 0.05, s * 0.02); ctx.fill(); }
     if ((t === 1 || t === 2 || t === 5) && st.top) { const ph = (T * 0.35 + st.ph * 0.13) % 1; ctx.globalAlpha = Math.sin(ph * Math.PI) * 0.3; ctx.fillStyle = '#fff'; ellipse(ctx, Math.sin(T + st.ph) * s * 0.1, -s * 0.5 - ph * s * 0.6, s * 0.1, s * 0.07); ctx.fill(); ctx.globalAlpha = 1; }
   }
-  return { base, live, N, BG };
+  return { base, live, N, BG, faceTypes: [3, 6, 7] }; // mascot faces only on packaging (fry carton, sundae cup, soda cup)
 })();

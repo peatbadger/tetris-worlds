@@ -123,7 +123,7 @@
     if (!g.board) return;
     const clearing = g.state === 'clearing', ct = clearing ? g.clearT / CLEAR_TIME : 0;
     const over = g.state === 'over';
-    const live = Skins.live(st), st0 = cellState, ssk = SKINSETS[st.skin], faces = !!ssk && Mood.enabled, faceOf = (v) => (ssk && ssk.faces && ssk.faces[v]) || Mood.autoFace(st.skin, v, skin[v]);
+    const live = Skins.live(st), st0 = cellState, ssk = SKINSETS[st.skin], faces = !!ssk && Mood.enabled, drawFace = faces && !ssk.noFace, faceOK = (v) => drawFace && (!ssk.faceTypes || ssk.faceTypes.includes(v)), faceOf = (v) => (ssk && ssk.faces && ssk.faces[v]) || Mood.autoFace(st.skin, v, skin[v]);
     for (let y = 0; y < ROWS; y++) {
       const isClr = clearing && g.clearRows.includes(y);
       for (let x = 0; x < COLS; x++) {
@@ -141,7 +141,7 @@
         if (over) c.globalAlpha = 0.45;
         c.drawImage(skin[v], -s / 2, -s / 2, s, s);
         if (live && !over) live(c, v, s, T, st0);
-        if (faces && sc > 0.6) Mood.draw(c, v, s, { x, y, active: false, top: st0.top, face: faceOf(v) });
+        if (faceOK(v) && sc > 0.6) Mood.draw(c, v, s, { x, y, active: false, top: st0.top, face: faceOf(v) });
         if (flash) { c.fillStyle = `rgba(255,255,255,${flash})`; c.fillRect(-s / 2, -s / 2, s, s); }
         c.restore();
       }
@@ -166,7 +166,7 @@
       c.restore();
       if (live) {
         st0.k = (pf.sx - 1) * 6; st0.tilt = pf.tilt; st0.active = true; st0.ox = pf.ox;
-        for (const [cx, cy] of cells) { st0.ph = (p.x + cx) * 1.7 + (p.y + cy) * 3.1; st0.top = !cells.some(([a, b2]) => a === cx && b2 === cy - 1); c.save(); c.translate((p.x + cx) * s + s / 2, (p.y + cy) * s + s / 2); live(c, v, s, T, st0); if (faces) Mood.draw(c, v, s, { x: p.x + cx, y: p.y + cy, active: true, ox: pf.ox, top: st0.top, face: faceOf(v) }); c.restore(); }
+        for (const [cx, cy] of cells) { st0.ph = (p.x + cx) * 1.7 + (p.y + cy) * 3.1; st0.top = !cells.some(([a, b2]) => a === cx && b2 === cy - 1); c.save(); c.translate((p.x + cx) * s + s / 2, (p.y + cy) * s + s / 2); live(c, v, s, T, st0); if (faceOK(v)) Mood.draw(c, v, s, { x: p.x + cx, y: p.y + cy, active: true, ox: pf.ox, top: st0.top, face: faceOf(v) }); c.restore(); }
       }
       if (g.grounded()) {
         c.fillStyle = `rgba(255,255,255,${(g.lockTimer / LOCK_DELAY) * 0.4})`;

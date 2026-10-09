@@ -122,9 +122,13 @@ SKINSETS.sushi = (() => {
         ctx.drawImage(ob, pts[i][0] * s - r + j * s, pts[i][1] * s - r - Math.abs(j) * s, r * 2, r * 2);
       }
     }
+    // character without faces: the topping breathes and flutters (more when the stack is in danger), soy-glaze sparkle while falling
+    const d = typeof Mood !== 'undefined' ? Mood.danger : 0;
+    if (t !== 3 && t !== 4) { const fl = Math.sin(T * (2 + d * 9) + st.ph) * (0.006 + d * 0.012) + st.k * 0.02; ctx.fillStyle = `rgba(255,255,255,${0.06 + Math.max(0, fl) * 4})`; ellipse(ctx, 0, -s * 0.12 + fl * s, s * 0.34, s * 0.05); ctx.fill(); }
+    if (st.active) { const sp = (T * 1.7 + st.ph) % 1; ctx.fillStyle = `rgba(255,255,240,${0.7 * Math.sin(sp * Math.PI)})`; ctx.save(); ctx.translate(-s * 0.25 + sp * s * 0.5, -s * 0.28); ctx.rotate(T * 3); ctx.fillRect(-s * 0.03, -s * 0.003, s * 0.06, s * 0.006); ctx.fillRect(-s * 0.003, -s * 0.03, s * 0.006, s * 0.06); ctx.restore(); }
     // travelling glisten
-    const ph = (T * 0.32 + st.ph * 0.137) % 2.2;
+    const ph = (T * (0.32 + d * 0.4) + st.ph * 0.137) % 2.2;
     if (ph < 1) { const a = Math.sin(ph * Math.PI); ctx.globalAlpha = a * 0.75; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(gl, (ph - 0.5) * s * 0.6 - s * 0.35, -s * 0.38 + ph * s * 0.2, s * 0.7, s * 0.7); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
-  return { base, live };
+  return { base, live, noFace: true }; // shapes read as real nigiri / maki / gunkan; character comes from motion & glisten
 })();

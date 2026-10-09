@@ -96,5 +96,5 @@ SKINSETS.pastry = (() => {
     ctx.globalAlpha = 1;
     if (t === 6) { const key = Math.round(s * 4), gl = glints[key] || (glints[key] = K.glintSprite(s)); const ph = (T * 0.4 + st.ph * 0.1) % 2; if (ph < 1) { ctx.globalAlpha = Math.sin(ph * Math.PI) * 0.8; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(gl, -s * 0.5 + ph * s * 0.5, -s * 0.5 + ph * s * 0.35, s * 0.5, s * 0.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; } }
   }
-  return { base, live, BG };
+  return { base, live, BG, noFace: true }; // faces removed so the food reads clearly (character from live motion)
 })();

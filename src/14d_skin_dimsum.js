@@ -110,5 +110,5 @@ SKINSETS.dimsum = (() => {
       ctx.globalAlpha = 1;
     }
   }
-  return { base, live, NAMES };
+  return { base, live, NAMES, noFace: true }; // faces removed so the food reads clearly (character from live motion)
 })();

@@ -63,5 +63,5 @@ SKINSETS.pizza = (() => {
     }
     if (st.top && (t === 3 || t === 5 || t === 6 || t === 7)) { const ph = (T * 0.33 + st.ph * 0.19) % 1; ctx.globalAlpha = Math.sin(ph * Math.PI) * 0.35; ctx.fillStyle = '#ffffff'; for (let i = 0; i < 3; i++) { ellipse(ctx, Math.sin(T * 1.3 + i * 2 + st.ph) * s * 0.12, -s * 0.45 - ph * s * 0.7 - i * s * 0.18, s * (0.08 + i * 0.03), s * 0.06); ctx.fill(); } ctx.globalAlpha = 1; }
   }
-  return { base, live, N, BG };
+  return { base, live, N, BG, noFace: true }; // faces removed so the food reads clearly (character from live motion)
 })();

@@ -75,5 +75,5 @@ SKINSETS.nightmarket = (() => {
     if (t === 7 && st.top) K.steamLive(ctx, s, T, st, 0, -0.25, 0.32);
   }
   const faces = [null, { y: 0.08, s: 0.85 }, { y: -0.1, s: 0.9 }, { y: 0.04, s: 0.85 }, { y: 0.12, s: 0.75, x: 0.02 }, { y: 0.02, s: 0.85 }, { y: 0.02, s: 0.85, ink: '#fff4e4', dark: true }, { y: 0.06, s: 0.9 }];
-  return { base, live, N, BG, faces };
+  return { base, live, N, BG, faces, faceTypes: [1] }; // face only on the milk-tea cup
 })();

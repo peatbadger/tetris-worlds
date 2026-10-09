@@ -86,5 +86,5 @@ SKINSETS.seafood = (() => {
     }
     if (t === 7) { ctx.fillStyle = 'rgba(200,210,255,0.9)'; for (let i = 0; i < 3; i++) { const a = Math.sin(T * 4 + i * 2 + st.ph); if (a > 0.7) ctx.fillRect(((i * 0.13 + st.ph * 0.01) % 0.3 - 0.15) * s, (-0.13 + i * 0.08) * s, 1.5, 1.5); } }
   }
-  return { base, live, N, BG };
+  return { base, live, N, BG, noFace: true }; // faces removed so the food reads clearly (character from live motion)
 })();

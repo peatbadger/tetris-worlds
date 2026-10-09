@@ -89,5 +89,5 @@ SKINSETS.gelato = (() => {
     }
   }
   const faces = [null, { y: -0.08, s: 0.85 }, { y: -0.08, s: 0.85 }, { y: -0.1, s: 0.8 }, { y: -0.08, s: 0.85 }, { y: -0.08, s: 0.85, ink: '#fff4e4', dark: true }, { y: -0.06, s: 0.85 }, { y: -0.12, s: 0.8 }];
-  return { base, live, F, faces };
+  return { base, live, F, faces, noFace: true }; // faces removed so the food reads clearly (character from live motion)
 })();
