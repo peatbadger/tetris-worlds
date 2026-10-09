@@ -7,7 +7,7 @@
 const BobaFood = (() => {
   const LQ = { tiger: ['#ecdcc2', '#f8eedc', '#b89a78'], mango: ['#f6cc2a', '#ffe27a', '#c89a10'], taro: ['#9a78c8', '#bca0e2', '#6a4a98'], matcha: ['#4e8a32', '#78ae56', '#2e5e1e'], oolong: ['#7e4414', '#a86828', '#4a2408'], thai: ['#ea7a22', '#f8aa64', '#b45210'], wmelon: ['#f0e4c2', '#faf2dc', '#c8b48a'] };
   const M = FoodMass({
-    premium: true, premiumOpts: { lift: { thai: 'brightness(1.3) contrast(1.04) saturate(1.05)', mango: 'brightness(0.95) contrast(1.08) saturate(1.2)' } },
+    premiumOpts: { lift: { thai: 'brightness(1.3) contrast(1.04) saturate(1.05)', mango: 'brightness(0.95) contrast(1.08) saturate(1.2)' } },
     FOOD: [null, 'tiger', 'mango', 'taro', 'matcha', 'oolong', 'thai', 'wmelon'],
     MAIN: [null, '#ecdcc2', '#f6cc2a', '#9a78c8', '#4e8a32', '#7e4414', '#f49a4a', '#f0e4c2'],
     soft: { tiger: 1.4, mango: 1.4, taro: 1.4, matcha: 1.4, oolong: 1.4, thai: 1.4, wmelon: 1.4 },

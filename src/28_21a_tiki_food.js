@@ -2,7 +2,7 @@
    I acai (deep purple, blueberries) · O dragon fruit (magenta, black seeds) · T watermelon (red, seeds, rind on the real bottom)
    · S kiwi (green, seed rays along a pale core) · Z papaya (orange, seed channel) · J pineapple (golden chunks) · L coconut (white flesh, shell on exposed edges) */
 const TikiFood = remakeFood('tiki', {
-  premium: true, premiumOpts: { lift: { papaya: 'brightness(0.9) contrast(1.1) saturate(1.15)', dragon: 'contrast(1.08) brightness(0.97)' } },
+  premiumOpts: { lift: { papaya: 'brightness(0.9) contrast(1.1) saturate(1.15)', dragon: 'contrast(1.08) brightness(0.97)' } },
   FOOD: [null, 'acai', 'dragon', 'watermelon', 'kiwi', 'papaya', 'pineapple', 'coconut'],
   MAIN: [null, '#4a1e4a', '#e05090', '#e8424a', '#5a9620', '#f08a3a', '#f2c838', '#f4f0e6'],
   soft: { acai: 1.4, dragon: 1.1, watermelon: 1.1, kiwi: 1.1, papaya: 1.1, pineapple: 1.0, coconut: 0.9 },

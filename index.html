@@ -6193,7 +6193,7 @@ function FoodMass(spec) {
   /* PREMIUM material pass (spec.premium:true; window.__fmPremium overrides for A/B and rollback): one top-left light, soft drop
      shadow onto the board, thin dark low-contrast edges instead of bevel planes, soft AO along exposed edges, seeded micro-grain,
      slightly lower saturation. Food-specific materials read Q.premium inside spec.paint. */
-  const PREM = () => !(typeof window !== 'undefined' && window.__fmPremium === false) && (spec.premium === true || (typeof window !== 'undefined' && window.__fmPremium === true)); // ROLLOUT: per-world opt-in until every world is done
+  const PREM = () => !(typeof window !== 'undefined' && window.__fmPremium === false) && spec.premium !== false; // premium is the DEFAULT for every FoodMass world; window.__fmPremium=false (or spec.premium:false) = rollback
   const noiseC = new Map();
   function noiseTex(P) { // tileable with period P, anchored at the cell origin -> grain runs seamlessly across joined cells
     let c = noiseC.get(P); if (c) return c; const n = Math.max(4, Math.round(P)); c = makeCanvas(n, n); const X = c.getContext('2d'), im = X.createImageData(n, n), d = im.data; let sd = 1234567 + n;
@@ -6619,7 +6619,6 @@ const SushiFood = (() => {
     FOOD: [null, 'ikura', 'tamago', 'salmon', 'maguro', 'edamame', 'saba', 'maki'],
     MAIN: [null, '#f0561e', '#f5c842', '#f7905a', '#c8203a', '#7cc254', '#8fa8c4', '#eae4d4'],
     soft: { tamago: 1.6, ikura: 1.2, maki: 0.8 },
-    premium: true,
     premiumVkey: (food, vr) => (food === 'tamago' ? vr & 1 : vr),
     premiumOpts: { R: 0.16, grain: { maki: 0.04, ikura: 0.08, edamame: 0.12, tamago: 0.1, salmon: 0.1, maguro: 0.14, saba: 0.1 }, desatAll: 0.03, desat: { salmon: 0, maguro: 0 }, sh: 0.2, edge: 'rgba(24,12,8,0.5)', lift: { maki: 'brightness(1.1) contrast(1.22)', edamame: 'brightness(1.16) contrast(1.14) saturate(1.06)', maguro: 'brightness(1.12) contrast(1.12) saturate(1.08)' } },
     glisten: { salmon: 0.55, maguro: 0.55, saba: 0.55, tamago: 0.3 },
@@ -11687,7 +11686,7 @@ function remakeFood(id, spec) { // FoodMass + skin + palette hook-up for a remak
    I acai (deep purple, blueberries) · O dragon fruit (magenta, black seeds) · T watermelon (red, seeds, rind on the real bottom)
    · S kiwi (green, seed rays along a pale core) · Z papaya (orange, seed channel) · J pineapple (golden chunks) · L coconut (white flesh, shell on exposed edges) */
 const TikiFood = remakeFood('tiki', {
-  premium: true, premiumOpts: { lift: { papaya: 'brightness(0.9) contrast(1.1) saturate(1.15)', dragon: 'contrast(1.08) brightness(0.97)' } },
+  premiumOpts: { lift: { papaya: 'brightness(0.9) contrast(1.1) saturate(1.15)', dragon: 'contrast(1.08) brightness(0.97)' } },
   FOOD: [null, 'acai', 'dragon', 'watermelon', 'kiwi', 'papaya', 'pineapple', 'coconut'],
   MAIN: [null, '#4a1e4a', '#e05090', '#e8424a', '#5a9620', '#f08a3a', '#f2c838', '#f4f0e6'],
   soft: { acai: 1.4, dragon: 1.1, watermelon: 1.1, kiwi: 1.1, papaya: 1.1, pineapple: 1.0, coconut: 0.9 },
@@ -11860,7 +11859,6 @@ const TikiFood = remakeFood('tiki', {
    I dates (glossy, wrinkled) · O pomegranate arils · T mint leaves · S baklava (phyllo layers, diamond cuts, pistachio top)
    · Z dried apricots · J couscous (fine grains, herbs) · L labneh (olive-oil swirl along the core, za'atar) */
 const OasisFood = remakeFood('oasis', {
-  premium: true,
   FOOD: [null, 'dates', 'pomegranate', 'mint', 'baklava', 'apricot', 'couscous', 'labneh'],
   MAIN: [null, '#4a240e', '#d02a40', '#58a848', '#945812', '#f8a040', '#e8cc88', '#f4f0e6'],
   soft: { dates: 1.0, pomegranate: 1.1, mint: 1.2, baklava: 0.9, apricot: 1.0, couscous: 1.3, labneh: 1.5 },
@@ -12002,7 +12000,7 @@ const OasisFood = remakeFood('oasis', {
    peppermint stripes running through the whole piece) · S rock candy (faceted blue crystal, flat-shaded facets lit from top-left)
    · Z sour-apple belts (sugared strips along the piece) · J cotton candy (floss) · L marshmallows (dusted cylinders) */
 const CandyFood = remakeFood('candybar', {
-  premium: true, premiumOpts: { lift: { floss: 'brightness(0.9) contrast(1.08) saturate(1.25)' } },
+  premiumOpts: { lift: { floss: 'brightness(0.9) contrast(1.08) saturate(1.25)' } },
   FOOD: [null, 'licorice', 'gummy', 'cane', 'rock', 'sourbelt', 'floss', 'mallow'],
   MAIN: [null, '#1a141a', '#6a2a9a', '#d8303c', '#3a7ad0', '#7ac030', '#f6aed0', '#f6f0ee'],
   soft: { licorice: 1.0, gummy: 1.4, cane: 0.8, rock: 0.7, sourbelt: 1.2, floss: 1.6, mallow: 1.5 },
@@ -12163,7 +12161,7 @@ const CandyFood = remakeFood('candybar', {
    swirled through the whole piece, pearl sugar) · Z gravlax (coral, parallel fat lines, dill) · J cloudberries (drupelet clusters)
    · L skyr (soft ridges, vanilla flecks) */
 const LodgeFood = remakeFood('lodge', {
-  premium: true, premiumOpts: { lift: { blueberry: 'brightness(1.3) contrast(1.1) saturate(1.1)', rye: 'brightness(1.14) contrast(1.1)' } },
+  premiumOpts: { lift: { blueberry: 'brightness(1.3) contrast(1.1) saturate(1.1)', rye: 'brightness(1.14) contrast(1.1)' } },
   FOOD: [null, 'blueberry', 'rye', 'lingon', 'bun', 'gravlax', 'cloudberry', 'skyr'],
   MAIN: [null, '#2a2c5a', '#5a3a24', '#ea3444', '#a86c30', '#f6a07e', '#fcd070', '#f4f2ee'],
   soft: { blueberry: 1.2, rye: 0.8, lingon: 1.2, bun: 1.0, gravlax: 1.1, cloudberry: 1.2, skyr: 1.5 },
@@ -12296,7 +12294,6 @@ const LodgeFood = remakeFood('lodge', {
    (deep red crumb, cream seam) · S nebula jelly (teal, suspended bubbles) · Z neapolitan (strawberry/choc/vanilla bands along the
    piece) · J orbit orange (fizzy orange gel, rising bubbles) · L stardust meringue (white piped peaks, silver dragées) */
 const GalleyFood = remakeFood('galley', {
-  premium: true,
   FOOD: [null, 'galaxy', 'mooncheese', 'velvet', 'nebula', 'neapolitan', 'orange', 'meringue'],
   MAIN: [null, '#2e1a5e', '#eed468', '#a81e30', '#1aa29a', '#e8909e', '#f88a24', '#f4f2fa'],
   soft: { galaxy: 1.2, mooncheese: 1.0, velvet: 0.9, nebula: 1.4, neapolitan: 1.0, orange: 1.4, meringue: 1.5 },
@@ -13528,7 +13525,6 @@ registerStage('mikes', makeGeoMikesStage);
    · Z tiramisu (ladyfinger / mascarpone, cocoa dust) · J chocolate ganache torte (deep gloss, soft sheen)
    · L rainbow cookie (almond sponge green / white / red, chocolate). One continuous mass per piece, no marks. */
 const PastryFood = FoodMass({
-  premium: true,
   FOOD: [null, 'cannoli', 'boston', 'cheesecake', 'pistachio', 'tiramisu', 'ganache', 'rainbow'],
   MAIN: [null, '#c98a45', '#f2d47a', '#f6eedc', '#96b65c', '#6e4224', '#3e2218', '#6e9a5a'],
   soft: { boston: 1.4, cheesecake: 1.5, pistachio: 1.3, tiramisu: 1.2, ganache: 1.0, rainbow: 0.8, cannoli: 0.6 },
@@ -14007,7 +14003,6 @@ const CocktailFood = (() => {
   const BUB = { beer: [3, 0.5], champagne: [5, 0.6], mojito: [1, 0.3] };
   const AIR = '#2c2420', SURF = 0.22;
   const M = FoodMass({
-    premium: true,
     FOOD: [null, 'beer', 'oldfash', 'negroni', 'wine', 'mojito', 'martini', 'champagne'],
     MAIN: [null, '#e08e0c', '#62240a', '#e2382a', '#560c26', '#8cc84a', '#d2e6f2', '#f0d478'],
     soft: { beer: 1.4, wine: 1.5, champagne: 1.4, mojito: 1.2, martini: 1.5, negroni: 1.3, oldfash: 1.1 },
@@ -14630,7 +14625,7 @@ registerStage('dimsum', makeGeoDimsumStage);
    · Z char siu (lacquered red BBQ pork, charred edges, sliced) · J taro bun (lavender, swirl top) · L sesame balls.
    v2: whole-piece drawing (no seams), matte (no glisten), no framed siu mai tile / roe eyes, no Y-split glyph. */
 const DimsumFood = FoodMass({
-  premium: true, premiumOpts: { lift: { chive: 'brightness(0.92) contrast(1.1) saturate(1.15)' } },
+  premiumOpts: { lift: { chive: 'brightness(0.92) contrast(1.1) saturate(1.15)' } },
   FOOD: [null, 'hargow', 'siumai', 'bao', 'chive', 'charsiu', 'taro', 'sesame'],
   MAIN: [null, '#f1d6cb', '#d89c74', '#f7f0e2', '#9fd2a0', '#bd3a24', '#b8a2dc', '#d08c3e'],
   soft: { hargow: 1.5, siumai: 1.2, bao: 1.6, chive: 1.4, charsiu: 0.8, taro: 1.5, sesame: 1.0 },
@@ -15040,7 +15035,7 @@ registerStage('gelato', makeGeoGelatoStage);
 const GelatoFood = (() => {
   const C3 = { pistachio: ['#b8d070', '#d4e698', '#8aa848'], fragola: ['#f47a96', '#ffb0c0', '#c84a6a'], limone: ['#f8e46a', '#fff4a8', '#d8bc3a'], cioccolato: ['#6a3a22', '#8e5636', '#40200e'], mango: ['#ffa63a', '#ffc870', '#d87a1a'], mirtillo: ['#7a5ac8', '#a68ae8', '#523a96'], stracciatella: ['#f8f2e4', '#ffffff', '#ddd2bc'] };
   const M = FoodMass({
-    premium: true, premiumOpts: { R: 0.26 },
+    premiumOpts: { R: 0.26 },
     FOOD: [null, 'pistachio', 'fragola', 'limone', 'cioccolato', 'mango', 'mirtillo', 'stracciatella'],
     MAIN: [null, '#b8d070', '#f47a96', '#f8e46a', '#6a3a22', '#ffa63a', '#7a5ac8', '#f8f2e4'],
     soft: { pistachio: 1.5, fragola: 1.6, limone: 1.5, cioccolato: 1.4, mango: 1.6, mirtillo: 1.5, stracciatella: 1.5 },
@@ -15408,7 +15403,6 @@ registerStage('fishhouse', makeGeoFishhouseStage);
    · L whole grilled branzino (olive-grey scaled skin, pale belly, golden char, grill bars, score cuts).
    Whole-piece drawing in piece space (no seams), matte, no faces/eyes, no garnish clip-art. */
 const SeafoodFood = FoodMass({
-  premium: true,
   FOOD: [null, 'lobster', 'oyster', 'scallop', 'mussel', 'prawn', 'crab', 'grillfish'],
   MAIN: [null, '#b8281a', '#dfe6ea', '#e8cc94', '#262c44', '#ee8e6a', '#b8441a', '#727462'],
   soft: { lobster: 0.7, oyster: 0.8, scallop: 0.9, mussel: 0.8, prawn: 1.2, crab: 0.8, grillfish: 1.1 },
@@ -15931,7 +15925,7 @@ registerStage('pizzeria', makeGeoPizzeriaStage);
 const PizzaFood = (() => {
   const C3 = { spaghetti: ['#f0c860', '#ffe090', '#b8301c'], margherita: ['#d8402a', '#f7f1e3', '#c98a3e'], risotto: ['#f0c44a', '#fae08a', '#c8901e'], gnocchi: ['#f2e0b0', '#fff2cc', '#b87a2a'], penne: ['#4e8a2a', '#e4bc62', '#2a5a14'], lasagne: ['#e8c068', '#a83a22', '#f4ead0'], focaccia: ['#d8a048', '#f0c878', '#8a5a1a'] };
   const M = FoodMass({
-    premium: true, premiumOpts: { lift: { focaccia: 'brightness(0.9) contrast(1.12) saturate(1.05)', risotto: 'brightness(0.93) contrast(1.1) saturate(1.2)', gnocchi: 'contrast(1.04) brightness(1.02)' } },
+    premiumOpts: { lift: { focaccia: 'brightness(0.9) contrast(1.12) saturate(1.05)', risotto: 'brightness(0.93) contrast(1.1) saturate(1.2)', gnocchi: 'contrast(1.04) brightness(1.02)' } },
     FOOD: [null, 'spaghetti', 'margherita', 'risotto', 'gnocchi', 'penne', 'lasagne', 'focaccia'],
     MAIN: [null, '#e0743a', '#c8361e', '#f4c628', '#f2e2b8', '#4e8a2a', '#8a3220', '#cf9640'],
     soft: { spaghetti: 1.4, margherita: 1.2, risotto: 1.6, gnocchi: 1.4, penne: 1.2, lasagne: 1.2, focaccia: 1.0 },
@@ -16590,7 +16584,7 @@ registerStage('fastfood', makeGeoFastfoodStage);
 const FastFood = (() => {
   const C3 = { fries: ['#f1c046', '#f8d870', '#c8901e'], burger: ['#d89a4a', '#f0bc6a', '#a86a24'], softserve: ['#f6efe0', '#ffffff', '#d8ccb6'], nugget: ['#d48a2c', '#e8ac52', '#9a5a18'], pie: ['#d29a4c', '#eabc74', '#9a642c'], cola: ['#4a1e14', '#7a3a1e', '#24100a'], pancake: ['#e6b46a', '#f4d29a', '#a8682c'] };
   const M = FoodMass({
-    premium: true, premiumOpts: { lift: { pancake: 'brightness(1.16) contrast(1.08)', nugget: 'brightness(1.0) contrast(1.1) saturate(1.1)', burger: 'brightness(0.76) contrast(1.15) saturate(1.1)', cola: 'brightness(0.72) contrast(1.15)', pie: 'brightness(1.0) contrast(1.1) saturate(1.05)' } },
+    premiumOpts: { lift: { pancake: 'brightness(1.16) contrast(1.08)', nugget: 'brightness(1.0) contrast(1.1) saturate(1.1)', burger: 'brightness(0.76) contrast(1.15) saturate(1.1)', cola: 'brightness(0.72) contrast(1.15)', pie: 'brightness(1.0) contrast(1.1) saturate(1.05)' } },
     FOOD: [null, 'fries', 'burger', 'softserve', 'nugget', 'pie', 'cola', 'pancake'],
     MAIN: [null, '#f2c22c', '#8a4a22', '#f8eccc', '#e0a040', '#c81e16', '#3a160e', '#e6b46a'],
     soft: { fries: 1.1, burger: 1.3, softserve: 1.6, nugget: 1.2, pie: 1.3, cola: 1.4, pancake: 1.4 },
@@ -17019,7 +17013,7 @@ registerStage('nightmarket', makeGeoNightMarketStage);
 const BobaFood = (() => {
   const LQ = { tiger: ['#ecdcc2', '#f8eedc', '#b89a78'], mango: ['#f6cc2a', '#ffe27a', '#c89a10'], taro: ['#9a78c8', '#bca0e2', '#6a4a98'], matcha: ['#4e8a32', '#78ae56', '#2e5e1e'], oolong: ['#7e4414', '#a86828', '#4a2408'], thai: ['#ea7a22', '#f8aa64', '#b45210'], wmelon: ['#f0e4c2', '#faf2dc', '#c8b48a'] };
   const M = FoodMass({
-    premium: true, premiumOpts: { lift: { thai: 'brightness(1.3) contrast(1.04) saturate(1.05)', mango: 'brightness(0.95) contrast(1.08) saturate(1.2)' } },
+    premiumOpts: { lift: { thai: 'brightness(1.3) contrast(1.04) saturate(1.05)', mango: 'brightness(0.95) contrast(1.08) saturate(1.2)' } },
     FOOD: [null, 'tiger', 'mango', 'taro', 'matcha', 'oolong', 'thai', 'wmelon'],
     MAIN: [null, '#ecdcc2', '#f6cc2a', '#9a78c8', '#4e8a32', '#7e4414', '#f49a4a', '#f0e4c2'],
     soft: { tiger: 1.4, mango: 1.4, taro: 1.4, matcha: 1.4, oolong: 1.4, thai: 1.4, wmelon: 1.4 },
@@ -17073,7 +17067,7 @@ SKINSETS.boba = BobaFood.skin();
    v2 replaces milk tea (Boba owns it) and tanghulu (glossy balls in cells). */
 const NightFood = (() => {
   const M = FoodMass({
-    premium: true, premiumOpts: { lift: { cutlet: 'brightness(0.86) contrast(1.12) saturate(1.15)' } },
+    premiumOpts: { lift: { cutlet: 'brightness(0.86) contrast(1.12) saturate(1.15)' } },
     FOOD: [null, 'sausage', 'cutlet', 'tofu', 'scallion', 'omelette', 'shaveice', 'pepperbun'],
     MAIN: [null, '#d6503e', '#d09440', '#7a4618', '#ecd08a', '#dc5a68', '#f2eee4', '#a86c30'],
     soft: { sausage: 0.9, cutlet: 1.0, tofu: 1.1, scallion: 1.1, omelette: 1.5, shaveice: 1.5, pepperbun: 1.1 },

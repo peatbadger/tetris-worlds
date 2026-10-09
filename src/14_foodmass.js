@@ -14,7 +14,7 @@ function FoodMass(spec) {
   /* PREMIUM material pass (spec.premium:true; window.__fmPremium overrides for A/B and rollback): one top-left light, soft drop
      shadow onto the board, thin dark low-contrast edges instead of bevel planes, soft AO along exposed edges, seeded micro-grain,
      slightly lower saturation. Food-specific materials read Q.premium inside spec.paint. */
-  const PREM = () => !(typeof window !== 'undefined' && window.__fmPremium === false) && (spec.premium === true || (typeof window !== 'undefined' && window.__fmPremium === true)); // ROLLOUT: per-world opt-in until every world is done
+  const PREM = () => !(typeof window !== 'undefined' && window.__fmPremium === false) && spec.premium !== false; // premium is the DEFAULT for every FoodMass world; window.__fmPremium=false (or spec.premium:false) = rollback
   const noiseC = new Map();
   function noiseTex(P) { // tileable with period P, anchored at the cell origin -> grain runs seamlessly across joined cells
     let c = noiseC.get(P); if (c) return c; const n = Math.max(4, Math.round(P)); c = makeCanvas(n, n); const X = c.getContext('2d'), im = X.createImageData(n, n), d = im.data; let sd = 1234567 + n;

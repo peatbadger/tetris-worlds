@@ -3,7 +3,7 @@
    peppermint stripes running through the whole piece) · S rock candy (faceted blue crystal, flat-shaded facets lit from top-left)
    · Z sour-apple belts (sugared strips along the piece) · J cotton candy (floss) · L marshmallows (dusted cylinders) */
 const CandyFood = remakeFood('candybar', {
-  premium: true, premiumOpts: { lift: { floss: 'brightness(0.9) contrast(1.08) saturate(1.25)' } },
+  premiumOpts: { lift: { floss: 'brightness(0.9) contrast(1.08) saturate(1.25)' } },
   FOOD: [null, 'licorice', 'gummy', 'cane', 'rock', 'sourbelt', 'floss', 'mallow'],
   MAIN: [null, '#1a141a', '#6a2a9a', '#d8303c', '#3a7ad0', '#7ac030', '#f6aed0', '#f6f0ee'],
   soft: { licorice: 1.0, gummy: 1.4, cane: 0.8, rock: 0.7, sourbelt: 1.2, floss: 1.6, mallow: 1.5 },

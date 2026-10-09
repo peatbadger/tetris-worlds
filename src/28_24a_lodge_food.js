@@ -3,7 +3,7 @@
    swirled through the whole piece, pearl sugar) · Z gravlax (coral, parallel fat lines, dill) · J cloudberries (drupelet clusters)
    · L skyr (soft ridges, vanilla flecks) */
 const LodgeFood = remakeFood('lodge', {
-  premium: true, premiumOpts: { lift: { blueberry: 'brightness(1.3) contrast(1.1) saturate(1.1)', rye: 'brightness(1.14) contrast(1.1)' } },
+  premiumOpts: { lift: { blueberry: 'brightness(1.3) contrast(1.1) saturate(1.1)', rye: 'brightness(1.14) contrast(1.1)' } },
   FOOD: [null, 'blueberry', 'rye', 'lingon', 'bun', 'gravlax', 'cloudberry', 'skyr'],
   MAIN: [null, '#2a2c5a', '#5a3a24', '#ea3444', '#a86c30', '#f6a07e', '#fcd070', '#f4f2ee'],
   soft: { blueberry: 1.2, rye: 0.8, lingon: 1.2, bun: 1.0, gravlax: 1.1, cloudberry: 1.2, skyr: 1.5 },

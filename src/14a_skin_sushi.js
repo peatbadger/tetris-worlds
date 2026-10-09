@@ -206,7 +206,6 @@ const SushiFood = (() => {
     FOOD: [null, 'ikura', 'tamago', 'salmon', 'maguro', 'edamame', 'saba', 'maki'],
     MAIN: [null, '#f0561e', '#f5c842', '#f7905a', '#c8203a', '#7cc254', '#8fa8c4', '#eae4d4'],
     soft: { tamago: 1.6, ikura: 1.2, maki: 0.8 },
-    premium: true,
     premiumVkey: (food, vr) => (food === 'tamago' ? vr & 1 : vr),
     premiumOpts: { R: 0.16, grain: { maki: 0.04, ikura: 0.08, edamame: 0.12, tamago: 0.1, salmon: 0.1, maguro: 0.14, saba: 0.1 }, desatAll: 0.03, desat: { salmon: 0, maguro: 0 }, sh: 0.2, edge: 'rgba(24,12,8,0.5)', lift: { maki: 'brightness(1.1) contrast(1.22)', edamame: 'brightness(1.16) contrast(1.14) saturate(1.06)', maguro: 'brightness(1.12) contrast(1.12) saturate(1.08)' } },
     glisten: { salmon: 0.55, maguro: 0.55, saba: 0.55, tamago: 0.3 },

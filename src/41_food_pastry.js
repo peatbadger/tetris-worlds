@@ -5,7 +5,6 @@
    · Z tiramisu (ladyfinger / mascarpone, cocoa dust) · J chocolate ganache torte (deep gloss, soft sheen)
    · L rainbow cookie (almond sponge green / white / red, chocolate). One continuous mass per piece, no marks. */
 const PastryFood = FoodMass({
-  premium: true,
   FOOD: [null, 'cannoli', 'boston', 'cheesecake', 'pistachio', 'tiramisu', 'ganache', 'rainbow'],
   MAIN: [null, '#c98a45', '#f2d47a', '#f6eedc', '#96b65c', '#6e4224', '#3e2218', '#6e9a5a'],
   soft: { boston: 1.4, cheesecake: 1.5, pistachio: 1.3, tiramisu: 1.2, ganache: 1.0, rainbow: 0.8, cannoli: 0.6 },

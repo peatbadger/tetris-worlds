@@ -397,3 +397,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - 4c3106c premium oasis: generic premium pass; L 47/72/105/133/157/197/220, 0 close — shots/premium/oasis.png
 - 9c5e43e premium candybar: premium pass + new sweet identities: liquorice twists, gummy bears, candy cane stripes, faceted rock candy, dusted marshmallows (caramel/grape jellies replaced); L 40/72/115/186/191/201/222, 0 close — shots/premium/candybar.png
 - ef09e69 premium lodge: premium pass; blueberries/rye lifted so they don't sink into the board on iPhone; L 46/65/85/128/177/190/227, 0 close — shots/premium/lodge.png
+- ca03d4b premium galley: generic premium pass; L 42/73/148/161/169/197/223, 0 close — shots/premium/galley.png
+
+## Round 6 — PREMIUM is the default for every FoodMass world
+- All 15 FoodMass worlds (sushi, mikes, speakeasy, dimsum, gelato, fishhouse, pizzeria, fastfood, nightmarket, boba, tiki, oasis, candybar, lodge, galley) now render premium by default; the per-world `premium: true` flags are gone. Per-world tuning lives in `premiumOpts` (R, lift per food, grain, desat, edge, rim).
+- Engine extras added during rollout: pale foods (MAIN luminance >205/170) get a gentler lift so whites keep texture; grain is a P-periodic tile anchored at the cell origin (seamless across joined cells).
+- ROLLBACK: set `window.__fmPremium = false` before load (A/B, whole game), or `premium: false` in one world's FoodMass spec; full file rollback = wip/14_pre_premium.js + wip/14a_pre_premium.js (and git revert of the round-5/6 commits). Original Ocean/Desert/Neon/Aurora/Cosmic don't use FoodMass and are untouched.
+- Before/after per world: shots/premium/<world>.png (+ -grey, -small, -before-4x, -after-4x, -before-iphone, -after-iphone). Tool: tools/premium.js / tools/prem_world.sh. Audit of all 15 worlds with premium default: 0 close pairs.
