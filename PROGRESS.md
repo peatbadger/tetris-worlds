@@ -437,3 +437,5 @@ Concept / look-alike leaks (to fix in each world's turn)
 - `tools/cap.sh soak.js [sec]` — every world fast-forwarded through hours/weather, reports any caught frame error: clean.
 - 52a4bfa keyboard fix + tools/keys.js, tools/soak.js
 - outline: FoodMass premium edge is now a hairline (rgba(28,14,8,0.22), max(0.75px, P*0.02); Kaiten 0.24), rim light 0.42→0.48 carries the separation with AO. Before/after: shots/premium/outline-before-after.png
+- 48dca83 outline hairline
+- Kaiten board: measured the empty-well colour on the pre-/post-premium captures — identical (26,15,9), so neither premium nor the ZoneMask flatten dims it (the flatten sits under an 82%-opaque board). The board was simply very dark: boardBg rgba(16,7,4,.82) → rgba(34,21,14,.8), grid .06→.07. shots/premium/kaiten-board-before-after.png
