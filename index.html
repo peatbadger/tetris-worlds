@@ -14581,6 +14581,7 @@ registerStage('dimsum', makeGeoDimsumStage);
    · Z char siu (lacquered red BBQ pork, charred edges, sliced) · J taro bun (lavender, swirl top) · L sesame balls.
    v2: whole-piece drawing (no seams), matte (no glisten), no framed siu mai tile / roe eyes, no Y-split glyph. */
 const DimsumFood = FoodMass({
+  premium: true, premiumOpts: { lift: { chive: 'brightness(0.92) contrast(1.1) saturate(1.15)' } },
   FOOD: [null, 'hargow', 'siumai', 'bao', 'chive', 'charsiu', 'taro', 'sesame'],
   MAIN: [null, '#f1d6cb', '#d89c74', '#f7f0e2', '#9fd2a0', '#bd3a24', '#b8a2dc', '#d08c3e'],
   soft: { hargow: 1.5, siumai: 1.2, bao: 1.6, chive: 1.4, charsiu: 0.8, taro: 1.5, sesame: 1.0 },

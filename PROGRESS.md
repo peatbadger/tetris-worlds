@@ -385,3 +385,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Backups: wip/14_pre_premium.js, wip/14a_pre_premium.js. Tool: tools/premium.js.
 - 894ecb4 Kaiten premium v2: engine lift filter (brightness 1.08/contrast 1.12) + N/W rim light, desat 0.04, AO 0.22; salmon #f27a44 w/ thin soft marbling; tuna #ae2238 + wet sheen; maki crisper; ikura L87 vs tuna L63. Audit 0 close. Images shots/premium-kaiten-v2(.png/-grey/-small).
 - 8cdd5fd premium mikes: generic premium pass; pale-food gentle lift; L 23/100/130/160/187/212/231, 0 close — shots/premium/mikes.png
+- 36d7c6b premium speakeasy: generic premium pass (glass masses keep own highlights); L 58/92/125/149/196/207/220, 0 close — shots/premium/speakeasy.png
