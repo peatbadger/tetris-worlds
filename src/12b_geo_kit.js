@@ -43,7 +43,7 @@ const GeoKit = (() => {
 
   /* ---------- tiny drawing helpers ---------- */
   const poly = (c, pts) => { c.beginPath(); c.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]); c.closePath(); };
-  const body = (o) => Object.assign({ T: 240, hw: 64, headR: 30, torso: 'tri', pattern: 'split', top: 'navy', pants: 'dark', hair: 'dark', hairStyle: 'short', hairD: -0.05 }, o);
+  const body = (o) => Object.assign({ T: 240, hw: 60, headR: 27, adult: 1, torso: 'tri', pattern: 'split', top: 'navy', pants: 'dark', hair: 'dark', hairStyle: 'short', hairD: -0.05 }, o);
   let grainCv = null;
   function makeGrain() {
     if (grainCv) return grainCv;
@@ -74,7 +74,7 @@ const GeoKit = (() => {
       a.lx = a.lxT = a.f; K.actors.push(a); K.settle(a); return a;
     };
     K.remove = (a) => { const i = K.actors.indexOf(a); if (i >= 0) K.actors.splice(i, 1); };
-    K.standHip = (a) => a.floorY - 0.6 * a.def.T * (a.def.leg || 1) * a.sc;
+    K.standHip = (a) => a.floorY - (a.def.adult ? 0.865 : 0.6) * a.def.T * (a.def.leg || 1) * a.sc;
     K.settle = (a) => { if (a.state === 'seated') a.hy = a.seatY; else a.hy = K.standHip(a); F.rig(a); K.basePose(a); a.hN.x = a.tgN[0]; a.hN.y = a.tgN[1]; a.hF.x = a.tgF[0]; a.hF.y = a.tgF[1]; F.rig(a); };
     K.start = (a, name, phases, o = {}) => { if (a.act) K.abort(a); a.act = Object.assign({ name, phases, i: 0, t: 0 }, o); a.hist.unshift(name); if (a.hist.length > 6) a.hist.length = 6; a.cool[name] = K.simT; return true; };
     K.endAct = (a) => { const A = a.act; a.act = null; a.shake = 0; a.headDy = 0; a.farFront = false; if (A && A.onEnd) A.onEnd(a); };
@@ -99,8 +99,20 @@ const GeoKit = (() => {
         a.leanT = a.posture; a.tiltT = 0.04;
         const ty = a.tableY ?? (a.hy - T * 0.12);
         a.tgN = [a.hx + f * T * 0.22, ty]; a.tgF = [a.hx + f * T * 0.1, ty + 2];
-        a.fN = { x: a.hx + f * T * 0.3, y: a.floorY }; a.fF = { x: a.hx + f * T * 0.18, y: a.floorY };
+        if (a.def.adult) { a.fN = { x: a.hx + f * T * 0.42, y: a.floorY }; a.fF = { x: a.hx + f * T * 0.3, y: a.floorY }; }
+        else { a.fN = { x: a.hx + f * T * 0.3, y: a.floorY }; a.fF = { x: a.hx + f * T * 0.18, y: a.floorY }; }
         if (a.legsCrossed) { a.fN = { x: a.hx + f * T * 0.36, y: a.floorY - T * 0.1 }; }
+      } else if (a.def.adult) { // planted-foot gait: stance foot moves back at exactly body speed, swing foot arcs forward
+        const A = T * 0.105, wb = a.wb || 0, p = (((a.walkPh / TAU) % 1) + 1) % 1;
+        const gait = (q) => q < 0.5 ? [A * (1 - 4 * q), 0] : [-A + 2 * A * smooth((q - 0.5) * 2), Math.sin(Math.PI * (q - 0.5) * 2) * T * 0.055];
+        const gN = gait(p), gF = gait((p + 0.5) % 1), sw = Math.sin(a.t * 0.55 + a.id * 1.7);
+        a.leanT = wb * 0.045 + a.posture * 0.6 + (1 - wb) * sw * 0.01; a.tiltT = 0;
+        a.fN = { x: a.hx + f * lerp(T * 0.055 + sw * T * 0.008, gN[0], wb), y: a.floorY - gN[1] * wb };
+        a.fF = { x: a.hx + f * lerp(-T * 0.035, gF[0], wb), y: a.floorY - gF[1] * wb };
+        const st = wb * gN[0] / A; // arms counter-swing the legs
+        a.tgN = [a.hx + f * T * 0.07 - st * T * 0.09 * f, a.hy + T * 0.03 - Math.abs(st) * T * 0.02]; a.tgF = [a.hx - f * T * 0.03 + st * T * 0.09 * f, a.hy + T * 0.01 - Math.abs(st) * T * 0.02];
+        if (a.hold.N && (a.carryUp !== false)) a.tgN = [a.hx + f * T * 0.24, a.hy - T * 0.2];
+        if (a.hold.F && (a.carryUp !== false)) a.tgF = [a.hx + f * T * 0.13, a.hy - T * 0.17];
       } else {
         const st = a.walking ? Math.sin(a.walkPh) : 0, lift = a.walking ? 1 : 0;
         a.leanT = (a.walking ? 0.05 : 0) + a.posture * 0.6; a.tiltT = 0;
@@ -123,12 +135,22 @@ const GeoKit = (() => {
       a.t += dt; if (a.delay > 0) { a.delay -= dt; return; }
       if (a.walkTo != null && a.state === 'stand') {
         const dx = a.walkTo - a.hx, sp = a.walkSp * a.speed;
-        a.walking = Math.abs(dx) > 1.5;
-        if (a.walking) { a.hx += Math.sign(dx) * Math.min(Math.abs(dx), sp * dt); a.walkPh += dt * sp * 0.11 / Math.max(0.5, a.sc); a.f = Math.sign(dx); a.lxT = a.f; }
-        else a.walkTo = null;
-      } else a.walking = false;
+        if (a.def.adult) { // ease in / ease out, feet advance by distance actually covered (no skating)
+          const acc = sp * 2.4, dist = Math.abs(dx);
+          a.walking = dist > 1.2;
+          if (a.walking) { if (Math.sign(dx) !== a.f) a.vel = Math.min(a.vel || 0, sp * 0.35);
+            const vt = Math.min(sp, Math.sqrt(2 * acc * dist) + 6); a.vel = Math.min(vt, (a.vel || 0) + acc * dt); if ((a.vel || 0) > vt) a.vel = vt;
+            const stp = Math.min(dist, a.vel * dt); a.hx += Math.sign(dx) * stp; a.walkPh += stp / (4 * a.def.T * 0.105 * a.sc) * TAU; a.f = Math.sign(dx); a.lxT = a.f; }
+          else { a.walkTo = null; a.vel = 0; }
+        } else {
+          a.walking = Math.abs(dx) > 1.5;
+          if (a.walking) { a.hx += Math.sign(dx) * Math.min(Math.abs(dx), sp * dt); a.walkPh += dt * sp * 0.11 / Math.max(0.5, a.sc); a.f = Math.sign(dx); a.lxT = a.f; }
+          else a.walkTo = null;
+        }
+      } else { a.walking = false; a.vel = 0; }
+      if (a.def.adult) { a.wb = a.walking ? Math.min(1, (a.wb || 0) + dt * 6) : Math.max(0, (a.wb || 0) - dt * 3.5); if (!a.walking && a.wb > 0) { const p = (((a.walkPh / TAU) % 1) + 1) % 1; const tgt = p < 0.5 ? 0.25 : 0.75; a.walkPh += clamp((tgt - p) * TAU, -dt * 6, dt * 6); } }
       if (a.fade) { a.alpha = clamp(a.alpha + a.fade * dt, 0, 1); if (a.alpha <= 0 && a.fade < 0) a.gone = true; if (a.alpha >= 1 && a.fade > 0) a.fade = 0; }
-      if (a.state === 'stand') a.hy = K.standHip(a);
+      if (a.state === 'stand') { a.hy = K.standHip(a); if (a.def.adult) { const wb = a.wb || 0; a.hy += (Math.cos(a.walkPh * 2) * 0.5 + 0.5) * a.def.T * a.sc * 0.012 * wb - (1 - wb) * Math.sin(a.t * 1.5 + a.id) * 0.6 * a.sc; } }
       else if (a.state === 'sit' || a.state === 'rise') {
         a.st += dt / 0.7; const u = smooth(clamp(a.st, 0, 1)), uu = a.state === 'sit' ? u : 1 - u;
         a.hy = lerp(K.standHip(a), a.seatY, uu);
@@ -281,7 +303,37 @@ const GeoKit = (() => {
       if (Amb.st.flash) { ctx.fillStyle = `rgba(220,230,255,${Amb.st.flash * 0.18})`; ctx.fillRect(0, 0, W, H); }
       if (!env.thumb) window.__geo = { id: spec.id, K, S, setHour: (h) => { S.hourOverride = h; }, lapse: (rate, from) => { S.hourOverride = null; S.lapse = rate; if (from != null) S.lapseH = from; }, timeScale: (v) => { S.timeScale = v; }, weather: (w) => { S.weather = w; }, get debug() { return spec.debug ? spec.debug(K) : null; } };
     }
-    return { resize, draw, selfGrade: true, K };
+    return { resize, draw, selfGrade: true, K, get zone() { return spec.zone || K.P.zone; } };
   }
   return { palette, stage, use, lit, poly, body };
+})();
+
+/* ---------- ZoneMask: calm backdrop behind the well + HOLD/NEXT in EVERY world (called by BG after each stage draw) ---------- */
+const ZoneMask = (() => {
+    /* board-zone backdrop: everything behind the well + HOLD / NEXT panels is softly blurred and dimmed so no text,
+       figures or high-contrast detail compete with the stack (applies to every GeoKit world) */
+  let zoneR = null, zoneAt = -1, zc1 = null, zc2 = null;
+  function zoneRect(ctx, t) {
+      if (t - zoneAt < 0.5 && zoneR !== undefined) return zoneR; zoneAt = t; zoneR = null;
+      if (typeof document === 'undefined') return null; const cv = ctx.canvas; if (!cv.getBoundingClientRect) return null;
+      const cr = cv.getBoundingClientRect(); if (!cr.width) return null; const sx = cv.width / cr.width, sy = cv.height / cr.height;
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      for (const id of ['matrix', 'pl', 'pr']) { const e = document.getElementById(id); if (!e || !e.offsetParent) continue; const r = e.getBoundingClientRect(); if (r.width < 4 || r.height < 4) continue; x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom); }
+      const g = document.getElementById('game'); if (x1 < 0 || (g && g.offsetParent === null && getComputedStyle(g).display === 'none')) return null;
+      const pad = 10; zoneR = { x: Math.max(0, (x0 - cr.left - pad) * sx), y: Math.max(0, (y0 - cr.top - pad) * sy), w: (x1 - x0 + pad * 2) * sx, h: (y1 - y0 + pad * 2) * sy, r: 16 * sx };
+      zoneR.w = Math.min(zoneR.w, cv.width - zoneR.x); zoneR.h = Math.min(zoneR.h, cv.height - zoneR.y); if (zoneR.w < 20 || zoneR.h < 20) zoneR = null;
+      return zoneR;
+    }
+  function draw(ctx, t, tint) {
+      const z = zoneRect(ctx, t); if (!z) return;
+      const w1 = Math.max(8, Math.round(z.w / 6)), h1 = Math.max(8, Math.round(z.h / 6)), w2 = Math.max(4, Math.round(z.w / 18)), h2 = Math.max(4, Math.round(z.h / 18));
+      if (!zc1 || zc1.width !== w1 || zc1.height !== h1) { zc1 = makeCanvas(w1, h1); } if (!zc2 || zc2.width !== w2 || zc2.height !== h2) { zc2 = makeCanvas(w2, h2); }
+      const a = zc1.getContext('2d'), b = zc2.getContext('2d'); a.imageSmoothingEnabled = b.imageSmoothingEnabled = true;
+      a.drawImage(ctx.canvas, z.x, z.y, z.w, z.h, 0, 0, w1, h1); b.drawImage(zc1, 0, 0, w2, h2);
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(z.x, z.y, z.w, z.h, z.r); else ctx.rect(z.x, z.y, z.w, z.h); ctx.clip();
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(zc2, z.x - z.w * 0.03, z.y - z.h * 0.03, z.w * 1.06, z.h * 1.06);
+      ctx.fillStyle = tint || 'rgba(22,20,28,0.42)'; ctx.fillRect(z.x, z.y, z.w, z.h);
+      ctx.restore();
+    }
+  return { draw, rect: () => zoneR };
 })();

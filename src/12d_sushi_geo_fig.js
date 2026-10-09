@@ -25,22 +25,31 @@ const SushiFig = (() => {
     const lean = a.lean + (a.shake || 0), dx = Math.sin(lean) * f, dy = -Math.cos(lean);
     const px = -dy, py = dx; // perpendicular (screen right when upright)
     const hx = a.hx, hy = a.hy + (a.bob || 0);
-    const ax = hx + dx * T, ay = hy + dy * T;
+    const AD = !!d.adult, TT = AD ? T * 0.64 : T;
+    const ax = hx + dx * TT, ay = hy + dy * TT;
     const R = d.headR * s;
     const R0 = a.R || (a.R = {});
-    Object.assign(R0, { T, f, dx, dy, px, py, hx, hy, ax, ay, R, hw: d.hw * s, cx: ax + dx * R * 0.72 + f * R * 0.06 + (a.headDx || 0) * s, cy: ay + dy * R * 0.72 + (a.headDy || 0) * s });
-    const sjx = lerp(ax, hx, 0.2), sjy = lerp(ay, hy, 0.2);
-    R0.sN = [sjx + px * f * d.hw * s * 0.16, sjy + py * f * d.hw * s * 0.16];
-    R0.sF = [sjx - px * f * d.hw * s * 0.12, sjy - py * f * d.hw * s * 0.12];
-    const l1 = T * 0.36 * (d.arm || 1), l2 = T * 0.33 * (d.arm || 1);
+    const nk = AD ? 1.02 : 0.72;
+    Object.assign(R0, { def: d, T, TT, ad: AD, f, dx, dy, px, py, hx, hy, ax, ay, R, hw: d.hw * s, cx: ax + dx * R * nk + f * R * 0.06 + (a.headDx || 0) * s, cy: ay + dy * R * nk + (a.headDy || 0) * s });
+    if (AD) { // shoulders sit wide, just under the neck; the far shoulder is partly turned away
+      const sjx = lerp(ax, hx, 0.1), sjy = lerp(ay, hy, 0.1);
+      R0.sN = [sjx + px * f * d.hw * s * 0.6, sjy + py * f * d.hw * s * 0.6];
+      R0.sF = [sjx - px * f * d.hw * s * 0.42, sjy - py * f * d.hw * s * 0.42];
+    } else {
+      const sjx = lerp(ax, hx, 0.2), sjy = lerp(ay, hy, 0.2);
+      R0.sN = [sjx + px * f * d.hw * s * 0.16, sjy + py * f * d.hw * s * 0.16];
+      R0.sF = [sjx - px * f * d.hw * s * 0.12, sjy - py * f * d.hw * s * 0.12];
+    }
+    const l1 = T * (AD ? 0.3 : 0.36) * (d.arm || 1), l2 = T * (AD ? 0.29 : 0.33) * (d.arm || 1);
     const low = (x1, y1, x2, y2) => y1 > y2 + (a.elbowOut ? -1e9 : 0) ? true : false;
     R0.armN = ik(R0.sN[0], R0.sN[1], a.hN.x, a.hN.y, l1, l2, low);
     R0.armF = ik(R0.sF[0], R0.sF[1], a.hF.x, a.hF.y, l1, l2, low);
-    const t1 = T * 0.3 * (d.leg || 1), t2 = T * 0.32 * (d.leg || 1);
+    const t1 = T * (AD ? 0.445 : 0.3) * (d.leg || 1), t2 = T * (AD ? 0.435 : 0.32) * (d.leg || 1);
     const fwd = (x1, y1, x2, y2) => (x1 - x2) * f > 0;
-    R0.legN = ik(hx + f * R0.hw * 0.15, hy, a.fN.x, a.fN.y, t1, t2, fwd);
-    R0.legF = ik(hx - f * R0.hw * 0.1, hy, a.fF.x, a.fF.y, t1, t2, fwd);
-    R0.hipN = [hx + f * R0.hw * 0.15, hy]; R0.hipF = [hx - f * R0.hw * 0.1, hy];
+    const hn = AD ? 0.3 : 0.15, hf = AD ? 0.22 : 0.1;
+    R0.legN = ik(hx + f * R0.hw * hn, hy, a.fN.x, a.fN.y, t1, t2, fwd);
+    R0.legF = ik(hx - f * R0.hw * hf, hy, a.fF.x, a.fF.y, t1, t2, fwd);
+    R0.hipN = [hx + f * R0.hw * hn, hy]; R0.hipF = [hx - f * R0.hw * hf, hy];
     return R0;
   }
   const line = (c, x0, y0, x1, y1, w, color) => { c.strokeStyle = color; c.lineWidth = w; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); };
@@ -48,6 +57,17 @@ const SushiFig = (() => {
     const d = a.def, { ax, ay, hx, hy, px, py, dx, dy, hw } = R, ext = 14 * a.sc;
     const bLx = hx - px * hw - dx * ext, bLy = hy - py * hw - dy * ext, bRx = hx + px * hw - dx * ext, bRy = hy + py * hw - dy * ext;
     c.beginPath();
+    if (R.ad) { // adult: rounded shoulders, gentle waist, garment hangs from the shoulders (coat -> to the knee)
+      const W = (v) => R.hw * adW(v, d), pt = (u, v) => [lerp(ax, hx, v) + px * u * W(v), lerp(ay, hy, v) + py * u * W(v)];
+      const vEnd = 1 + (d.coat || 0.1), vs = [0.13, 0.3, 0.5, 0.7, 0.9, 1, vEnd];
+      let q = pt(-0.34, -0.02); c.moveTo(q[0], q[1]);
+      q = pt(-1, 0.13); const k0 = pt(-0.95, -0.01); c.quadraticCurveTo(k0[0], k0[1], q[0], q[1]);
+      for (const v of vs.slice(1)) { q = pt(-1, v); c.lineTo(q[0], q[1]); }
+      const hm = pt(0, vEnd + 0.02); q = pt(1, vEnd); c.quadraticCurveTo(hm[0], hm[1], q[0], q[1]);
+      for (const v of vs.slice(0, -1).reverse()) { q = pt(1, v); c.lineTo(q[0], q[1]); }
+      const k1 = pt(0.95, -0.01); q = pt(0.34, -0.02); c.quadraticCurveTo(k1[0], k1[1], q[0], q[1]);
+      c.closePath(); const e = pt(-1, vEnd), g = pt(1, vEnd); return [e[0], e[1], g[0], g[1]];
+    }
     if (d.torso === 'round') {
       const sw = hw * 0.82, k = R.T * 0.2, sLx = ax - px * sw - dx * k, sLy = ay - py * sw - dy * k, sRx = ax + px * sw - dx * k, sRy = ay + py * sw - dy * k;
       c.moveTo(bLx, bLy); c.lineTo(sLx, sLy); c.bezierCurveTo(sLx + dx * k * 1.25, sLy + dy * k * 1.25, sRx + dx * k * 1.25, sRy + dy * k * 1.25, sRx, sRy); c.lineTo(bRx, bRy);
@@ -59,8 +79,10 @@ const SushiFig = (() => {
     c.closePath();
     return [bLx, bLy, bRx, bRy];
   }
+  // adult torso half-width profile (fraction of hw) along v: shoulders -> waist -> hip -> coat hem flare
+  function adW(v, d) { const sh = d.shoulder || 0.92, wa = d.waist || 0.74, hp = d.hip || 0.8; if (v < 0.13) return lerp(0.34, sh, smooth(clamp(v / 0.13, 0, 1))); if (v < 0.6) return lerp(sh, wa, (v - 0.13) / 0.47); if (v <= 1) return lerp(wa, hp, (v - 0.6) / 0.4); return hp + (v - 1) * (d.flare ?? 0.22); }
   // local torso coordinate -> world (u: -1..1 across, v: 0 apex .. 1 hip)
-  const TL = (R, u, v) => [lerp(R.ax, R.hx, v) + R.px * u * R.hw * Math.max(0.15, v), lerp(R.ay, R.hy, v) + R.py * u * R.hw * Math.max(0.15, v)];
+  const TL = (R, u, v) => { const w = R.ad ? adW(v, R.def || {}) : Math.max(0.15, v); return [lerp(R.ax, R.hx, v) + R.px * u * R.hw * w, lerp(R.ay, R.hy, v) + R.py * u * R.hw * w]; };
   function polyL(c, R, pts) { c.beginPath(); pts.forEach(([u, v], i) => { const [x, y] = TL(R, u, v); i ? c.lineTo(x, y) : c.moveTo(x, y); }); c.closePath(); }
   function drawTorso(c, a, R, P) {
     const d = a.def, f = a.f, main = col(P, d.top);
@@ -86,14 +108,38 @@ const SushiFig = (() => {
       case 'qipao': { polyL(c, R, [[f * -0.15, -0.03], [f * 0.5, -0.03], [f * 0.75, 0.28], [f * 0.66, 0.32], [f * 0.35, 0.08]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[-1.5, 0.0], [1.5, 0.0], [1.5, 0.06], [-1.5, 0.06]]); c.fill(); break; }
       case 'jacket': { polyL(c, R, [[f * 0.0, -0.02], [f * 0.5, -0.02], [f * 0.4, 1.2], [f * 0.12, 1.2]]); c.fillStyle = col(P, d.shirt || 'white'); c.fill(); polyL(c, R, [[f * 0.0, -0.02], [f * 0.12, -0.02], [f * 0.3, 0.38], [f * 0.18, 0.42]]); c.fillStyle = 'rgba(0,0,0,0.18)'; c.fill(); break; }
       case 'tee': { if (d.print) { polyL(c, R, [[-0.3, 0.3], [0.3, 0.3], [0.3, 0.55], [-0.3, 0.55]]); c.fillStyle = c2; c.fill(); } break; }
+      case 'coat': { // overcoat / trench: shirt V, wide lapels, front edge, optional belt, pocket flaps
+        const ve = 1 + (d.coat || 0.5); polyL(c, R, [[f * -0.06, -0.04], [f * 0.3, -0.04], [f * 0.1, 0.3]]); c.fillStyle = col(P, d.shirt || 'cream'); c.fill();
+        if (d.tie) { polyL(c, R, [[f * 0.06, -0.02], [f * 0.13, -0.02], [f * 0.12, 0.24], [f * 0.08, 0.27]]); c.fillStyle = col(P, d.tie); c.fill(); }
+        c.fillStyle = shade(main, -0.14); polyL(c, R, [[f * 0.28, -0.05], [f * 0.5, -0.05], [f * 0.44, 0.1], [f * 0.24, 0.42], [f * 0.12, 0.42], [f * 0.18, 0.2]]); c.fill();
+        polyL(c, R, [[f * -0.08, -0.05], [f * -0.3, -0.05], [f * -0.26, 0.12], [f * -0.02, 0.3]]); c.fill();
+        polyL(c, R, [[f * 0.11, 0.4], [f * 0.15, 0.4], [f * 0.17, ve + 0.1], [f * 0.13, ve + 0.1]]); c.fillStyle = shade(main, -0.24); c.fill();
+        c.fillStyle = shade(main, -0.3); for (const v of [0.5, 0.72]) { const [bx, by] = TL(R, f * 0.24, v); c.beginPath(); c.arc(bx, by, R.T * 0.009, 0, TAU); c.fill(); }
+        if (d.belt) { polyL(c, R, [[-1.5, 0.6], [1.5, 0.6], [1.5, 0.67], [-1.5, 0.67]]); c.fillStyle = shade(main, -0.12); c.fill(); const [kx, ky] = TL(R, f * 0.2, 0.635); c.strokeStyle = shade(main, -0.35); c.lineWidth = R.T * 0.006; c.strokeRect(kx - R.T * 0.012, ky - R.T * 0.012, R.T * 0.024, R.T * 0.024); }
+        c.fillStyle = shade(main, -0.18); for (const u of [0.5, -0.45]) polyL(c, R, [[f * (u - 0.17), 0.92], [f * (u + 0.17), 0.92], [f * (u + 0.17), 0.95], [f * (u - 0.17), 0.95]]), c.fill();
+        break; }
+      case 'bib': { // shirt with collar + bib apron with neck strap and waist tie
+        polyL(c, R, [[f * -0.12, -0.04], [f * 0.02, 0.1], [f * 0.18, -0.04]]); c.fillStyle = shade(main, -0.1); c.fill();
+        polyL(c, R, [[f * 0.02, 0.1], [f * 0.18, -0.04], [f * 0.36, -0.03], [f * 0.16, 0.14]]); c.fillStyle = shade(main, 0.06); c.fill();
+        const ve = 1 + (d.coat || 0.35); polyL(c, R, [[-0.42, 0.26], [0.42, 0.26], [0.5, 0.6], [0.92, 0.66], [1.0, ve], [-1.0, ve], [-0.92, 0.66], [-0.5, 0.6]]); c.fillStyle = c2; c.fill();
+        polyL(c, R, [[-0.42, 0.26], [0.42, 0.26], [0.43, 0.3], [-0.43, 0.3]]); c.fillStyle = shade(c2, -0.12); c.fill();
+        c.strokeStyle = shade(c2, -0.1); c.lineWidth = R.T * 0.012; const [n0x, n0y] = TL(R, -0.38, 0.27), [n1x, n1y] = TL(R, -0.22, 0.0), [n2x, n2y] = TL(R, 0.22, 0.0), [n3x, n3y] = TL(R, 0.38, 0.27); c.beginPath(); c.moveTo(n0x, n0y); c.lineTo(n1x, n1y); c.moveTo(n2x, n2y); c.lineTo(n3x, n3y); c.stroke();
+        polyL(c, R, [[-1.5, 0.62], [1.5, 0.62], [1.5, 0.67], [-1.5, 0.67]]); c.fillStyle = shade(c2, -0.16); c.fill();
+        polyL(c, R, [[f * 0.15, 0.4], [f * 0.45, 0.4], [f * 0.45, 0.5], [f * 0.15, 0.5]]); c.fillStyle = shade(c2, -0.07); c.fill();
+        break; }
+      case 'knit': { polyL(c, R, [[-0.4, -0.06], [0.4, -0.06], [0.36, 0.05], [-0.36, 0.05]]); c.fillStyle = shade(main, -0.15); c.fill(); polyL(c, R, [[-1.5, 0.94], [1.5, 0.94], [1.5, 1.2], [-1.5, 1.2]]); c.fillStyle = shade(main, -0.1); c.fill(); if (d.shirt) { polyL(c, R, [[f * -0.12, -0.06], [f * 0.18, -0.06], [f * 0.03, 0.06]]); c.fillStyle = col(P, d.shirt); c.fill(); } break; }
       case 'hoodie': { polyL(c, R, [[-0.6, 0.7], [0.6, 0.7], [0.5, 0.88], [-0.5, 0.88]]); c.fillStyle = 'rgba(0,0,0,0.12)'; c.fill(); break; }
     }
     if (a.scarf) { polyL(c, R, [[-1, -0.05], [1, -0.05], [1, 0.13], [-1, 0.13]]); c.fillStyle = col(P, a.scarf); c.fill(); }
     // shadow half (light from the window side, upper right)
-    polyL(c, R, [[-0.05, -0.2], [-2, -0.2], [-2, 1.3], [-0.25, 1.3]]); c.fillStyle = 'rgba(20,10,30,0.2)'; c.fill();
+    if (R.ad) { const ve = 1 + (d.coat || 0.1); polyL(c, R, [[-0.18, -0.2], [-2, -0.2], [-2, ve + 0.2], [-0.32, ve + 0.2]]); c.fillStyle = 'rgba(20,10,30,0.2)'; c.fill();
+      const [gx0, gy0] = TL(R, 0, 0), [gx1, gy1] = TL(R, 0, ve); const g = c.createLinearGradient(gx0, gy0, gx1, gy1); g.addColorStop(0, 'rgba(255,250,240,0.10)'); g.addColorStop(0.55, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(20,10,20,0.16)'); c.fillStyle = g; c.fillRect(Math.min(gx0, gx1) - R.hw * 2, Math.min(gy0, gy1) - R.hw, R.hw * 4, Math.abs(gy1 - gy0) + R.hw * 2);
+      if (d.coat > 0.3) { polyL(c, R, [[f * 0.02, 0.05], [f * 0.1, 0.05], [f * 0.12, ve + 0.1], [f * 0.04, ve + 0.1]]); c.fillStyle = 'rgba(0,0,0,0.14)'; c.fill(); polyL(c, R, [[-1.5, 0.98], [1.5, 0.98], [1.5, 1.03], [-1.5, 1.03]]); c.fillStyle = 'rgba(0,0,0,0.1)'; c.fill(); } }
+    else { polyL(c, R, [[-0.05, -0.2], [-2, -0.2], [-2, 1.3], [-0.25, 1.3]]); c.fillStyle = 'rgba(20,10,30,0.2)'; c.fill(); }
     c.restore();
     if (d.lanyard) { const [x0, y0] = TL(R, f * -0.1, 0.02), [x1, y1] = TL(R, f * 0.2, 0.36), [x2, y2] = TL(R, f * 0.45, 0.02); c.strokeStyle = col(P, 'teal'); c.lineWidth = 1.6 * a.sc; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.lineTo(x2, y2); c.stroke(); c.fillStyle = col(P, 'white'); c.fillRect(x1 - 5 * a.sc, y1, 10 * a.sc, 12 * a.sc); }
-    if (d.camera) { const [x1, y1] = TL(R, f * 0.35, 0.34); c.fillStyle = '#1e1e22'; roundRect(c, x1 - 9 * a.sc, y1 - 6 * a.sc, 18 * a.sc, 13 * a.sc, 2 * a.sc); c.fill(); c.fillStyle = '#5a6a7a'; c.beginPath(); c.arc(x1 + f * 2 * a.sc, y1, 4 * a.sc, 0, TAU); c.fill(); }
+    if (d.camera && R.ad) { const [s0x, s0y] = TL(R, -f * 0.55, 0.02), [x1, y1] = TL(R, f * 0.5, 0.62); c.strokeStyle = '#26221e'; c.lineWidth = 1.8 * a.sc; c.beginPath(); c.moveTo(s0x, s0y); c.lineTo(x1, y1 - 6 * a.sc); c.stroke(); if (!a.camUp) { c.fillStyle = '#23211f'; roundRect(c, x1 - 10 * a.sc, y1 - 7 * a.sc, 20 * a.sc, 14 * a.sc, 2 * a.sc); c.fill(); c.fillStyle = '#c8c4b8'; c.fillRect(x1 - 10 * a.sc, y1 - 7 * a.sc, 20 * a.sc, 3 * a.sc); c.fillStyle = '#4a5560'; c.beginPath(); c.arc(x1 + f * 2 * a.sc, y1 + 1 * a.sc, 4.2 * a.sc, 0, TAU); c.fill(); } }
+    else if (d.camera) { const [x1, y1] = TL(R, f * 0.35, 0.34); c.fillStyle = '#1e1e22'; roundRect(c, x1 - 9 * a.sc, y1 - 6 * a.sc, 18 * a.sc, 13 * a.sc, 2 * a.sc); c.fill(); c.fillStyle = '#5a6a7a'; c.beginPath(); c.arc(x1 + f * 2 * a.sc, y1, 4 * a.sc, 0, TAU); c.fill(); }
   }
   function hairPlane(c, cx, cy, r, nx, ny, d) {
     const ox = cx + nx * d * r, oy = cy + ny * d * r, tx = -ny, ty = nx;
@@ -109,6 +155,7 @@ const SushiFig = (() => {
   }
   function drawHead(c, a, R, P) {
     const d = a.def, r = R.R, lx = clamp(a.lx, -1, 1), cx = R.cx, cy = R.cy, sk = skinOf(P, a), hc = col(P, d.hair || 'dark');
+    if (R.ad) { c.strokeStyle = shade(sk, -0.12); c.lineWidth = r * 0.62; c.lineCap = 'butt'; c.beginPath(); c.moveTo(R.ax + R.dx * -4 * a.sc, R.ay - R.dy * 4 * a.sc); c.lineTo(cx - R.dx * r * 0.5, cy - R.dy * r * 0.5); c.stroke(); }
     c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.fillStyle = sk; c.fill();
     // face-side light / back-side shade plane
     c.save(); c.clip();
@@ -145,9 +192,11 @@ const SushiFig = (() => {
         c.fillStyle = far ? shade(col(P, d.skirt), -0.15) : col(P, d.skirt);
         const kx = L[0], ky = L[1]; c.beginPath(); c.moveTo(hip[0] - a.f * T * 0.12, hip[1] - T * 0.05); c.lineTo(hip[0] + a.f * T * 0.05, hip[1] - T * 0.06); c.lineTo(kx + a.f * T * 0.05, ky + T * 0.05); c.lineTo(kx - a.f * T * 0.02, ky + T * 0.09); c.closePath(); c.fill();
       } else {
-        line(c, hip[0], hip[1], L[0], L[1], T * 0.085, pc); line(c, L[0], L[1], L[2], L[3], T * 0.07, pc);
+        if (R.ad) { line(c, hip[0], hip[1], L[0], L[1], T * 0.098, pc); line(c, L[0], L[1], L[2], L[3], T * 0.074, pc); }
+        else { line(c, hip[0], hip[1], L[0], L[1], T * 0.085, pc); line(c, L[0], L[1], L[2], L[3], T * 0.07, pc); }
       }
-      ellipse(c, L[2] + a.f * T * 0.03, L[3] + T * 0.008, T * 0.055, T * 0.024); c.fillStyle = shoe; c.fill();
+      if (R.ad) { c.fillStyle = shoe; c.beginPath(); c.moveTo(L[2] - a.f * T * 0.035, L[3] - T * 0.022); c.lineTo(L[2] + a.f * T * 0.04, L[3] - T * 0.012); c.quadraticCurveTo(L[2] + a.f * T * 0.085, L[3] - T * 0.004, L[2] + a.f * T * 0.08, L[3] + T * 0.012); c.lineTo(L[2] - a.f * T * 0.04, L[3] + T * 0.012); c.closePath(); c.fill(); }
+      else { ellipse(c, L[2] + a.f * T * 0.03, L[3] + T * 0.008, T * 0.055, T * 0.024); c.fillStyle = shoe; c.fill(); }
     }
   }
   function drawArm(c, a, R, P, which) {
@@ -155,11 +204,11 @@ const SushiFig = (() => {
     const sleeve = col(P, d.sleeve || d.top), far = which === 'F';
     const sc = far ? shade(sleeve, -0.16) : sleeve;
     c.lineCap = 'round';
-    line(c, S[0], S[1], A[0], A[1], T * 0.092, sc);
+    const aw = R.ad ? 0.085 : 0.092; line(c, S[0], S[1], A[0], A[1], T * aw, sc);
     const fore = d.shortSleeve ? skinOf(P, a) : sc;
     if (d.shortSleeve && !d.bareArm) { const mx = lerp(A[0], A[2], 0.35), my = lerp(A[1], A[3], 0.35); line(c, A[0], A[1], mx, my, T * 0.08, sc); line(c, mx, my, A[2], A[3], T * 0.066, far ? shade(fore, -0.1) : fore); }
-    else line(c, A[0], A[1], A[2], A[3], T * 0.078, sc);
-    c.beginPath(); c.arc(A[2], A[3], T * 0.042, 0, TAU); c.fillStyle = far ? shade(skinOf(P, a), -0.1) : skinOf(P, a); c.fill();
+    else line(c, A[0], A[1], A[2], A[3], T * (R.ad ? 0.07 : 0.078), sc);
+    c.beginPath(); c.arc(A[2], A[3], T * (R.ad ? 0.036 : 0.042), 0, TAU); c.fillStyle = far ? shade(skinOf(P, a), -0.1) : skinOf(P, a); c.fill();
   }
   function drawBackpack(c, a, R, P) {
     if (!a.def.backpack) return; const [x, y] = TL(R, -a.f * 1.0, 0.42), w = R.T * 0.2, h = R.T * 0.34;

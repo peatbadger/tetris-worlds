@@ -157,3 +157,11 @@ Shared engine (new):
 - Blocks: I spaghetti al pomodoro · O margherita · T fior di latte · S pesto · Z prosciutto · J melanzane · L arancini (steam, basil garnish, cheese drip).
 - Review fixes: waiter home moved off the diner (was clipping behind a seated guest), takeaway customer moved out of the board centre, toss height lowered so the dough stays near the hands, sign moved inside the frame.
 - Shots: screenshot-geo-pizzeria-day.png (13:30 clear), -night.png (21:30 snow), -mobile.png.
+
+## Mike's Pastry v3 (real Hanover St interior + QA step 1) — `src/40_geo_mikes.js` + `src/41_food_pastry.js`
+- Real interior structure: silver tin ceiling + fluorescent panels (flicker), white subway tile w/ royal-blue band, terracotta hex floor, curved glass cases on royal-blue bases (chrome trim, gold trays), high shelf of giant cannoli over a blue flavour-label band, blue menu boards (CANNOLI FLAVORS / COOKIES BY POUND) placed in the side strips so the HUD never cuts them, cookie-tray shelving, blue/white string globes (one CASH ONLY) raised above heads, crown plaque, stainless fridge, door onto Hanover St with bell + passers-by carrying white boxes.
+- Adult rig (GeoKit-wide): head ≈1/7.5 height, real shoulders, coats hang from shoulders, planted-foot eased gait (no sliding), idle weight shift/breath; muted clothing.
+- Life (4–6 people, no overlaps): staff tong pastries into box, pull string from the globe, spin box twice to tie, hand over, ring register; restock/tidy/wipe/fold boxes; Tony restocks the left trays. Customers point/lean/chat, queue shuffles forward, some peek in the box and bite (sugar puff), kid nose-to-glass smudge, door opens with bell.
+- Blocks v3: I = short fat blistered cannoli, one cannoli per cell pair with ricotta+chip ends meeting mid-piece; O Boston cream, T cheesecake, S pistachio, Z tiramisu, J ganache, L rainbow cookie — continuous masses, no faces/marks.
+- Global: ZoneMask (shared blurred/darkened board-zone layer in every world, incl. originals) — runs in BG draw after any stage.
+- Shots: screenshot-geo-mikes-day.png (15:00), -night.png (21:30 snow), -mobile.png; before/after: /workspace/shots/mikes-before-after.png (before: mikes-before-day/night.png).

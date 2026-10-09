@@ -33,7 +33,7 @@
       clearTimeout(fadeTimer); fadeTimer = setTimeout(() => { canv[old].style.transition = 'none'; canv[old].style.opacity = 0; }, 1900);
     }
     function draw(t, dt, e) {
-      const d1 = (i, id) => { const c = ctxs[i]; c.setTransform(D, 0, 0, D, 0, 0); const o = get(id); o.draw(c, t, dt, e); if (!o.selfGrade) Amb.grade(c, W, H, { indoor: false, t }); };
+      const d1 = (i, id) => { const c = ctxs[i]; c.setTransform(D, 0, 0, D, 0, 0); const o = get(id); o.draw(c, t, dt, e); if (!o.selfGrade) Amb.grade(c, W, H, { indoor: false, t }); if (typeof ZoneMask !== 'undefined') ZoneMask.draw(c, t, o.zone); };
       if (cur) d1(front, cur);
       if (prev && performance.now() < prevUntil) d1(1 - front, prev); else prev = null;
     }
