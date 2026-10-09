@@ -120,3 +120,13 @@ Shared engine (new):
 - Rare raid: back bar flips to books, glasses hide, pianist plays a hymn, "All clear!".
 - Blocks (liquids, live bubbles + slosh): I beer w/ foam · O old fashioned (ice cube + peel) · T negroni · S red wine · Z mojito (mint) · J martini (olive) · L champagne.
 - Shots: screenshot-geo-speakeasy-day.png (19:36) / -night.png (23:30 snow, spotlight).
+
+### World 4 · Dim Sum Palace (DONE) — `src/44_geo_dimsum.js` + `src/45_food_dimsum.js`
+- Clock 07:00 → 23:00 (Yum cha / Lunch rush / Afternoon tea / Banquet / Closing) with morning/day/dusk/night palettes, rain/snow in the moon window + lattice window, OPEN/CLOSED sign, lit windows across the street at night, tram passing.
+- Scene: coffered red ceiling, cream panels, red lacquer wainscot, centre = gold dragon & phoenix with pearl (calm behind the board), red lanterns + small chandelier, kitchen swing door (behind HOLD), tea station with hot-water urn + bus tub, two round tables with white cloths + banquet chairs.
+- Auntie May pushes the steamer trolley (steam): calls the dish → lifts the bamboo lid (puff) → sets the basket on the table → lid back → stamps the card (stamps accumulate); restocks through the kitchen door, clears table A into the trolley.
+- Mr Lau: refills teapots when a diner flips the lid (takes the pot → urn → fills → back, diner taps fingers), brings the bill after "Mai dan!" (diner pays cash), stacks empty steamers into the bus tub, wipes; sweeps at closing.
+- Diners (≤4, unique types): popo+gonggong (newspaper), office worker, couple, tourist (photo flash), student, mum+kid. They pour tea for each other (cup levels, finger-tap thanks), pick dumplings with chopsticks (basket counts go down, empties get stacked), sip, chat, wave for the trolley, pay, leave.
+- Surprise: lion dance passes the moon window (everyone turns to look). Big clear: big steam burst + "Hot har gow!".
+- Blocks: I har gow (pink translucent, pleated crest, shrimp) · O siu mai (yellow wrapper, roe) · T char siu bao (split crown) · S jade chive dumpling (pan-fried base) · Z char siu (lacquered slices) · J taro bun (lavender swirl) · L sesame balls. Steam curls off the top cells.
+- Shots: screenshot-geo-dimsum-day.png (10:30) / -night.png (21:00 rain).
