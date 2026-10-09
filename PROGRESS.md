@@ -313,3 +313,14 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Scene: guest pays, waits at the register (keeps Yuki's build line visible), walks over when the bell calls the
   number, stabs the straw, two sips, leaves. Queue 1222, order 1146. Gutter: only walkers crossing to the pickup
   (transient). Shots: shots/boba-c3.png (19:00 rain), boba-mobile.png.
+
+## Step 4 — Golden Arches blocks v2
+- 53_food_fastfood v2 (shape/diag/depth, piece-space): I fries = a loose pile of sticks along the piece (varied
+  length/doneness, browned tips, salt) — replaces the unreadable yellow ribs; O burger side view (sesame bun,
+  lettuce frill, cheese drips, charred patty); T soft-serve piped ridges; S chicken nuggets (craggy crumb crust);
+  Z hot apple pie (blistered fried pastry, fork-crimped exposed edges, filling in the slits); J cola (depth-graded,
+  fizz streams, foam head); L hotcake stack with syrup running off the top. Removed all clip-art (straws,
+  cherry, lime, choc cube, cone + sprinkles, ketchup/burger flags) and the steam curls. Ketchup/lettuce blocks and
+  the pink shake are gone (no Boba echo). Breakfast menu now lists Hotcakes.
+- Rejected on the way: pie slits as red capsules (read as peppers), round nugget lumps (read as bubbles).
+- Compare: /workspace/shots/cmp-fastfood.png (v1–v5). Shot: shots/fastfood-1280.png.

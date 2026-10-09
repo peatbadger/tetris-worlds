@@ -325,7 +325,7 @@ function makeGeoFastfoodStage() {
     c.fillStyle = 'rgba(255,255,255,0.12)'; for (let i = 0; i < 6; i++) c.fillRect(-56 + i * 59, 226, 6, 292);
     c.fillStyle = P.steelDk; c.fillRect(-60, 218, 352, 6);
     drawMenu(c, 28, 64, 126, 140, bf ? 'BREAKFAST' : 'BURGERS', bf ? [['Egg muffin', '3.29'], ['Hash brown', '1.49'], ['Hotcakes', '3.99'], ['Coffee', '1.19']] : [['Cheeseburger', '2.49'], ['Double', '3.99'], ['Chicken', '3.59'], ['Fish', '3.79']]);
-    drawMenu(c, 162, 64, 126, 140, bf ? 'MORNING' : 'SIDES & SIPS', bf ? [['Muffin meal', '5.49'], ['Big tray', '6.29'], ['Orange juice', '1.79'], ['Milk', '0.99']] : [['Fries', '1.89'], ['Cola', '1.29'], ['Shake', '2.79', shakeDown > 0], ['Kids meal', '3.49']]);
+    drawMenu(c, 162, 64, 126, 140, bf ? 'MORNING' : 'SIDES & SIPS', bf ? [['Hotcakes', '4.49'], ['Big tray', '6.29'], ['Orange juice', '1.79'], ['Milk', '0.99']] : [['Fries', '1.89'], ['Cola', '1.29'], ['Shake', '2.79', shakeDown > 0], ['Kids meal', '3.49']]);
     if (P.night > 0.2) K.glow(c, 157, 134, 160, P.boardLit, 0.08 * P.night);
     // drive-thru window (car outside, slider pane)
     const { x0, x1, y0, y1 } = DT;
