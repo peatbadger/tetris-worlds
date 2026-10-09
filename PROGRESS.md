@@ -221,3 +221,11 @@ Shared engine (new):
 - Cause: standing feet were placed closer together than the hips (near foot +0.055T, near hip +0.3·hw) so the legs converged into an X, and the standing hip sat 1.5% below full leg length so the knees visibly bent.
 - Fix: standing feet now sit under the hips (slight natural A-stance, near foot a touch forward), and the standing hip height blends from 0.875T (still) to 0.865T (walking) so legs are nearly straight at rest while the gait keeps soft knees.
 - Shots: screenshot-geo-mikes-day.png (11:00, the white-shirt tourist), screenshot-geo-mikes-night.png (20:00 rain).
+
+## Golden Arches — full GeoKit remake (`src/52_geo_fastfood.js`, assembled from wip/f1–f4 + wip/ga/*)
+- Adult-rig crew in the visible left strip: Mia (drive-thru window with cars + driver's arm, soda fountain that really fills the cup, bagging, tray running) and Jay (fryer: basket down, bubbles, BEEP, shake, dump, salt; flat-top: patties, flip, cheese, bun, wrap into the heat-lamp chute; thumps the broken shake machine back to life). Menu boards flip BREAKFAST → BURGERS at 10:30; "Shake — SORRY" while the machine is down.
+- Calm centre: the picture window onto the road and pole sign (blurred by the ZoneMask behind the board).
+- Right strip: self-order kiosk (tap tiles, receipt, number tent) + one booth (eat / fries / sip / kid's toy & balloon that escapes to the ceiling / selfie / phone), leaving guests tip the tray into the bin.
+- Rush hour busier but tidy: a takeaway guest steps up to the counter in front of Mia (orders, waits on the phone, takes the bag) at lunch/dinner; parties arrive faster; a party leaves after ~55 s of eating.
+- Fixes found in review: kitchen remapped into the strip (it was behind HOLD); fry "shake" was 1 radian (fold-over bug) → ±0.025 oscillation; selfie no longer aborts a mate who is ordering; trucker in a plain knit (no stripes); lobby moved right so the kiosk isn't behind NEXT; staff floor lowered so the counter hides their legs.
+- Shots: screenshot-geo-fastfood-day.png (12:30 lunch rush), -night.png (21:00 rain), -mobile.png.

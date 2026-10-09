@@ -14709,7 +14709,7 @@ const FFPal = GeoKit.palette({
 function makeGeoFastfoodStage() {
   const DT = { x0: 22, x1: 102, y0: 300, y1: 470 }, CTR = { x0: -20, x1: 292, top: 520 }, SF = 640, SSC = 0.8, FL = 712, SC = 0.84;
   const FOUNT = 123, FRYST = 157, CHUTE = 157, FRYER = 191, GRILL = { x0: 216, x1: 280 }, BAG = 71, SHAKE = 123;
-  const WIN = { x0: 520, y0: 110, x1: 930, y1: 470 }, KIOSK = 1026, BIN = 1250;
+  const WIN = { x0: 520, y0: 110, x1: 930, y1: 470 }, KIOSK = 1026, BIN = 1250, TAKE = { x: 156 };
   const TB = { x: 1158, top: 566, seats: [{ x: 1100, f: 1, occ: null }, { x: 1216, f: -1, occ: null }] };
   let K, jay, mia, orders = [], chute = 0, fries = 0, fryer = { basket: 'up', t: 0, load: 0, bub: 0 }, grill = { p: [], smoke: 0 }, cup = null, bag = null, car = null, nextCar = 6, nextArrive = 2, num = 40, balloon = null, ceilBalloon = null, shakeDown = 0, nextShake = 60, cars = [], nextPass = 3, table = { tent: 0, tray: null, folder: 0 }, kioskT = 0, receipt = 0, beep = 0, sign = 1;
   const L = (h) => K.L(h), B = GeoKit.body;
@@ -14819,6 +14819,7 @@ function makeGeoFastfoodStage() {
   /* ---------- Mia: drive-thru, fountain, bagging, table runner ---------- */
   function miaThink(a) {
     if (car && car.state === 'wait') return takeCarOrder(a);
+    const tg = guests().find((g) => g.take && g.phase === 'tkReady'); if (tg) return takeCounterOrder(a, tg);
     const o = orders.find((q) => q.state === 'new' && chute >= q.b && fries >= q.f);
     if (o) return assemble(a, o);
     const r = Math.random();
@@ -14831,6 +14832,11 @@ function makeGeoFastfoodStage() {
     car.state = 'ordering';
     const bf = breakfast(), o = { kind: 'car', b: bf ? 1 : randi(1, 3), f: bf ? 0 : randi(1, 2), d: 1, bfast: bf, state: 'hold', num: ++num, car };
     K.start(a, 'carOrder', [walk(80), K.ph(2.4, (s, u, t) => { s.f = -1; s.tgN = [s.R.cx - 10, s.R.cy + 16]; s.tgF = [s.hx - 30, CT - 8]; s.look = { x: () => DT.x0, until: K.simT + 0.3 }; }, { enter: () => { K.say(a, pick(['Welcome! What can I get you?', 'Hi there — ready to order?']), 1.4); K.after(1.4, () => { car.say = { t: K.simT, txt: bf ? pick(['Coffee and a muffin', 'Two hash browns, coffee']) : pick(['Cheeseburger meal, please', 'Two burgers, large fries', 'Just a burger and a cola']) }; }); }, exit: () => { o.state = 'new'; orders.push(o); car.state = 'paid'; K.say(a, 'Coming right up!', 1); } })], { onAbort: () => { if (o.state === 'hold') { o.state = 'new'; orders.push(o); } car.state = 'paid'; } });
+  }
+  function takeCounterOrder(a, g) {
+    g.phase = 'tkOrdering'; const bf = breakfast(), o = { kind: 'take', take: 1, b: bf ? 1 : randi(1, 2), f: bf ? 0 : 1, d: 1, bfast: bf, state: 'hold', num: ++num, guest: g };
+    K.start(a, 'counterOrder', [walk(TAKE.x - 64), K.ph(2.2, (s) => { s.f = 1; s.tgN = [s.hx + 22, CT - 10]; s.tgF = [s.hx + 10, CT - 8]; s.look = { x: () => g.hx, until: K.simT + 0.3 }; }, { enter: () => { K.say(a, pick(['Hi! What can I get you?', 'Next, please!']), 1.2); K.after(1.2, () => K.say(g, bf ? pick(['Coffee and a muffin', 'Hash brown, please']) : pick(['Burger and fries to go', 'Two cheeseburgers to go']), 1.3)); }, exit: () => { o.state = 'new'; orders.push(o); g.phase = 'tkWait'; } })],
+      { onAbort: () => { if (o.state === 'hold') { o.state = 'new'; orders.push(o); } g.phase = 'tkWait'; } });
   }
   function assemble(a, o) {
     o.state = 'packing'; const ph = [];
@@ -14847,15 +14853,17 @@ function makeGeoFastfoodStage() {
     if (!tab) {
       ph.push(K.ph(0.7, (s, u, t) => { s.tgN = [BAG + Math.sin(t * 14) * 4, CT - 22]; s.tgF = [BAG - 8, CT - 20]; }, { exit: (s) => { bag.closed = 1; } }),
         K.ph(0.4, (s) => { s.tgN = [BAG, CT - 14]; }, { exit: (s) => { s.hold.N = H.bag(); s.hold.F = o.bfast ? H.coffee() : H.cup(1, 1); cup = { lv: 1 }; bag = null; } }),
+        ...(o.take ? [walk(TAKE.x - 64), K.ph(0.8, (s) => { s.f = 1; s.carryUp = false; s.tgN = [TAKE.x - 30, CT - 12]; s.tgF = [TAKE.x - 36, CT - 8]; s.leanT = 0.12; }, { enter: () => { K.say(a, 'Order ' + o.num + '!', 1.1); if (o.guest) o.guest.reach = 1; }, exit: (s) => { s.hold.N = null; s.hold.F = null; cup = null; if (o.guest) { o.guest.got = 1; o.guest.hold.N = H.bag(); } K.say(a, pick(['Enjoy!', 'Have a good one!']), 1.1); } }),
+          K.ph(0.3, null, { exit: () => { o.state = 'done'; orders = orders.filter((q) => q !== o); } }), walk(92)] : [
         walk(73), K.ph(0.9, (s) => { s.f = -1; s.tgN = [DT.x0 + 30, 440]; s.tgF = [DT.x0 + 44, 444]; s.leanT = 0.15; }, { enter: () => { if (o.car) o.car.arm = 1; }, exit: (s) => { s.hold.N = null; s.hold.F = null; cup = null; if (o.car) { o.car.arm = 2; o.car.got = 1; } K.say(a, pick(['Have a great day!', 'Enjoy!', 'Drive safe!']), 1.2); } }),
-        K.ph(0.6, (s) => { s.tgN = [s.hx - 10, CT - 10]; }, { exit: () => { o.state = 'done'; if (o.car) { o.car.arm = 0; o.car.state = 'leave'; } orders = orders.filter((q) => q !== o); } }));
+        K.ph(0.6, (s) => { s.tgN = [s.hx - 10, CT - 10]; }, { exit: () => { o.state = 'done'; if (o.car) { o.car.arm = 0; o.car.state = 'leave'; } orders = orders.filter((q) => q !== o); } })]));
     } else {
       ph.push(K.ph(0.4, (s) => { s.tgN = [BAG + 10, CT - 8]; s.tgF = [BAG - 14, CT - 8]; }, { exit: (s) => { s.hold.N = H.tray(o.T); bag = null; s.carryUp = true; } }),
         K.ph(0, (s) => { s.carryUp = true; s.tgN = [s.hx + s.f * 14, s.hy - 104]; s.walkTo = TB.x + 10; }, { until: (s) => !s.walking, max: 40, enter: () => K.say(a, 'Order ' + o.num + '!', 1.2) }),
         K.ph(0.7, (s) => { s.f = -1; s.carryUp = false; s.tgN = [TB.x + 10, TB.top - 18]; s.leanT = 0.2; }, { exit: (s) => { s.hold.N = null; table.tray = o.T; o.state = 'done'; orders = orders.filter((q) => q !== o); if (o.party) o.party.stage = 'eating'; K.say(a, 'Enjoy your meal!', 1.2); } }),
         K.ph(0.5, (s) => { s.tgN = [TB.x - 20, TB.top - 10]; }, { exit: (s) => { table.tent = 0; s.hold.N = H.tent(); } }), walk(85), K.ph(0.3, null, { exit: (s) => { s.hold.N = null; } }));
     }
-    K.start(a, 'pack', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.farFront = false; s.carryUp = false; cup = null; bag = null; if (o.state === 'packing') { if (tab) { table.tray = o.T; if (o.party) o.party.stage = 'eating'; table.tent = 0; } else if (o.car) { o.car.state = 'leave'; o.car.arm = 0; } o.state = 'done'; orders = orders.filter((q) => q !== o); } } });
+    K.start(a, 'pack', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.farFront = false; s.carryUp = false; cup = null; bag = null; if (o.state === 'packing') { if (tab) { table.tray = o.T; if (o.party) o.party.stage = 'eating'; table.tent = 0; } else if (o.car) { o.car.state = 'leave'; o.car.arm = 0; } else if (o.guest) { o.guest.got = 1; o.guest.hold.N = H.bag(); } o.state = 'done'; orders = orders.filter((q) => q !== o); } } });
   }
   /* ---------- guests (kiosk -> booth) ---------- */
   const TYPES = {
@@ -14871,10 +14879,14 @@ function makeGeoFastfoodStage() {
   };
   const PARTIES = [{ m: ['trucker'], w: [3, 0.5, 0.5, 0.5, 0] }, { m: ['mom', 'kid'], w: [0.5, 3, 2, 2, 0] }, { m: ['teen', 'teen2'], w: [0, 1.5, 3, 1.5, 0] }, { m: ['worker'], w: [1, 2, 0.5, 0, 0] }, { m: ['suit'], w: [1, 2, 1, 0.5, 0] }, { m: ['gf', 'bf'], w: [0, 0, 0.5, 3, 0] }];
   function arrive() {
-    const p = per(); if (!lobbyOpen() || table.party || table.tray) return;
+    const p = per(); if (!lobbyOpen() || table.party || table.tray || kioskBusy) return;
     const list = PARTIES.filter((q) => q.w[p] > 0); if (!list.length) return; let tot = list.reduce((t, q) => t + q.w[p], 0), r = Math.random() * tot, pt = list[0]; for (const q of list) { r -= q.w[p]; if (r <= 0) { pt = q; break; } }
     const party = { members: [], stage: 'arrive', bf: breakfast() }; table.party = party;
-    pt.m.forEach((type, j) => { const a = mkGuest(type, 1320 + j * 60); a.party = party; party.members.push(a); a.seat = TB.seats[pt.m.length === 1 ? 0 : j]; a.seat.occ = a; if (j === 0) { a.lead = 1; a.walkTo = KIOSK + 44; a.phase = 'toKiosk'; } else { a.walkTo = a.seat.x; a.phase = 'toSeat'; } if (type === 'kid' && Math.random() < 0.7) a.balloon = { col: pick(['#e8241a', '#3a7ac8', '#ffc72c']) }; });
+    pt.m.forEach((type, j) => { const a = mkGuest(type, 1320 + j * 60); a.party = party; party.members.push(a); a.seat = TB.seats[pt.m.length === 1 ? 0 : j]; a.seat.occ = a; if (j === 0) { a.lead = 1; a.walkTo = KIOSK + 44; a.phase = 'toKiosk'; kioskBusy = a; } else { a.walkTo = a.seat.x; a.phase = 'toSeat'; } if (type === 'kid' && Math.random() < 0.7) a.balloon = { col: pick(['#e8241a', '#3a7ac8', '#ffc72c']) }; });
+  }
+  function arriveTake() { // takeaway guest: steps up to the counter end, orders with Mia, waits, takes the bag (busier at lunch / dinner, never more than one)
+    if (!lobbyOpen() || guests().some((g) => g.take)) return;
+    const a = mkGuest(pick(['worker', 'suit', 'teen', 'gf', 'trucker', 'mom']), TAKE.x + 110); a.take = 1; a.phase = 'tkIn'; a.walkTo = TAKE.x;
   }
   function mkGuest(type, x) {
     const T0 = TYPES[type]; const a = K.mk(Object.assign({}, T0.body), { type, T0, cust: 1, hx: x, f: -1, floorY: FL - 6, sc: SC * (T0.sc || 1), alpha: 0, fade: 1.5, speed: rand(0.95, 1.08) * (T0.kid ? 1.1 : 1), bfrac: 1 });
@@ -14884,13 +14896,14 @@ function makeGeoFastfoodStage() {
   function sitAt(a) { K.sitDown(a, a.seat.x, a.T0.kid ? 618 : 600, a.seat.f); a.floorY = 704; a.tableY = TB.top - 6; a.faceDir = a.seat.f * 0.85; a.phase = 'table'; }
   function guestThink(a) {
     const P = a.party, mate = P && P.members.find((m) => m !== a);
+    if (a.take) return takeThink(a);
     if (a.phase === 'toSeat') { if (a.walking || a.walkTo != null) return; sitAt(a); return; }
     if (a.phase === 'toKiosk') { if (a.walking || a.walkTo != null) return; a.phase = 'ordering';
       const kid = P.members.some((m) => m.T0.kid), n = P.members.length, o = { kind: 'table', b: P.bf ? 0 : n, f: P.bf ? 0 : Math.max(1, n - (kid ? 1 : 0)), d: 1, bfast: P.bf, state: 'hold', num: ++num, party: P, T: { b: n, f: P.bf ? 0 : 1, d: 1, fl: 1, dl: 1, kid, bfast: P.bf } };
       if (P.bf) o.b = n; // breakfast muffins come off the grill too
       return K.start(a, 'kiosk', [K.ph(2.6, (s, u, t) => { s.f = -1; s.tgN = [KIOSK + 6 + (Math.floor(t * 3) % 3) * 6, 432 + (Math.floor(t * 2) % 2) * 14]; kioskT = 1 + Math.floor(u * 3); s.look = { x: () => KIOSK, until: K.simT + 0.3 }; s.leanT = 0.05; }, { enter: () => K.say(a, 'icon:q', 0.8) }),
         K.ph(0.8, (s) => { s.tgN = [KIOSK + 10, 470]; }, { enter: () => { receipt = 1; }, exit: (s) => { receipt = 0; kioskT = 0; s.hold.N = H.receipt(); s.hold.F = H.tent(); o.state = 'new'; orders.push(o); P.stage = 'ordered'; P.num = o.num; } }),
-        K.ph(0, (s) => { s.walkTo = s.seat.x; }, { until: (s) => !s.walking, max: 20 })], { onEnd: (s) => { s.phase = 'placeTent'; sitAt(s); }, onAbort: (s) => { s.hold.N = null; s.hold.F = null; if (o.state === 'hold') { o.state = 'new'; orders.push(o); P.stage = 'ordered'; } s.phase = 'placeTent'; kioskT = 0; receipt = 0; } });
+        K.ph(0, (s) => { s.walkTo = s.seat.x; }, { until: (s) => !s.walking, max: 20 })], { onEnd: (s) => { kioskBusy = null; s.phase = 'placeTent'; sitAt(s); }, onAbort: (s) => { kioskBusy = null; s.hold.N = null; s.hold.F = null; if (o.state === 'hold') { o.state = 'new'; orders.push(o); P.stage = 'ordered'; } s.phase = 'placeTent'; kioskT = 0; receipt = 0; } });
     }
     if (a.state === 'sit' || a.state === 'rise') return;
     if (a.phase === 'placeTent') { a.phase = 'table'; return K.start(a, 'tent', [K.ph(0.6, (s) => { s.tgF = [TB.x - 30, TB.top - 10]; s.farFront = true; s.leanT = 0.1; }, { exit: (s) => { s.hold.F = null; s.hold.N = null; s.farFront = false; table.tent = P.num || 1; } })], { onAbort: (s) => { s.hold.F = null; s.hold.N = null; table.tent = P.num || 1; } }); }
@@ -14909,7 +14922,7 @@ function makeGeoFastfoodStage() {
         if (T.dl > 0.05 && r < 0.8) return K.start(a, 'sip', [K.ph(0.5, (s) => { s.tgF = [TB.x + 30, TB.top - 14]; s.farFront = true; }, { exit: (s) => { s.hold.F = T.bfast ? H.coffee() : H.drink(T); T.held = 1; } }), K.ph(0.5, (s) => { s.tgF = [s.R.cx + s.f * s.R.R * 0.6, s.R.cy + s.R.R * 0.9]; }), K.ph(0.9, (s, u) => { s.headDy = 1; }, { exit: (s) => { T.dl = Math.max(0, T.dl - 0.14); s.headDy = 0; } }), K.ph(0.5, (s) => { s.tgF = [TB.x + 30, TB.top - 12]; }, { exit: (s) => { s.hold.F = null; T.held = 0; s.farFront = false; } })], { onAbort: (s) => { s.hold.F = null; T.held = 0; s.farFront = false; s.headDy = 0; } });
         if (P.members.every((m) => m.bfrac <= 0.02) && (!T.f || T.fl <= 0.05 || r < 0.1)) { P.stage = 'leave'; return; }
       }
-      if (a.T0.selfie && mate && K.cooled(a, 'selfie', 40) && r < 0.3) { K.abort(mate); K.start(mate, 'pose', [K.ph(1.6, (s) => { s.look = { x: () => a.hx, until: K.simT + 0.3 }; s.headDy = -2; s.tgN = [s.R.cx + s.f * 20, s.R.cy - 6]; }, { exit: (s) => { s.headDy = 0; } })]); return K.start(a, 'selfie', [K.ph(1.6, (s) => { s.hold.N = H.phone(); s.tgN = [s.R.cx - s.f * 30, s.R.cy - 50]; }, { exit: (s) => { K.fx('flash', s.R.cx - s.f * 30, s.R.cy - 50, { life: 0.3 }); s.hold.N = null; K.say(s, 'icon:cam', 0.9); } })], { onAbort: (s) => { s.hold.N = null; } }); }
+      if (a.T0.selfie && mate && mate.state === 'seated' && mate.phase === 'table' && (!mate.act || mate.act.name === 'idle' || mate.act.name === 'chat') && K.cooled(a, 'selfie', 40) && r < 0.3) { K.abort(mate); K.start(mate, 'pose', [K.ph(1.6, (s) => { s.look = { x: () => a.hx, until: K.simT + 0.3 }; s.headDy = -2; s.tgN = [s.R.cx + s.f * 20, s.R.cy - 6]; }, { exit: (s) => { s.headDy = 0; } })]); return K.start(a, 'selfie', [K.ph(1.6, (s) => { s.hold.N = H.phone(); s.tgN = [s.R.cx - s.f * 30, s.R.cy - 50]; }, { exit: (s) => { K.fx('flash', s.R.cx - s.f * 30, s.R.cy - 50, { life: 0.3 }); s.hold.N = null; K.say(s, 'icon:cam', 0.9); } })], { onAbort: (s) => { s.hold.N = null; } }); }
       if (a.T0.phone && r < 0.5) return K.start(a, 'phone', [K.ph(rand(2, 3.5), (s, u, t) => { s.hold.N = H.phone(); s.tgN = [s.R.cx + s.f * 26, s.R.cy + 44]; s.headDy = 3; if (Math.random() < 0.03) s.tgN[1] -= 3; }, { exit: (s) => { s.hold.N = null; s.headDy = 0; } })], { onAbort: (s) => { s.hold.N = null; s.headDy = 0; } });
       if (mate && r < 0.85 && K.cooled(a, 'chat', 6)) { K.say(a, pick(a.T0.words), 1.3); K.after(1.2, () => K.say(mate, pick(mate.T0.words), 1.2)); return K.start(a, 'chat', [K.ph(2.2, (s, u, t) => { s.look = { x: () => mate.hx, until: K.simT + 0.3 }; s.tgN = [s.hx + s.f * 30 + Math.sin(t * 4) * 6, TB.top - 30]; })]); }
       return K.start(a, 'idle', [K.ph(rand(1.5, 3), (s) => { s.look = { x: () => (Math.random() < 0.5 ? 720 : 400), until: K.simT + 0.3 }; })]);
@@ -14919,10 +14932,20 @@ function makeGeoFastfoodStage() {
       a.phase = 'out'; a.walkTo = 1330; return; }
     if (a.phase === 'out') { if (P && P.members.every((m) => m.phase === 'out')) { table.party = null; table.tent = 0; } if (!a.walking) a.fade = -2; else if (a.hx > 1260) a.fade = -1.5; }
   }
+  function takeThink(a) {
+    if (a.walking || a.walkTo != null) return;
+    if (a.phase === 'tkIn') { a.phase = 'tkReady'; a.f = -1; return; }
+    if (a.phase === 'tkWait' && a.got) { a.phase = 'tkOut'; K.say(a, pick(['Thanks!', 'Cheers!']), 1); a.walkTo = TAKE.x + 250; return; }
+    if (a.phase === 'tkWait' && a.reach && !a.got) return K.start(a, 'take', [K.ph(0.6, (s) => { s.f = -1; s.hold.F = null; s.tgN = [TAKE.x - 26, CT - 10]; s.leanT = 0.08; })]);
+    if (a.phase === 'tkReady' || a.phase === 'tkOrdering' || a.phase === 'tkWait') return K.start(a, 'wait', [K.ph(rand(1.5, 3), (s) => { s.f = -1; if (a.phase === 'tkWait' && a.T0.phone) { s.hold.F = H.phone(); s.tgF = [s.R.cx - 20, s.R.cy + 44]; s.headDy = 3; } else { s.tgN = [s.hx - 24, CT - 6]; s.lxT = pick([-0.6, -0.2]); } }, { exit: (s) => { s.headDy = 0; s.hold.F = null; } })], { onAbort: (s) => { s.hold.F = null; s.headDy = 0; } });
+    if (a.phase === 'tkOut') a.fade = -2;
+  }
+  let kioskBusy = null, nextTake = 8;
   let binFlap = 0, trays = 2, doorSign = 0;
   /* ---------- sim ---------- */
   function sim(Kk, dt) {
-    nextArrive -= dt; if (nextArrive <= 0) { arrive(); nextArrive = rand(6, 12); }
+    nextArrive -= dt; if (nextArrive <= 0) { arrive(); nextArrive = rand(3, 7); }
+    nextTake -= dt; if (nextTake <= 0) { arriveTake(); const p = per(); nextTake = p === 1 || p === 3 ? rand(10, 18) : rand(30, 50); }
     nextCar -= dt; if (nextCar <= 0 && !car) { car = { x: -260, state: 'arrive', col: pick(['#3a6ac8', '#e8e4dc', '#c8302a', '#2a2a2a', '#4a8a5a', '#e8a838']), arm: 0, t: 0, driver: pick(['skin', 'skin2']) }; nextCar = per() === 4 ? rand(14, 26) : rand(22, 40); }
     if (car) { car.t += dt; if (car.state === 'arrive') { car.x = Math.min(0, car.x + dt * 120); if (car.x >= 0) car.state = 'wait'; } else if (car.state === 'leave') { car.x += dt * (60 + car.t * 4); if (car.x > 260) car = null; } }
     nextPass -= dt; if (nextPass <= 0) { cars.push({ x: Math.random() < 0.5 ? WIN.x0 - 120 : WIN.x1 + 120, d: 0, col: pick(['#3a6ac8', '#e8e4dc', '#c8302a', '#4a4a4a', '#e8a838', '#5a8ab8']), truck: Math.random() < 0.15 }); const c0 = cars[cars.length - 1]; c0.d = c0.x < WIN.x0 ? 1 : -1; nextPass = rand(5, 12) * (per() === 4 ? 2 : 1); }
@@ -14934,6 +14957,7 @@ function makeGeoFastfoodStage() {
     if (balloon) { balloon.t += dt; balloon.y -= dt * 70; balloon.x += Math.sin(balloon.t * 2) * dt * 10; if (balloon.y <= 52) { ceilBalloon = { x: balloon.x, col: balloon.col }; balloon = null; } }
     nextShake -= dt; if (nextShake <= 0 && !shakeDown && per() !== 4) { shakeDown = 1; nextShake = rand(90, 150); K.say(mia, pick(['Shake machine’s down!', 'Uh-oh, the shake machine…']), 1.4); }
     if (table.party && table.party.stage === 'eating' && !table.tray) table.party.stage = 'ordered';
+    if (table.party && table.party.stage === 'eating') { table.party.eatT = (table.party.eatT || 0) + dt; if (table.party.eatT > 55) table.party.stage = 'leave'; }
     if (trays > 4 && Math.random() < dt * 0.02) trays = 2;
     sign = 1; doorSign = lobbyOpen() ? 0 : 1;
     if (!lobbyOpen() && ceilBalloon && H24() > 22.5) ceilBalloon = null;
