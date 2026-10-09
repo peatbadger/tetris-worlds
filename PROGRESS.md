@@ -56,3 +56,12 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 - Blocks: the 7 photo sushi (saba, tamago, ikura, kappa, maguro, ebi, salmon) on dark lacquer tiles, no faces; hop/shiver, glisten, ikura twinkle kept.
 - Not done: per-character blinks (eye positions unknown in the painted sprites).
 - Output: `screenshot-sushi-illustrated.png`, `sushi-demo.webm` (12 s).
+
+## Responsive layout + touch controls (Oct 2026)
+- Well now fills ~94–96% of the viewport height (was ~20.6 rows + 50px margin); JS layout picks **landscape** (HOLD/stats | well | NEXT/keys) or **portrait** (well + narrow right column with HOLD/stats/3×NEXT/mute/pause, thumb buttons underneath). Safe-area insets read from an `env()` probe; DPR-crisp canvases; relayout on resize / orientationchange / visualViewport.
+- Keyboard help collapsed into a `<details>` (closed); hidden on touch devices.
+- Touch gestures on the play area: drag ↔ = move (≈0.85 cell steps), tap = rotate CW, two-finger tap = rotate CCW, slow drag ↓ = soft drop, flick ↓ = hard drop, flick ↑ = hold. Uses event timestamps for velocity.
+- On-screen buttons (#touchpad, toggle in Pause, saved in localStorage `dt_btns`): ◀ ▶ (DAS/ARR repeat), ▼ soft (hold), ⤓ hard, ⟳ CW, ⟲ CCW, HOLD; pause = ❚❚ in the side panel.
+- iOS: viewport-fit=cover, no user zoom, touch-action none, no callouts/selection/double-tap zoom/rubber-band; `AudioEngine.unlock()` (silent buffer + resume) on first touch/click. A2HS meta + icon-180/192/512 + manifest.webmanifest.
+- Sushi painted stage covers by height on portrait/squarish screens.
+- Test: `node tools/devices.js [url]` (iPhone 14 portrait/landscape, iPad Pro 11 landscape, 1920×1080) → screenshot-<device>.png + JSON of gesture/button checks.

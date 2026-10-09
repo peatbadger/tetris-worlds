@@ -92,19 +92,61 @@
   const matrix = $('matrix'), play = $('play');
   let mRect = null;
 
+  /* ---------- responsive layout: the well fills (nearly) the full height; panels & touch buttons fit around it ---------- */
+  const isTouch = () => (window.matchMedia && matchMedia('(pointer: coarse)').matches) || navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+  let touchMode = false, nextN = 5, layoutMode = 'landscape';
+  const btnPref = () => { try { const v = localStorage.getItem('dt_btns'); return v === null ? true : v === '1'; } catch (e) { return true; } };
+  const saProbe = (() => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)'; document.body.appendChild(d); return d; })();
+  function safeArea() { const cs = getComputedStyle(saProbe); return { t: parseFloat(cs.paddingTop) || 0, r: parseFloat(cs.paddingRight) || 0, b: parseFloat(cs.paddingBottom) || 0, l: parseFloat(cs.paddingLeft) || 0 }; }
   function layout() {
-    const vw = innerWidth, vh = innerHeight;
-    cell = Math.floor(Math.min((vh - 50) / 20.6, (vw - 60) / (10 + 5.4 * 2 + 1.6)));
-    cell = clamp(cell, 14, 52);
-    root.style.setProperty('--cell', cell + 'px');
+    const vw = innerWidth, vh = innerHeight, sa = safeArea();
+    touchMode = isTouch(); document.body.classList.toggle('touch', touchMode);
+    const btns = touchMode && btnPref(); document.body.classList.toggle('touch-btns', btns);
+    const portrait = vw / vh < 0.9, m = Math.max(6, Math.round(Math.min(vw, vh) * 0.012));
+    const gap = clamp(Math.round(Math.min(vw, vh) * 0.012), 6, 16);
+    let c, pw, btnH = 0, sideW = 0;
+    const B = Math.round(clamp(Math.min(vw, vh) * (portrait ? 0.15 : 0.13), 52, 84)); // thumb-sized button
+    if (!portrait) {
+      if (btns) sideW = B * 2.35 + 12;               // button clusters live at the far left / right
+      const availH = vh - sa.t - sa.b - 2 * m;
+      const availW = vw - sa.l - sa.r - 2 * m - 2 * sideW - 2 * gap;
+      c = Math.floor(Math.min(availH / 20, availW / (10 + 2 * 4.4)));
+      pw = Math.round(Math.min(Math.max(c * 4.4, 104), c * 5.6, (availW - c * 10) / 2)); nextN = 5;
+    } else {
+      if (btns) btnH = Math.round(B * 1.9 + 14);
+      const availH = vh - sa.t - sa.b - 2 * m - btnH;
+      const availW = vw - sa.l - sa.r - 2 * m - gap;
+      c = Math.floor(Math.min(availH / 20, availW / (10 + 3.3)));
+      pw = Math.max(Math.round(c * 3.3), Math.floor(availW - c * 10));
+      nextN = 3;
+    }
+    cell = clamp(c, 10, 80); layoutMode = portrait ? 'portrait' : 'landscape';
+    play.className = layoutMode + (cell * 20 < 520 ? ' compact' : '');
+    root.style.setProperty('--cell', cell + 'px'); root.style.setProperty('--pw', pw + 'px'); root.style.setProperty('--gap', gap + 'px'); root.style.setProperty('--btn', B + 'px');
+    const g = $('game').style; g.setProperty('--padT', sa.t + 'px'); g.setProperty('--padB', (sa.b + btnH) + 'px'); g.setProperty('--padL', sa.l + 'px'); g.setProperty('--padR', sa.r + 'px');
     const d = DPR();
     board.width = Math.round(10 * cell * d); board.height = Math.round(22 * cell * d);
-    const pw = Math.round(cell * 5.4 - 26);
-    holdC.style.width = pw + 'px'; holdC.style.height = Math.round(cell * 2.6) + 'px';
-    holdC.width = Math.round(pw * d); holdC.height = Math.round(cell * 2.6 * d);
-    nextC.style.width = pw + 'px'; nextC.style.height = Math.round(cell * 10.6) + 'px';
-    nextC.width = Math.round(pw * d); nextC.height = Math.round(cell * 10.6 * d);
+    const inner = Math.max(40, pw - (portrait ? 18 : 26));
+    const hh = Math.round(cell * (portrait ? 2.3 : 2.6)), nh = Math.round(cell * (portrait ? 6.2 : 10.6));
+    holdC.style.width = inner + 'px'; holdC.style.height = hh + 'px'; holdC.width = Math.round(inner * d); holdC.height = Math.round(hh * d);
+    nextC.style.width = inner + 'px'; nextC.style.height = nh + 'px'; nextC.width = Math.round(inner * d); nextC.height = Math.round(nh * d);
+    placeButtons(portrait, B, sa, btnH, vw, vh);
     mRect = null;
+  }
+  function placeButtons(portrait, B, sa, btnH, vw, vh) {
+    const P = (id, x, y) => { const e = $(id); e.style.left = Math.round(x) + 'px'; e.style.top = Math.round(y) + 'px'; };
+    const s = B * 0.72, g = 10;
+    if (portrait) { // two thumb clusters under the well
+      const y2 = vh - sa.b - B - 8, y1 = y2 - B * 0.86;
+      const lx = sa.l + 12, rx = vw - sa.r - 12 - B;
+      P('tb-left', lx, y2); P('tb-right', lx + B * 2 + g * 2, y2); P('tb-soft', lx + B + g, y2 + 0); P('tb-hold', lx + B + g + (B - s) / 2, y1 - 4);
+      P('tb-rot', rx, y2 - B * 0.55); P('tb-hard', rx - B - g, y2); P('tb-ccw', rx - B - g + (B - s) / 2, y1 - 8);
+
+    } else { // left cluster: move + soft; right cluster: rotate, hard drop, hold
+      const yb = vh - sa.b - B - 14, lx = sa.l + 12, rx = vw - sa.r - 12 - B;
+      P('tb-left', lx, yb); P('tb-right', lx + B + g, yb); P('tb-soft', lx + (B + g) / 2, yb - B - g); P('tb-pause', lx + (B * 2 + g - s) / 2, sa.t + 12);
+      P('tb-rot', rx, yb - B * 0.6); P('tb-hard', rx - B - g, yb); P('tb-ccw', rx - B - g + (B - s) / 2, yb - B - g); P('tb-hold', rx + (B - s) / 2, yb - B * 1.6 - g * 2);
+    }
   }
   function matrixRect() { if (!mRect) mRect = matrix.getBoundingClientRect(); return mRect; }
   function cellScreen(x, y) { const r = matrixRect(); return [r.left + (x + 0.5) * cell, r.top + (y - HIDDEN + 0.5) * cell]; }
@@ -211,7 +253,7 @@
     nctx.setTransform(d, 0, 0, d, 0, 0); nctx.clearRect(0, 0, nw, nh);
     if (!game.queue) return;
     let y = cell * 1.25;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < nextN; i++) {
       const cs = Math.round(cell * (i === 0 ? 0.85 : 0.62));
       drawMini(nctx, game.queue[i], nw / 2, y, cs, i === 0 ? 1 : 0.85);
       y += i === 0 ? cell * 2.55 : cell * 1.85;
@@ -363,6 +405,8 @@
     if (screen !== 'game' || game.state === 'over') return;
     paused = on; show(on ? 'pause' : null);
     $('pause-info').textContent = on ? `${stage().name} · ${game.score.toLocaleString()} pts` : '';
+    $('opt-btns-row').style.display = touchMode ? '' : 'none'; $('touch-help').style.display = touchMode ? '' : 'none';
+    $('touch-help').innerHTML = 'Drag ◀▶ to move · tap to rotate · two-finger tap rotates back<br>drag down slowly = soft drop · flick down = hard drop · flick up = hold';
     AudioEngine.duck(on);
     if (!on) { das.dir = 0; game.softDrop = false; }
   }
@@ -434,7 +478,7 @@
   const das = { dir: 0, t: 0, arr: 0 };
   const held = {};
   const GAME_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', 'Space', 'KeyZ', 'KeyX', 'KeyC', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight', 'KeyP', 'Escape']);
-  function firstInteraction() { if (!AudioEngine.ready) { AudioEngine.init(); $('hint').innerHTML = 'Press <b>Enter</b> to begin your journey'; } }
+  function firstInteraction() { if (!AudioEngine.ready) { AudioEngine.init(); $('hint').innerHTML = touchMode ? 'Tap <b>JOURNEY</b> to begin' : 'Press <b>Enter</b> to begin your journey'; } }
   addEventListener('pointerdown', firstInteraction);
   addEventListener('keydown', (e) => {
     firstInteraction();
@@ -475,10 +519,70 @@
     das.arr += dt;
     while (das.arr >= ARR) { das.arr -= ARR; if (!game.move(das.dir)) { das.arr = 0; break; } }
   }
+  /* ---------- touch: gestures on the play area + optional on-screen buttons ---------- */
+  ['touchstart', 'touchend', 'pointerdown', 'click'].forEach((ev) => addEventListener(ev, () => AudioEngine.unlock(), { capture: true, passive: true }));
+  document.addEventListener('gesturestart', (e) => e.preventDefault()); // iOS pinch-zoom
+  document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('contextmenu', (e) => { if (screen === 'game') e.preventDefault(); });
+  const canPlay = () => screen === 'game' && !paused && game.state !== 'over';
+  const G = { id: null, x0: 0, y0: 0, ax: 0, ay: 0, t0: 0, moved: false, axis: 0, multi: false, soft: false, pts: new Map() };
+  const gameEl = $('game');
+  gameEl.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' || e.target.closest('button, details, .tb')) return;
+    e.preventDefault(); firstInteraction(); G.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (G.pts.size >= 2) { G.multi = true; return; }
+    if (!canPlay()) return;
+    Object.assign(G, { id: e.pointerId, x0: e.clientX, y0: e.clientY, ax: e.clientX, ay: e.clientY, t0: e.timeStamp, moved: false, axis: 0, multi: false, soft: false, vy: 0, ly: e.clientY, lt: e.timeStamp });
+    try { gameEl.setPointerCapture(e.pointerId); } catch (er) {}
+  }, { passive: false });
+  gameEl.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== G.id || !canPlay()) return; e.preventDefault();
+    const step = Math.max(14, cell * 0.85), dx = e.clientX - G.ax, tdx = e.clientX - G.x0, tdy = e.clientY - G.y0, now = e.timeStamp;
+    G.vy = (e.clientY - G.ly) / Math.max(1, now - G.lt); G.ly = e.clientY; G.lt = now;
+    if (!G.axis && Math.hypot(tdx, tdy) > 12) G.axis = Math.abs(tdx) > Math.abs(tdy) * 0.9 ? 1 : 2;
+    if (G.axis === 1) { let n = Math.trunc(dx / step); while (n !== 0) { const dir = Math.sign(n); game.move(dir); G.ax += dir * step; n -= dir; G.moved = true; } }
+    if (G.axis === 2) { const slowDown = tdy > cell * 1.2 && G.vy < 1.1; if (slowDown !== G.soft) { G.soft = slowDown; game.softDrop = slowDown; } if (tdy > cell * 0.6) G.moved = true; }
+  }, { passive: false });
+  const endG = (e) => {
+    if (G.pts.has(e.pointerId)) G.pts.delete(e.pointerId);
+    if (e.pointerId !== G.id) { if (G.multi && G.pts.size === 0 && canPlay()) { game.rotate(-1); G.multi = false; G.id = null; } return; }
+    const dt = e.timeStamp - G.t0, tdx = e.clientX - G.x0, tdy = e.clientY - G.y0; G.id = null;
+    if (G.soft) { game.softDrop = false; G.soft = false; }
+    if (e.type === 'pointercancel' || !canPlay()) return;
+    if (G.multi) { if (G.pts.size === 0) { game.rotate(-1); G.multi = false; } return; }
+    window.__lastGesture = { dt: Math.round(dt), tdx: Math.round(tdx), tdy: Math.round(tdy), vy: +(G.vy || 0).toFixed(2), moved: G.moved, cell };
+    const avg = Math.abs(tdy) / Math.max(1, dt); // px/ms over the whole stroke
+    const fastDown = tdy > cell * 2.5 && (avg > 0.4 || G.vy > 0.9) && Math.abs(tdy) > Math.abs(tdx) * 1.4;
+    const fastUp = tdy < -cell * 2 && (avg > 0.25 || dt < 500) && Math.abs(tdy) > Math.abs(tdx) * 1.4;
+    if (fastDown) game.hardDrop();
+    else if (fastUp) game.holdPiece();
+    else if (!G.moved && Math.hypot(tdx, tdy) < 14 && dt < 350) game.rotate(1);
+  };
+  gameEl.addEventListener('pointerup', endG); gameEl.addEventListener('pointercancel', endG);
+  gameEl.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false }); // no rubber-band / scroll
+  gameEl.addEventListener('touchend', (e) => { if (!e.target.closest('button, details, summary, input, label')) e.preventDefault(); }, { passive: false }); // no double-tap zoom / synthetic clicks
+  // on-screen buttons: press-and-hold repeat for left/right (same DAS/ARR as the keyboard), hold-to-soft-drop
+  document.querySelectorAll('#touchpad .tb').forEach((b) => {
+    const act = b.dataset.act;
+    const down = (e) => { e.preventDefault(); e.stopPropagation(); firstInteraction(); b.classList.add('on'); try { b.setPointerCapture(e.pointerId); } catch (er) {}
+      if (act === 'pause') { if (screen === 'game' && game.state !== 'over') setPause(!paused); return; }
+      if (!canPlay()) return;
+      if (act === 'left' || act === 'right') { const d = act === 'left' ? -1 : 1; das.dir = d; das.t = 0; das.arr = 0; game.move(d); }
+      else if (act === 'soft') game.softDrop = true; else if (act === 'hard') game.hardDrop(); else if (act === 'rot') game.rotate(1); else if (act === 'ccw') game.rotate(-1); else if (act === 'hold') game.holdPiece();
+      if (navigator.vibrate) try { navigator.vibrate(act === 'hard' ? 18 : 6); } catch (er) {} };
+    const up = (e) => { b.classList.remove('on'); if (act === 'left' && das.dir === -1) das.dir = 0; if (act === 'right' && das.dir === 1) das.dir = 0; if (act === 'soft') game.softDrop = false; };
+    b.addEventListener('pointerdown', down, { passive: false }); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+    b.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+  });
+  $('btn-pause').onclick = (e) => { e.currentTarget.blur(); if (screen === 'game' && game.state !== 'over') setPause(!paused); };
+  if (isTouch()) $('hint').innerHTML = 'Tap anywhere for sound · tap <b>JOURNEY</b> to begin';
+  const optB = $('opt-btns'); optB.checked = btnPref(); optB.onchange = () => { try { localStorage.setItem('dt_btns', optB.checked ? '1' : '0'); } catch (e) {} layout(); };
   addEventListener('blur', () => { if (screen === 'game' && !paused && game.state !== 'over') setPause(true); for (const k in held) held[k] = false; das.dir = 0; game.softDrop = false; });
   addEventListener('mousemove', (e) => { targetMx = (e.clientX / innerWidth - 0.5) * 2; });
   let rT = null;
-  addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => { BG.size(); FX.size(); layout(); }, 150); });
+  const relayout = () => { clearTimeout(rT); rT = setTimeout(() => { BG.size(); FX.size(); layout(); }, 120); };
+  addEventListener('resize', relayout); addEventListener('orientationchange', () => { relayout(); setTimeout(relayout, 400); });
+  if (window.visualViewport) visualViewport.addEventListener('resize', relayout);
 
   AudioEngine.onBeat((b) => { env.pulse = b % 4 === 0 ? 1 : 0.6; });
 

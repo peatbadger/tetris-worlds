@@ -371,7 +371,9 @@ function makeSushiArtStage() {
   function resize(w, h, d) {
     W = w; H = h; D = d;
     // fit the full painting width on 16:10 / 4:3 screens (diners live at the far edges); fill the bottom with the chairs row.
-    if (W / H >= BW / BH) { k = (W / BW) * 1.03; oy = (H - BH * k) * 0.45; } else { k = (W / BW) * 1.03; oy = 0; }
+    if (W / H >= BW / BH) { k = (W / BW) * 1.03; oy = (H - BH * k) * 0.45; }
+    else if (W / H < 1.3) { k = Math.max((W / BW) * 1.03, H / BH); oy = 0; } // portrait / squarish: cover by height, crop the sides
+    else { k = (W / BW) * 1.03; oy = 0; }
     ox = (W - BW * k) / 2; extraB = Math.max(0, (H - (oy + BH * k)) / k);
     vign = (() => { const [c, x] = hiCanvas(W, H, 1); const g = x.createRadialGradient(W / 2, H * 0.45, H * 0.35, W / 2, H * 0.5, Math.max(W, H) * 0.78); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(8,3,0,0.55)'); x.fillStyle = g; x.fillRect(0, 0, W, H); return c; })();
     if (fallback) fallback.resize(w, h, d);

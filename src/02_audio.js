@@ -491,8 +491,13 @@ const AudioEngine = (() => {
     ui(k = 0) { if (!ac || !def) return; sfxInst(mtof(degMidi(chordDeg + k, 2)), 0.05, ac.currentTime, 0.3); },
   };
 
+  let unlocked = false;
+  function unlock() { // iOS: create/resume the context and play a silent buffer *inside* the touch/click gesture
+    if (!init() || !ac) return;
+    try { if (!unlocked) { const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0); } if (ac.state !== 'running') ac.resume(); unlocked = ac.state === 'running' || unlocked; } catch (e) {}
+  }
   return {
-    init, setStage, setIntensity, setVolume, toggleMute, duck, sfx,
+    init, unlock, setStage, setIntensity, setVolume, toggleMute, duck, sfx,
     onBeat: (fn) => beatListeners.push(fn),
     get ready() { return !!ac; }, get muted() { return muted; }, get volume() { return volume; },
   };
