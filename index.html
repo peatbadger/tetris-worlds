@@ -13409,7 +13409,9 @@ const CurryFood = remakeFood('curry', {
       for (let y = HIDDEN; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (game.board[y][x] && Math.random() < 0.5) { const [sx, sy] = cellScreen(x, y); FX.burst(sx, sy, stage().palette[game.board[y][x] - 1], 'shard', 1, 0.5); }
       let best = 0; try { best = +localStorage.getItem('dt_best') || 0; if (game.score > best) { localStorage.setItem('dt_best', game.score); } } catch (e) {}
       const newBest = game.score > best;
+      const overGame = ++overSeq;
       setTimeout(() => {
+        if (overGame !== overSeq || screen !== 'game' || game.state !== 'over') return;
         $('over-world').textContent = `Reached ${stage().name}${game.lap ? ' (lap ' + (game.lap + 1) + ')' : ''}` + (newBest ? ' — NEW BEST!' : '');
         $('over-stats').innerHTML = [['Score', game.score.toLocaleString()], ['Lines', game.lines], ['Level', game.level], ['Tetrises', game.stats.tetris], ['T-Spins', game.stats.tspin], ['Max combo', Math.max(0, game.stats.maxCombo)], ['Pieces', game.stats.pieces], ['Time', fmtTime(game.time)]]
           .map(([k, v]) => `<div>${k}</div><div><b>${v}</b></div>`).join('');
@@ -13424,12 +13426,13 @@ const CurryFood = remakeFood('curry', {
   function sceneEvent(type, info) { env.events.push({ type, n: info.n || 0, big: info.n >= 4 || !!info.tspin, t: T }); if (env.events.length > 8) env.events.shift(); }
 
   /* ---------- screens ---------- */
-  let screen = 'menu', menuCycleT = 0, menuHover = false;
+  let screen = 'menu', menuCycleT = 0, menuHover = false, overSeq = 0;
   function show(id) { ['pause', 'over'].forEach((o) => $(o).classList.toggle('hidden', o !== id)); }
   function startGame(i) {
     Amb.reroll();
     AudioEngine.init(); AudioEngine.duck(false);
-    screen = 'game'; paused = false;
+    screen = 'game'; paused = false; overSeq++;
+    if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); // a hidden menu card / overlay button must not keep focus (Safari/Firefox keep it)
     $('menu').classList.add('hidden'); $('game').classList.remove('hidden'); show(null);
     layout();
     applyStage(i, false);
@@ -13528,7 +13531,7 @@ const CurryFood = remakeFood('curry', {
   addEventListener('keydown', (e) => {
     firstInteraction();
     const k = e.code;
-    if (screen === 'game' && GAME_KEYS.has(k)) e.preventDefault();
+    if (screen === 'game' && GAME_KEYS.has(k)) { e.preventDefault(); const ae = document.activeElement; if (ae && ae !== document.body && /^(BUTTON|SUMMARY|INPUT|DETAILS|SELECT|A)$/.test(ae.tagName)) ae.blur(); }
     if (k === 'KeyM') { AudioEngine.toggleMute(); refreshMute(); return; }
     if (k === 'Minus' || k === 'Equal' || k === 'NumpadSubtract' || k === 'NumpadAdd') { const v = clamp(+vol.value + (k === 'Minus' || k === 'NumpadSubtract' ? -10 : 10), 0, 100); vol.value = v; vol.oninput(); return; }
     if (screen === 'menu') {
@@ -13553,6 +13556,7 @@ const CurryFood = remakeFood('curry', {
   });
   addEventListener('keyup', (e) => {
     const k = e.code; held[k] = false;
+    if (screen === 'game' && GAME_KEYS.has(k)) e.preventDefault(); // Space/Enter keyup would otherwise click a focused control
     if (k === 'ArrowDown') game.softDrop = false;
     if (k === 'ArrowLeft' && das.dir === -1) { das.dir = held.ArrowRight ? 1 : 0; das.t = 0; das.arr = 0; }
     if (k === 'ArrowRight' && das.dir === 1) { das.dir = held.ArrowLeft ? -1 : 0; das.t = 0; das.arr = 0; }
@@ -13644,36 +13648,40 @@ const CurryFood = remakeFood('curry', {
     last = performance.now();
     requestAnimationFrame(frame);
   });
+  /* Every subsystem runs guarded: one exception (e.g. a scene actor with a bad colour) used to kill the requestAnimationFrame
+     loop for good — the board froze and arrows / Space looked dead while DOM controls (M, buttons) still worked. */
+  const frameErrs = new Map();
+  const safe = (tag, fn) => { try { fn(); } catch (e) { const key = tag + ':' + (e && e.message); const n = (frameErrs.get(key) || 0) + 1; frameErrs.set(key, n); if (n === 1) console.error('[frame:' + tag + ']', e); window.__frameErrs = [...frameErrs].map(([k, v]) => k + ' x' + v); } };
   function frame(now) {
+    requestAnimationFrame(frame);
     const dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
     env.mx += (targetMx - env.mx) * Math.min(1, dt * 3);
     if (screen === 'menu' && !menuHover && !window.__noCycle && $('stage-select').classList.contains('hidden')) {
       menuCycleT += dt;
-      if (menuCycleT > 16) { menuCycleT = 0; applyStage((stageIdx + 1) % STAGES.length, false); }
+      if (menuCycleT > 16) { menuCycleT = 0; safe('cycle', () => applyStage((stageIdx + 1) % STAGES.length, false)); }
     }
-    if (screen === 'game' && !paused) {
+    if (screen === 'game' && !paused) safe('game', () => {
       inputUpdate(dt * 1000);
       game.update(dt * 1000);
       if (game.piece) { if (lastPY !== null && game.piece.y > lastPY && !game.softDrop) BlockFX.onFall(game.piece.y - lastPY); const gr = game.state === 'playing' && game.grounded(); if (gr && !wasGrounded) BlockFX.onLand(); wasGrounded = gr; lastPY = game.piece.y; }
       if (game.state === 'playing') AudioEngine.setIntensity(1 + Math.min(3, Math.floor(game.linesInStage / 3)));
       env.speed = 1 + (game.level - 1) * 0.08;
-    } else env.speed = 1;
-    BlockFX.update(dt); if (game) Mood.frame(game, T, dt);
+    }); else env.speed = 1;
+    safe('fx', () => { BlockFX.update(dt); if (game) Mood.frame(game, T, dt); });
     worldT += dt;
     env.p = screen === 'game' ? clamp(0.7 * game.linesInStage / LINES_PER_STAGE + 0.3 * Math.min(1, worldT / 200), 0, 1) : (T * 0.012) % 1;
-    Amb.update(stage().id, env.p, dt);
-    BG.draw(T, dt, env);
+    safe('amb', () => Amb.update(stage().id, env.p, dt));
+    safe('scene', () => BG.draw(T, dt, env));
     if (screen === 'game') {
-      drawBoard(); drawSide(); updateHUD();
+      safe('board', () => { drawBoard(); drawSide(); updateHUD(); });
       shakeAmp *= Math.pow(0.002, dt); kick *= Math.pow(0.0005, dt); bump *= Math.pow(0.01, dt);
       shakeX = (Math.random() - 0.5) * shakeAmp; shakeY = (Math.random() - 0.5) * shakeAmp + kick;
       play.style.transform = `translate(${shakeX.toFixed(1)}px, ${shakeY.toFixed(1)}px) scale(${(1 + bump * 0.012).toFixed(4)})`;
       root.style.setProperty('--pulse', env.pulse.toFixed(2));
     }
-    FX.draw(dt);
+    safe('particles', () => FX.draw(dt));
     $('flash').style.opacity = (env.flash * 0.35).toFixed(3);
     env.pulse *= Math.pow(0.02, dt); env.flash *= Math.pow(0.03, dt);
-    requestAnimationFrame(frame);
   }
   window.__tw = { game, startGame, toMenu, setPause, applyStage, event: (type, info) => sceneEvent(type, info || {}), get stageIdx() { return stageIdx; } };
 })();

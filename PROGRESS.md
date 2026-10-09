@@ -429,3 +429,9 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Guests: salaryman, student, builder, the level-10 challenger (headband), mum+kid, tourist. Events: level-10 challenge (steam off the eater's head, "辛っ!!", water jug, cheers) · rice jar steam. Debug: window.__geoEv.curry(n).
 - Blocks: I pork katsu (sliced) · O rice · T roux · S fukujinzuke (lotus rings) · Z melted cheese · J fried eggplant · L spinach. Values 148/213/64/102/163/40/82, 0 close pairs.
 - 5cbab2f new world curry
+
+## QA round 3 — keyboard regression (fixed)
+- Cause: `frame()` in 30_main.js had no guard and scheduled the next requestAnimationFrame at the END. Any exception in one frame (a scene actor, Amb, a particle) killed the loop for good: game time stopped, the board stopped redrawing, so ←/→/Space looked dead, while DOM handlers (M, HUD buttons) still worked. Known trigger: the Yakitori customer with `skirt:1` (fixed in 092d492); the same class of bug can come from any scene.
+- Fix: RAF is scheduled first and every subsystem runs through `safe(tag, fn)` (first error per tag logged once, counts in `window.__frameErrs`). Plus focus hygiene: game keys blur a focused HUD control (KEYS summary / buttons / slider), keyup of game keys is preventDefault-ed (Space no longer clicks a focused control), `startGame` blurs any focused menu card/overlay button (Safari/Firefox keep focus on hidden elements), and the delayed GAME OVER overlay is dropped if the player already restarted.
+- Test: `tools/cap.sh keys.js [world]` — real keyboard input across play, HUD pause/RESUME, clicking mute and KEYS then typing, a touch-button press, a natural world switch, RESTART, top-out → Enter, window blur with a held key, menu → Enter, keyboard stage select, and an injected per-frame exception. The old build fails step 11 (game time frozen); the new one passes all 17.
+- `tools/cap.sh soak.js [sec]` — every world fast-forwarded through hours/weather, reports any caught frame error: clean.
