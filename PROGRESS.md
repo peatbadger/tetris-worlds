@@ -374,3 +374,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 ## Round 4 — geometric remakes of the originals (after TAIL, originals untouched)
 - Shared engine src/28_19_geo_cafe.js (GeoCafe stage + MassKit/remakeFood helpers); defs in 28_20_remakes.js; TAIL extended in 29_order.js. Tools now freeze gravity (late worlds topped out during captures).
 - Tiki Beach Shack (741400d , Ocean remake): thatched fruit bar, blender that spins/fills, sea window with sailboat, sunset conch, dolphins event. Blocks acai 60 / dragon 98 / watermelon 121 / kiwi 140 / papaya 156 / pineapple 173 / coconut 230.
+- Oasis Tea Tent (7776a8a , Desert remake): striped canvas tent, samovar, tea poured from a height, tent-flap window onto dunes/oasis/camel caravan, lanterns at night. Blocks dates 52 / pomegranate 75 / baklava 112 / mint 126 / apricot 153 / couscous 189 / labneh 219.
