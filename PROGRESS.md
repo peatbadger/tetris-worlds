@@ -443,3 +443,5 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Tiki (QA r3): palette muted (desatAll .12, watermelon #e8424a→#b23e46 with soft flesh gradient, dragon magenta → dusty rose), papaya moved to salmon-coral #de7250 (pink seed channel) and pineapple to pale lemon #e8cc5a with fibrous grain, so the two no longer read as mango/papaya twins. Luma 54/193/111/150/140/181/233, 0 close. shots/cmp-tiki.png
 - dc71c60 tiki
 - Aurora Lodge (QA r3): rye rebuilt as a real dense rye slice (fine even crumb, rye kernels, caraway, dark crust on exposed sides) instead of muddy blotches; gravlax dill clip-art removed (soft curved fat lines + sparse pepper); lingon desat .16; gravlax/cloudberry spread. Luma 45/83/87/128/160/197/227, 0 close. shots/cmp-lodge.png
+- 9543d8c lodge
+- Orbit Galley (QA r3): moon cheese no longer a toy Swiss square — warm ochre paste, fine crystalline flecks, irregular eyes with shaded upper wall + lit lip, amber rind; neapolitan bands bolder (deeper strawberry, wide chocolate, narrow vanilla) → luma 169→127; meringue = star-tip piped kisses with lavender shading. Pale trio now 177 / 127 / 225. 0 close. shots/cmp-galley.png
