@@ -14991,6 +14991,7 @@ registerStage('gelato', makeGeoGelatoStage);
 const GelatoFood = (() => {
   const C3 = { pistachio: ['#b8d070', '#d4e698', '#8aa848'], fragola: ['#f47a96', '#ffb0c0', '#c84a6a'], limone: ['#f8e46a', '#fff4a8', '#d8bc3a'], cioccolato: ['#6a3a22', '#8e5636', '#40200e'], mango: ['#ffa63a', '#ffc870', '#d87a1a'], mirtillo: ['#7a5ac8', '#a68ae8', '#523a96'], stracciatella: ['#f8f2e4', '#ffffff', '#ddd2bc'] };
   const M = FoodMass({
+    premium: true, premiumOpts: { R: 0.26 },
     FOOD: [null, 'pistachio', 'fragola', 'limone', 'cioccolato', 'mango', 'mirtillo', 'stracciatella'],
     MAIN: [null, '#b8d070', '#f47a96', '#f8e46a', '#6a3a22', '#ffa63a', '#7a5ac8', '#f8f2e4'],
     soft: { pistachio: 1.5, fragola: 1.6, limone: 1.5, cioccolato: 1.4, mango: 1.6, mirtillo: 1.5, stracciatella: 1.5 },
