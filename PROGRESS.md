@@ -130,3 +130,12 @@ Shared engine (new):
 - Surprise: lion dance passes the moon window (everyone turns to look). Big clear: big steam burst + "Hot har gow!".
 - Blocks: I har gow (pink translucent, pleated crest, shrimp) · O siu mai (yellow wrapper, roe) · T char siu bao (split crown) · S jade chive dumpling (pan-fried base) · Z char siu (lacquered slices) · J taro bun (lavender swirl) · L sesame balls. Steam curls off the top cells.
 - Shots: screenshot-geo-dimsum-day.png (10:30) / -night.png (21:00 rain).
+
+### World 5 · Gelateria (DONE) — `src/46_geo_gelato.js` + `src/47_food_gelato.js`
+- Clock 10:00 → 23:30 (Morning / Afternoon / Passeggiata / Night / Closing): shutter rolls up at opening, APERTO/CHIUSO sign, neon "Gelato" in the window at dusk/night, tins lidded at closing; rain/snow on the piazza.
+- Scene: striped scalloped awning, pastel checker tiles, arched chalk menu with the 7 flavours + prices (calm behind the board), ceiling fan, shelf of cone boxes, curved glass case with 7 sculpted tins (levels drop as Giulia scoops), cone stand, coin tray, taster spoons; piazza window (fountain, Vespa that rides off and comes back, passeggiata strollers busier at dusk), standing ledge, archway, waffle-cone station.
+- Giulia: greets, offers a taster spoon (customer tastes), takes a cone from the stand, scoops each flavour with the spatola (tin level drops), packs it on the cone, hands it over, customer pays a coin; sculpts tins, smooths low tins, wipes the glass; calls Marco when cones run low.
+- Marco: ladles batter on the waffle iron, closes the lid (steam), opens, rolls the cone on the form, racks it; carries the rack across to Giulia's stand.
+- Customers (≤4, unique): nonna+kid, couple, tourist (photo), cyclist, dog walker + dog (Giulia hands the dog a tiny cup), suit (coppetta). They queue, order, lick (scoops shrink and drip), chat, eat at the ledge, leave through the arch. Surprise: the kid drops a scoop (splat on the floor) and gets a free one.
+- Blocks: I pistachio · O fragola · T limone · S cioccolato · Z mango · J mirtillo · L stracciatella — spatula-wave ridges, scooped mound crowns with garnish (nuts, strawberry, lemon wheel, choc curl, mango cubes, blueberries, choc stick), melt drips on exposed bottoms, melt-away clears.
+- Shots: screenshot-geo-gelato-day.png (15:00) / -night.png (21:30 rain).
