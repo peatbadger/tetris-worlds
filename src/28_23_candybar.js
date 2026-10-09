@@ -3,7 +3,7 @@
    candy on the machine (the floss really grows round the stick) or scoops pick'n'mix into paper bags. Guests snack at
    the ledge by the rainy neon street window (signs flicker on, taxis' tail-lights streak past). Signature: a JACKPOT
    somewhere in the arcade — the lights strobe and everyone cheers. Clock 18:00 dusk -> evening -> midnight -> 02:00 close.
-   Blocks: licorice · grape jellies · caramel · blue raspberry rock · sour apple belts · cotton candy · marshmallow. */
+   Blocks: liquorice twists · gummy bears · candy cane · rock candy · sour apple belts · cotton candy · marshmallows. */
 (() => {
   const CandyPal = GeoCafePal({
     dusk: { wall: '#3a3050', wall2: '#2e2644', trim: '#ff4ab0', wood: '#4a3a5a', woodDk: '#2a2038', floor: '#2a2438', floor2: '#ece4f0', cnt: '#4a3c64', cnt2: '#352a4a', steel: '#b8b8c8', glass: '#c8d8f0', neon: '#ff4ab0', neon2: '#3ae0ff', neonA: 0.55,

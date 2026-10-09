@@ -394,3 +394,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - 2901d2d premium nightmarket: generic premium pass; cutlet value re-tuned; L 77/114/128/149/165/193/216, 0 close — shots/premium/nightmarket.png
 - d2894d7 premium boba: generic premium pass; thai/mango values re-tuned (fixed 2 close pairs); L 70/118/135/144/163/189/212, 0 close — shots/premium/boba.png
 - d982fa2 premium tiki: premium pass + dragon fruit redone (white flesh, black seeds, magenta skin with green-tipped scales) + coconut redone (hairy brown shell, tan seed coat, fibrous meat); L 54/127/144/150/179/192/233, 0 close — shots/premium/tiki.png
+- 4c3106c premium oasis: generic premium pass; L 47/72/105/133/157/197/220, 0 close — shots/premium/oasis.png
