@@ -53,7 +53,8 @@ class Game {
   }
   get absStage() { return this.lap * STAGES.length + this.stageIdx; }
   updateLevel() {
-    this.speedLevel = Math.min(15, 1 + this.absStage * 1.4 + (this.linesInStage / LINES_PER_STAGE) * 1.2);
+    // eased ramp: spread the climb over the whole (long) journey so every world stays reachable
+    this.speedLevel = Math.min(15, 1 + Math.min(12, this.absStage * 12 / Math.max(8, STAGES.length - 1)) + (this.linesInStage / LINES_PER_STAGE) * 0.8);
     const old = this.level; this.level = Math.floor(this.speedLevel);
     if (old && this.level > old && this.h.onLevel) this.h.onLevel(this.level);
   }

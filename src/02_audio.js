@@ -230,6 +230,14 @@ const AudioEngine = (() => {
       noise(t, dur + 0.7, bp);
       const o = osc('sawtooth', f, t, t + dur + 0.6, bp); o.frequency.exponentialRampToValueAtTime(f * 4, t + dur);
     },
+    shamisen(dest, t, f, v = 0.14, dec = 0.7) { // sharp plucked twang with a buzzing sawari
+      const g = out(dest, 0.3); env(g, t, 0.001, v, dec); const bp = filt('bandpass', f * 3, 1.4); bp.connect(g); bp.frequency.setValueAtTime(f * 6, t); bp.frequency.exponentialRampToValueAtTime(f * 2, t + 0.2);
+      osc('sawtooth', f, t, t + dec + 0.05, bp); osc('square', f * 2.01, t, t + 0.12, bp); const ng = ac.createGain(); env(ng, t, 0.001, v * 0.5, 0.04); ng.connect(bp); noise(t, 0.05, ng);
+    },
+    marimba(dest, t, f, v = 0.14, dec = 0.5) { const g = out(dest, 0.3); env(g, t, 0.002, v, dec); osc('sine', f, t, t + dec + 0.05, g); const g2 = ac.createGain(); env(g2, t, 0.001, v * 0.35, 0.08); g2.connect(g); osc('sine', f * 4, t, t + 0.1, g2); },
+    harp(dest, t, f, v = 0.12, dec = 1.8) { const g = out(dest, 0.6); env(g, t, 0.004, v, dec); const lp = filt('lowpass', f * 5, 0.5); lp.connect(g); osc('triangle', f, t, t + dec + 0.05, lp); osc('sine', f * 2, t, t + dec * 0.5, lp, 2); },
+    synth(dest, t, f, v = 0.06, dur = 0.3) { const g = out(dest, 0.35); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.2); const lp = filt('lowpass', f * 5, 2); lp.connect(g); osc('sawtooth', f, t, t + dur + 0.25, lp, -7); osc('square', f, t, t + dur + 0.25, lp, 7); },
+    steel(dest, t, f, v = 0.1, dec = 1) { const g = out(dest, 0.4); env(g, t, 0.002, v, dec); [1, 2, 3.01, 4.2].forEach((r, i) => { const gg = ac.createGain(); env(gg, t, 0.002, 1 / (i + 1), dec / (i + 1)); gg.connect(g); osc('sine', f * r, t, t + dec, gg); }); },
   };
 
   /* ---------- music theory ---------- */
@@ -335,6 +343,11 @@ const AudioEngine = (() => {
       case 'vibes': return I.vibes(dest, t, f, v);
       case 'strings': return I.strings(dest, t, f, v, dur || 0.8);
       case 'upbass': return I.upbass(dest, t, f, v);
+      case 'shamisen': return I.shamisen(dest, t, f, v);
+      case 'marimba': return I.marimba(dest, t, f, v);
+      case 'harp': return I.harp(dest, t, f, v);
+      case 'synth': return I.synth(dest, t, f, v, dur || 0.3);
+      case 'steel': return I.steel(dest, t, f, v);
       default: return I.pluck(dest, t, f, v, 0.6, name === 'square' ? 'square' : 'triangle');
     }
   }
@@ -427,6 +440,10 @@ const AudioEngine = (() => {
       if (cf === 'clink') for (let i = 0; i < 3; i++) I.clink(sfxBus, t0 + i * 0.09, 0.04);
       if (cf === 'sizzle') { I.sizzle(sfxBus, t0, 0.05, 0.8); I.beep(sfxBus, t0 + 0.2, 1760, 0.03, 2); }
       if (cf === 'sugar') I.shaker(sfxBus, t0, 0.08);
+      if (cf === 'bubble') for (let i = 0; i < 5; i++) I.pop(sfxBus, t0 + i * 0.06, 0.1);
+      if (cf === 'chime') for (let i = 0; i < 4; i++) I.bell(sfxBus, t0 + i * 0.08, mtof(degMidi(base + i * 2, 2)), 0.04, 1.2);
+      if (cf === 'grill') { I.sizzle(sfxBus, t0, 0.06, 1.2); I.wood(sfxBus, t0, 0.06, 1200); }
+      if (cf === 'gong') I.bell(sfxBus, t0, 110, 0.07, 2.5);
       I.pad(sfxBus, t0, chordTones(base, 3).map((x) => mtof(degMidi(x, 1))), 0.6 + n * 0.3, { wave: 'triangle', cutoff: 3000, gain: 0.06 + n * 0.02, detune: 10 });
       if (n >= 4 || tspin) {
         I.swell(sfxBus, t0, 110, 0.05, 0.6);
@@ -465,6 +482,10 @@ const AudioEngine = (() => {
       else if (kind === 'pop') I.pop(sfxBus, t, 0.2);
       else if (kind === 'bell') { I.bell(sfxBus, t, 2093, 0.05, 0.6); I.bell(sfxBus, t + 0.05, 2637, 0.04, 0.6); }
       else if (kind === 'knock') { for (let i = 0; i < 3; i++) I.wood(sfxBus, t + i * 0.17, 0.12, 320); }
+      else if (kind === 'slurp') { const g = out(sfxBus, 0.2); env(g, t, 0.05, 0.07, 0.5); const f = filt('bandpass', 700, 3); f.frequency.exponentialRampToValueAtTime(2200, t + 0.5); f.connect(g); noise(t, 0.6, f); }
+      else if (kind === 'bubble') { for (let i = 0; i < 6; i++) I.pop(sfxBus, t + i * 0.05 + Math.random() * 0.03, 0.08); }
+      else if (kind === 'firework') { const g = out(sfxBus, 0.5); env(g, t, 0.002, 0.12, 0.8); const f = filt('lowpass', 900); f.connect(g); noise(t, 0.9, f); for (let i = 0; i < 8; i++) I.hat(sfxBus, t + 0.2 + Math.random() * 0.7, 0.02, 0.05, 7000); }
+      else if (kind === 'clap') { for (let i = 0; i < 14; i++) { const g = out(sfxBus, 0.25); const tt = t + Math.random() * 1.4; env(g, tt, 0.001, 0.035, 0.05); const f = filt('bandpass', 1200 + Math.random() * 900, 1); f.connect(g); noise(tt, 0.06, f); } }
       else if (kind === 'drum') { for (let i = 0; i < 8; i++) I.taiko(sfxBus, t + i * 0.12, 0.2 + (i === 7 ? 0.3 : 0)); }
     },
     ui(k = 0) { if (!ac || !def) return; sfxInst(mtof(degMidi(chordDeg + k, 2)), 0.05, ac.currentTime, 0.3); },
