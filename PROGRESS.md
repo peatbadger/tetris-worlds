@@ -190,3 +190,9 @@ Shared engine (new):
 - Dragon & phoenix relief behind the board → plain lacquer panel with a quiet gold ring.
 - Waiter home moved 940 → 1035 (and towel spot to the right of the urn) so nobody stands behind NEXT.
 - Shots: screenshot-geo-dimsum-day.png (11:00), -night.png (21:00 rain).
+
+## Fish House redo (QA step 6) — `src/48_geo_fishhouse.js` + `src/49_food_seafood.js`
+- Blocks drawn in whole-piece coordinates (vr = lx + 4·ly) so patterns run on across cells: O = one big oyster (pearly radial meat, dark frilled mantle ring, rough layered shell rim on exposed sides); S mussels = continuous blue-black shell with growth-line arcs + nacre sheen, orange meat where they open at the top; J wakame = glossy ribbons flowing across the piece; Z salmon fat lines continuous, crisp skin below; T seared scallop flesh with caramel sear; L octopus with suckers only along the exposed underside; I lobster tail: one segment per cell, meat at one end, fanned tail at the other. Ring/tile pictures and ice diamonds removed.
+- Behind the board: zone tint raised (rgba(18,22,28,0.62)) + near-opaque well (rgba(22,24,28,0.9)) so the sea/boats no longer read through.
+- Bug fix: Ana's shucking "shake" was set to 1 (radians!) → she folded over sideways at the bar. Now a small ±0.025 oscillation; she also stands at x 104 so the oyster tray is within reach.
+- Shots: screenshot-geo-fishhouse-day.png (13:00), -night.png (21:30 rain).

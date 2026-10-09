@@ -70,10 +70,10 @@ function makeGeoFishhouseStage() {
   }
   function shuck(a, g) {
     g.phase = 'waitOysters'; platter.n = 0; platter.on = true; platter.x = g.hx + 40; platter.owner = g; platter.home = 1;
-    const ph = [K.ph(0, (s) => { s.walkTo = 150; }, { until: (s) => !s.walking, max: 10 }), K.ph(0.3, null, { enter: () => K.say(a, pick(['Six oysters, coming up', 'Fresh this morning']), 1.3) })];
+    const ph = [K.ph(0, (s) => { s.walkTo = 104; }, { until: (s) => !s.walking, max: 10 }), K.ph(0.3, null, { enter: () => K.say(a, pick(['Six oysters, coming up', 'Fresh this morning']), 1.3) })];
     for (let i = 0; i < 6; i++) ph.push(
-      K.ph(0.4, (s) => { s.tgF = [70 + (i % 3) * 22, BAR.top - 18]; s.leanT = 0.15; s.farFront = true; }, { exit: (s) => { s.hold.F = H.oyster(false); s.hold.N = H.knife(); } }),
-      K.ph(0.7, (s, u, t) => { s.tgF = [s.hx + 28, BAR.top - 46]; s.tgN = [s.hx + 34 + Math.sin(t * 18) * 3, BAR.top - 50]; s.shake = u > 0.6 ? 1 : 0; }, { exit: (s) => { s.shake = 0; s.hold.F = H.oyster(true); shellBucket = Math.min(8, shellBucket + 1); } }),
+      K.ph(0.4, (s) => { s.f = 1; s.tgF = [80 + (i % 3) * 18, BAR.top - 18]; s.leanT = 0.1; s.farFront = true; }, { exit: (s) => { s.hold.F = H.oyster(false); s.hold.N = H.knife(); } }),
+      K.ph(0.7, (s, u, t) => { s.tgF = [s.hx + 28, BAR.top - 46]; s.tgN = [s.hx + 34 + Math.sin(t * 18) * 3, BAR.top - 50]; s.shake = u > 0.6 ? Math.sin(t * 22) * 0.025 : 0; }, { exit: (s) => { s.shake = 0; s.hold.F = H.oyster(true); shellBucket = Math.min(8, shellBucket + 1); } }),
       K.ph(0.4, (s) => { s.tgF = [platter.home ? 150 : platter.x, BAR.top - 14]; }, { exit: (s) => { s.hold.F = null; platter.n++; } }));
     ph.push(K.ph(0.6, (s) => { s.hold.N = null; s.farFront = false; s.tgN = [g.hx + 40, BAR.top - 14]; s.leanT = 0.25; }, { enter: () => K.say(a, pick(['Voilà', 'Enjoy — lemon on the side']), 1.2), exit: () => { platter.home = 0; platter.x = g.hx + 34; g.phase = 'oysters'; } }));
     K.start(a, 'shuck', ph, { onAbort: (s) => { s.hold.N = null; s.hold.F = null; s.farFront = false; s.shake = 0; platter.home = 0; platter.x = g.hx + 34; g.phase = 'oysters'; } });
@@ -280,7 +280,7 @@ function makeGeoFishhouseStage() {
     return false;
   }
   function onGone(Kk, a) { if (a.seat) a.seat.occ = null; if (platter.owner === a) { platter.on = false; platter.owner = null; } }
-  return GeoKit.stage({ id: 'fishhouse', pal: FishPal, startHour: 12, span: 11.5, build, sim, draw, onClear, onGone, icon, font: 'italic 700 15px Georgia, serif', vign: 'rgba(10,16,30,0.35)',
+  return GeoKit.stage({ id: 'fishhouse', pal: FishPal, startHour: 12, span: 11.5, build, sim, draw, onClear, onGone, icon, font: 'italic 700 15px Georgia, serif', vign: 'rgba(10,16,30,0.35)', zone: 'rgba(18,22,28,0.62)',
     debug: () => ({ table: table.party ? table.party.members.map((m) => m.type).join('+') + ':' + table.party.stage + ' c' + (table.party.courses || 0) : '-', plates: table.plates.map((p) => p.d.k + p.frac.toFixed(1)).join(' '), glasses: table.glasses.map((g) => g.lv.toFixed(2)).join(' '), candle: table.candle, platter: platter.on ? platter.n + '/' + platter.shells : '-', boat: !!boat, gull: !!gull }) });
 }
 registerStage('fishhouse', makeGeoFishhouseStage);
