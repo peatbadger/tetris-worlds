@@ -229,3 +229,10 @@ Shared engine (new):
 - Rush hour busier but tidy: a takeaway guest steps up to the counter in front of Mia (orders, waits on the phone, takes the bag) at lunch/dinner; parties arrive faster; a party leaves after ~55 s of eating.
 - Fixes found in review: kitchen remapped into the strip (it was behind HOLD); fry "shake" was 1 radian (fold-over bug) → ±0.025 oscillation; selfie no longer aborts a mate who is ordering; trucker in a plain knit (no stripes); lobby moved right so the kiosk isn't behind NEXT; staff floor lowered so the counter hides their legs.
 - Shots: screenshot-geo-fastfood-day.png (12:30 lunch rush), -night.png (21:00 rain), -mobile.png.
+
+## Night Market — full GeoKit remake (`src/54_geo_nightmarket.js`; replaces the 3D crowd venue)
+- Left strip: Auntie Lin's charcoal stall (炭烤香腸) — turns each sausage with tongs (they flip on the grill), brushes glaze, fans the coals (sparks, coals brighten), restocks raw sausages from the cooler, torches beef cubes with a blowtorch (blue flame, cubes darken) and hands a sausage in a paper sleeve across the counter.
+- Right strip: Kai (雞排) dredges a cutlet in flour (puff), lowers it into the oil (bubbles + steam), lifts it with the spider, drains, peppers and bags it; Mei pours winter-melon tea from the brass urn (stream, cup fills), lids and straws it.
+- Calm centre: street of far stalls, lanterns and bulb strings under the ZoneMask. Buyers (max one per stall) order, reach for the food, eat a few bites on the spot and stroll off; 1–2 strollers drift through and browse only an empty stall (no piling up). Rain: tarps drip, wet-street reflections, strollers carry umbrellas.
+- Clock 17:00 → 02:00 (dusk → night → late), crowd density follows the hour.
+- Shots: screenshot-geo-nightmarket-day.png (17:36 dusk), -night.png (21:30 rain).
