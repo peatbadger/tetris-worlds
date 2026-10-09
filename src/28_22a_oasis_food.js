@@ -5,7 +5,8 @@ const OasisFood = remakeFood('oasis', {
   FOOD: [null, 'dates', 'pomegranate', 'mint', 'baklava', 'apricot', 'couscous', 'labneh'],
   MAIN: [null, '#4a240e', '#d02a40', '#58a848', '#945812', '#f8a040', '#e8cc88', '#f4f0e6'],
   soft: { dates: 1.0, pomegranate: 1.1, mint: 1.2, baklava: 0.9, apricot: 1.0, couscous: 1.3, labneh: 1.5 },
-  boardBg: 'rgba(40,22,18,0.92)', grid: 'rgba(255,220,180,0.06)',
+  boardBg: 'rgba(10,10,20,0.95)', grid: 'rgba(255,225,190,0.065)', // cool deep-indigo tent cloth: brown dates / baklava stand off it (QA r3 figure/ground)
+  premiumOpts: { lift: { dates: 'brightness(1.36) contrast(1.1) saturate(1.08)', baklava: 'brightness(1.1) contrast(1.08) saturate(1.06)' } },
   paint(x, food, Q) {
     const M = MassKit(x, Q, 71), { P, X0, Y0, BW, BH, A, H, lw, small } = M;
     switch (food) {
