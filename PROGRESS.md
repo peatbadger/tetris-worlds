@@ -18,7 +18,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 11 | Boba Milk Tea Shop | boba | live (screenshot-boba.png) |
 | 12 | Yakitori | yakitori | live (geo; skewers grill raw→lacquered, trains overhead, flare-ups; screenshot-yakitori.png) |
 | 13 | Curry House | curry | live (geo; spice ladder, level-10 challenge, rice jar; screenshot-curry.png) |
-| 14 | Lawson-style Konbini | lawson | TODO |
+| 14 | Konbini (Lawson-style, fan tribute) | lawson | live (geo; fluorescent 24h store, hot-snack warmer, nikuman steamer, microwave countdown "chin", delivery truck, fresh-karaage event) |
 | 15 | Japanese Tea House | teahouse | TODO |
 | 16 | Fukuoka Oden Yatai | oden | TODO |
 | 17 | Taiwanese Hotpot | hotpot | TODO |
@@ -451,3 +451,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Re-check vs Kaiten (QA r3): Cinema nachos — cheese is now one flat glossy irregular pool (was a chain of saturated orange dots), bigger jalapeño rings with seeds; slushie = fine translucent crushed ice + syrup gradient (was blue confetti). Yakitori uzura — eggs fill the hollow centre of the O, thin tare glaze; tebasaki denser. Curry fukujinzuke — deep crimson chopped pickle, fewer/smaller lotus slices (was toy pink); spinach — wilted folds instead of clip-art veins. All 0 close. shots/cmp-{cinema,yakitori,curry}.png
 - e591f8c recheck new worlds
 - Tiki correction (QA): r3 mute went too far (watermelon + papaya both dusty coral). Watermelon → deeper pink-red #c8364a with a wet sheen (soft gloss streaks + catch-lights), papaya → warm orange #e8843a with a light-apricot seed channel; global desat .12→.07. Luma 53/193/111/150/137/182/233, 0 close. shots/cmp-tiki.png
+- 39bd4c6 tiki correction
+
+## Konbini (lawson) — new world
+- Scene src/28_29_lawson.js: white tiles + blue band, fluorescent bars, hot-snack menu (からあげ/肉まん/コロッケ/チキン with prices), coffee S/M/L board, gondola shelves behind the board; counter = self-serve coffee machine, lit hot-snack warmer, steaming nikuman case, register; back shelf microwave that really counts down and lights up. Staff in a new fine vertical pinstripe uniform ('pin' pattern in 12d). Window: apartment block, utility pole + wires, two vending machines that glow at night, crosswalk, bicycle, light spill + moths at night. Day labels Morning commute → Lunch → Afternoon → Evening → Late night (07:00 → 02:00), late-night merry salaryman. Events: delivery (truck pulls up, restock), fresh-karaage (揚げたて!).
+- Blocks src/28_29a_lawson_food.js: onigiri (alternating rice triangles on nori, nori band each), roll cake (cream-heavy slices, golden sponge spiral), karaage (craggy golden nuggets), melon pan (domed crust diamonds + sugar), sakura mochi (pink domyōji grain), matcha warabi (jade cubes + powder), chocolate (glossy ganache squares, cocoa dust, a gold fleck). Luma 187/225/132/172/149/115/56, 0 close.
+- Review notes: onigiri v1 read as dominoes/dice → dark nori base + gapped triangles; melon pan v1 read as waffle cone → domed crust tiles; karaage crease strokes made smiley faces → removed. Weak spot: like every GeoCafe world, the queue stands in front of the counter at 1440 and hides part of the hot-snack line.
+- Images: shots/cmp-lawson.png, screenshot-lawson.png (09:00), lawson-night.png (23:30 rain), lawson-event-{delivery,karaage}.png, iphone-lawson.png.
