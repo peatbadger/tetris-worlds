@@ -1,4 +1,4 @@
-/* ================= NEW WORLD · Konbini — GEOMETRIC edition (a fan tribute to the blue-sign corner stores; no real logos) =================
+/* ================= NEW WORLD · Konbini — GEOMETRIC edition (a generic Japanese corner store; no real chain, logo or mark) =================
    A 24-hour Japanese convenience store under humming fluorescent bars. Aoi at the register scans, bows and bags ("Irasshaimase!",
    "Fukuro irimasu ka?"); Ren behind her works the hot-snack line for real: tongs into the warmer for a cup of karaage, a fluffy
    nikuman out of the steamer, a bento into the microwave (it really counts down and goes "chin"), a coffee from the self-serve
@@ -10,9 +10,9 @@
    karaage · melon pan · sakura mochi · matcha warabi · chocolate. */
 (() => {
   WORLD_DEFS.push({
-    id: 'lawson', name: 'Konbini', sub: 'コンビニ · a blue-sign corner store, open 24 hours (fan tribute)', thumbY: 0.42,
+    id: 'konbini', name: 'Konbini', sub: 'コンビニ · a corner store, open 24 hours', thumbY: 0.42,
     desc: 'A 24-hour Japanese convenience store: karaage from the warmer, nikuman from the steamer, a bento that goes "chin", self-serve coffee and a street of vending machines outside — bright city-pop at the register.',
-    accent: '#3a7ad8', accent2: '#9ac8f0', skin: 'lawson', particle: 'star',
+    accent: '#3a7ad8', accent2: '#9ac8f0', skin: 'konbini', particle: 'star',
     boardBg: 'rgba(16,24,40,0.92)', grid: 'rgba(170,200,255,0.07)',
     palette: ['#888888', '#888888', '#888888', '#888888', '#888888', '#888888', '#888888'],
     music: {
@@ -41,7 +41,7 @@
   let micro = 0, microOn = 0, steam = 0, warm = 0, truck = -1, fresh = 0;
   const K0 = (c, pts) => GeoKit.poly(c, pts);
   const W = {
-    id: 'lawson', pal: KonPal, stationX: 96, startHour: 7, span: 19, font: '800 15px "Trebuchet MS", sans-serif', vign: 'rgba(10,20,40,0.2)', zone: 'rgba(240,246,255,0.24)',
+    id: 'konbini', pal: KonPal, stationX: 96, startHour: 7, span: 19, font: '800 15px "Trebuchet MS", sans-serif', vign: 'rgba(10,20,40,0.2)', zone: 'rgba(240,246,255,0.24)',
     per: (h) => { const x = h < 5 ? h + 24 : h; return x < 10 ? 0 : x < 14 ? 1 : x < 17.5 ? 2 : 3; },
     staff: [{ T: 226, hw: 56, headR: 28, pattern: 'pin', top: 'white', top2: 'blue', hairStyle: 'bob', hair: 'dark', pants: 'navy' },
       { T: 240, hw: 60, headR: 28, pattern: 'pin', top: 'white', top2: 'blue', hairStyle: 'short', hair: 'dark', pants: 'navy' }],
@@ -85,7 +85,7 @@
       else if (m.kind === 'onigiri') { c.fillStyle = L('#fbf8f2'); K0(c, [0, -12, 7, 0, -7, 0]); c.fill(); c.fillStyle = L('#1e2a22'); c.fillRect(-4, -5, 8, 5); c.fillStyle = 'rgba(220,235,250,0.45)'; K0(c, [0, -13, 8, 0.5, -8, 0.5]); c.fill(); }
       else { c.fillStyle = L('#fbfbfa'); c.fillRect(-8, -8, 16, 8); c.fillStyle = L('#2a64b4'); c.fillRect(-8, -8, 16, 2); c.fillStyle = L('#f4ecd8'); c.beginPath(); c.arc(0, -3.6, 3, 0, TAU); c.fill(); c.strokeStyle = L('#dcaa5c'); c.lineWidth = 0.7; c.beginPath(); c.arc(0, -3.6, 1.8, 0, 5); c.stroke(); }
       c.restore(); },
-    build(X) { if (!window.__geoEv) window.__geoEv = {}; window.__geoEv.lawson = (n) => { const K = X.K; W.events[n].start(Object.assign({}, X, { K }), K.actors.find((a) => a.role === 'server'), K.actors.find((a) => a.role === 'maker')); }; },
+    build(X) { if (!window.__geoEv) window.__geoEv = {}; window.__geoEv.konbini = (n) => { const K = X.K; W.events[n].start(Object.assign({}, X, { K }), K.actors.find((a) => a.role === 'server'), K.actors.find((a) => a.role === 'maker')); }; },
     room(c, t, X) { const K = X.K, P = K.P, L = X.L;
       // white tiles, the blue band with its white pinstripe, fluorescent bars
       c.fillStyle = P.wall; c.fillRect(-60, 40, 1400, 620); c.strokeStyle = rgba(P.wall2, 0.9); c.lineWidth = 1.2; for (let i = 0; i < 46; i++) { c.beginPath(); c.moveTo(-60 + i * 32, 300); c.lineTo(-60 + i * 32, 660); c.stroke(); } for (let j = 0; j < 12; j++) { c.beginPath(); c.moveTo(-60, 300 + j * 32); c.lineTo(1340, 300 + j * 32); c.stroke(); }
@@ -161,5 +161,5 @@
       { name: 'fresh-karaage', dur: 10, start(X, srv, mk) { const K = X.K; fresh = 1; warm = 1; K.say(mk, '揚げたて!', 1.6); K.fx('spark', 78, X.CNT.top - 44, { life: 0.8, col: '#ffd890' }); K.after(0.9, () => K.say(srv, 'Fresh karaage!', 1.4)); for (const c of K.actors.filter((q) => q.cust)) { c.look = { x: () => 78, until: K.simT + 3 }; if (Math.random() < 0.7) K.say(c, pick(['icon:heart', 'One cup!', 'Smells…']), 1.3); } } },
     ],
   };
-  registerStage('lawson', makeGeoCafe(W));
+  registerStage('konbini', makeGeoCafe(W));
 })();

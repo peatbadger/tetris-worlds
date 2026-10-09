@@ -3,7 +3,7 @@
    · O roll cake (cream-heavy slices: thin golden sponge spiral, soft dome of whipped cream) · T karaage (craggy golden fried
    chicken nuggets) · S melon pan (sugar-crust dome, diamond score lines) · Z sakura mochi (pink domyōji grain, rice texture)
    · J matcha warabi (translucent jade cubes under a drift of matcha powder) · L chocolate (glossy ganache squares, cocoa dust) */
-const LawsonFood = remakeFood('lawson', {
+const KonbiniFood = remakeFood('konbini', {
   premiumOpts: { R: 0.18, grain: { rollcake: 0.06, onigiri: 0.06, choco: 0.08, matcha: 0.1 }, lift: { choco: 'brightness(1.12) contrast(1.08)', matcha: 'brightness(1.06) contrast(1.08)', sakura: 'brightness(0.92) contrast(1.06) saturate(1.18)', onigiri: 'brightness(0.96) contrast(1.06)', rollcake: 'brightness(1.05) contrast(1.03)', melonpan: 'brightness(1.04) contrast(1.06)' } },
   FOOD: [null, 'onigiri', 'rollcake', 'karaage', 'melonpan', 'sakura', 'matcha', 'choco'],
   MAIN: [null, '#8a908a', '#f4ecdc', '#b8742c', '#e2bc66', '#d08c9c', '#4a6a2a', '#3a2214'],

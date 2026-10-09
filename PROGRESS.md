@@ -18,7 +18,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 11 | Boba Milk Tea Shop | boba | live (screenshot-boba.png) |
 | 12 | Yakitori | yakitori | live (geo; skewers grill raw→lacquered, trains overhead, flare-ups; screenshot-yakitori.png) |
 | 13 | Curry House | curry | live (geo; spice ladder, level-10 challenge, rice jar; screenshot-curry.png) |
-| 14 | Konbini (Lawson-style, fan tribute) | lawson | live (geo; fluorescent 24h store, hot-snack warmer, nikuman steamer, microwave countdown "chin", delivery truck, fresh-karaage event) |
+| 14 | Konbini | konbini | live (geo; fluorescent 24h store, hot-snack warmer, nikuman steamer, microwave countdown "chin", delivery truck, fresh-karaage event) |
 | 15 | Japanese Tea House | teahouse | live (geo; Kyoto tea room, matcha whisked the slow way, shishi-odoshi, ceremony) |
 | 16 | Fukuoka Oden Yatai | oden | live (geo; riverside night stall, partitioned oden pot, tebo yuchiri, vinyl curtain onto Nakasu neon) |
 | 17 | Taiwanese Hotpot | hotpot | live (geo; split yuanyang pot, meat slicer, broth refills, free ice cream, scooter street) |
@@ -453,11 +453,11 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Tiki correction (QA): r3 mute went too far (watermelon + papaya both dusty coral). Watermelon → deeper pink-red #c8364a with a wet sheen (soft gloss streaks + catch-lights), papaya → warm orange #e8843a with a light-apricot seed channel; global desat .12→.07. Luma 53/193/111/150/137/182/233, 0 close. shots/cmp-tiki.png
 - 39bd4c6 tiki correction
 
-## Konbini (lawson) — new world
-- Scene src/28_29_lawson.js: white tiles + blue band, fluorescent bars, hot-snack menu (からあげ/肉まん/コロッケ/チキン with prices), coffee S/M/L board, gondola shelves behind the board; counter = self-serve coffee machine, lit hot-snack warmer, steaming nikuman case, register; back shelf microwave that really counts down and lights up. Staff in a new fine vertical pinstripe uniform ('pin' pattern in 12d). Window: apartment block, utility pole + wires, two vending machines that glow at night, crosswalk, bicycle, light spill + moths at night. Day labels Morning commute → Lunch → Afternoon → Evening → Late night (07:00 → 02:00), late-night merry salaryman. Events: delivery (truck pulls up, restock), fresh-karaage (揚げたて!).
-- Blocks src/28_29a_lawson_food.js: onigiri (alternating rice triangles on nori, nori band each), roll cake (cream-heavy slices, golden sponge spiral), karaage (craggy golden nuggets), melon pan (domed crust diamonds + sugar), sakura mochi (pink domyōji grain), matcha warabi (jade cubes + powder), chocolate (glossy ganache squares, cocoa dust, a gold fleck). Luma 187/225/132/172/149/115/56, 0 close.
+## Konbini (konbini) — new world
+- Scene src/28_29_konbini.js: white tiles + blue band, fluorescent bars, hot-snack menu (からあげ/肉まん/コロッケ/チキン with prices), coffee S/M/L board, gondola shelves behind the board; counter = self-serve coffee machine, lit hot-snack warmer, steaming nikuman case, register; back shelf microwave that really counts down and lights up. Staff in a new fine vertical pinstripe uniform ('pin' pattern in 12d). Window: apartment block, utility pole + wires, two vending machines that glow at night, crosswalk, bicycle, light spill + moths at night. Day labels Morning commute → Lunch → Afternoon → Evening → Late night (07:00 → 02:00), late-night merry salaryman. Events: delivery (truck pulls up, restock), fresh-karaage (揚げたて!).
+- Blocks src/28_29a_konbini_food.js: onigiri (alternating rice triangles on nori, nori band each), roll cake (cream-heavy slices, golden sponge spiral), karaage (craggy golden nuggets), melon pan (domed crust diamonds + sugar), sakura mochi (pink domyōji grain), matcha warabi (jade cubes + powder), chocolate (glossy ganache squares, cocoa dust, a gold fleck). Luma 187/225/132/172/149/115/56, 0 close.
 - Review notes: onigiri v1 read as dominoes/dice → dark nori base + gapped triangles; melon pan v1 read as waffle cone → domed crust tiles; karaage crease strokes made smiley faces → removed. Weak spot: like every GeoCafe world, the queue stands in front of the counter at 1440 and hides part of the hot-snack line.
-- Images: shots/cmp-lawson.png, screenshot-lawson.png (09:00), lawson-night.png (23:30 rain), lawson-event-{delivery,karaage}.png, iphone-lawson.png.
+- Images: shots/cmp-konbini.png, screenshot-konbini.png (09:00), konbini-night.png (23:30 rain), konbini-event-{delivery,karaage}.png, iphone-konbini.png.
 - ec14381 konbini
 
 ## Tea House (teahouse) — new world
@@ -479,3 +479,9 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Blocks src/28_32a_hotpot_food.js: fish balls, duck-blood tofu cubes, mala broth (oil droplets, dried chillies, Sichuan peppercorns), rolled marbled beef, napa cabbage (one leaf per cell: white rib, ruffled green crown), shiitake (star cut), corn kernels. Luma 224/51/68/146/189/125/168, 0 close.
 - Review notes: napa v1 read as a zipper/fish-bone chevron → leaf-per-cell; fish balls sparse on a grey bed → one big ball per cell; mala oil read as orange slices → smaller droplets. Weak spot: duck blood (51) and mala (68) are both dark reds — separated by shape (grid of cubes vs speckled broth) more than value.
 - Images: shots/cmp-hotpot.png, screenshot-hotpot.png, hotpot-night.png, hotpot-event-{refill,icecream}.png, iphone-hotpot.png.
+- 5a785c5 hotpot
+
+## QA4 — order + naming fix (freeze on new worlds)
+- World order restored (src/29_order.js, check with `tools/cap.sh order.js`): 1 sushi · 2 mikes · 3 speakeasy · 4 dimsum · 5 gelato · 6 fishhouse · 7 pizzeria · 8 fastfood · 9 nightmarket · 10 boba · **11 ocean · 12 desert · 13 neon · 14 aurora · 15 cosmic (originals, untouched)** · 16 tiki · 17 oasis · 18 candybar · 19 lodge · 20 galley · 21 cinema · 22 yakitori · 23 curry · 24 konbini · 25 teahouse · 26 oden · 27 hotpot. Cinema had been slotted at 5 and the new worlds before the originals; the TAIL list is gone, everything is one explicit list.
+- The convenience-store world is now generic: id `konbini`, files src/28_29_konbini.js / 28_29a_konbini_food.js, no chain name, no tribute wording, no logo or milk-can mark (there never was one). Blue/white scheme kept as requested. Older commit messages still contain the old name (history not rewritten).
+- Ramen Yokocho WIP parked in wip/28_33_ramen.js + wip/28_33a_ramen_food.js (not built, not published).
