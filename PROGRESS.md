@@ -202,3 +202,11 @@ Shared engine (new):
 - Blocks in whole-piece coordinates, no tiles/plates: O = one margherita across the 2×2 (torn mozzarella, basil, leopard-spotted crust on the exposed rim); I spaghetti strands running the full length + ladled sauce; T fior di latte milky mass with an olive-oil thread + cracked pepper; S glossy pesto with leaf flecks + pine nuts; Z prosciutto folded ribbons flowing across; J melanzane parmigiana layers (aubergine / tomato / mozzarella) with browned top; L arancini crumb crust. Steam hooks → soft puffs; clip-art garnishes removed.
 - Nobody behind the HUD: Luca's home 972 → 1012; takeaway customer and accordionist wait at the right edge (x ≈ 1295, facing in) instead of x 860–880.
 - Shots: screenshot-geo-pizzeria-day.png (13:30), -night.png (20:30 snow), -mobile.png.
+
+## Golden Arches / Night Market / Boba blocks (QA step 7b)
+- Boba (`src/55_food_boba.js`, new FoodMass skin replacing the kawaii-faced cup tiles): each piece is one clear cup — tiger-stripe brown sugar milk with pearls settled on the bottom, mango green tea under thick cheese foam, taro milk + taro balls, matcha latte + red bean, strawberry milk with purée streaks, thai tea with milk cloud, honeydew + coconut jelly cubes; sealed cellophane film on top, lit/far cup walls. No faces.
+- Night Market (`src/56_food_nightmarket.js`, replaces the tile-with-picture skin + faced cups): sausage with diagonal grill marks, giant cutlet craggy crumb, stinky tofu with pickled cabbage, tanghulu candied strawberries under glass sugar, oyster omelette with red sauce, pearl milk tea, pepper bun with sesame + scorched base.
+- Golden Arches already runs the FoodMass fast-food skin (`src/53_food_fastfood.js`: fries / burger layers / soft serve / lettuce / ketchup / cola / shake) — no faces or tiles.
+- Text behind the board (menus, flavour wall) in all three is now blurred + dimmed by the global ZoneMask.
+- Still open: these three worlds still use the older 3D-ish venue figures; GeoKit remakes are next.
+- Shots: screenshot-fastfood-blocks.png, screenshot-nightmarket-blocks.png, screenshot-boba-blocks.png.
