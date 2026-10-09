@@ -101,7 +101,8 @@ const Skins = (() => {
   }
   function get(stage, cell, dpr) {
     const px = Math.max(4, Math.round(cell * dpr));
-    const key = stage.id + ':' + px;
+    const ss = SKINSETS[stage.skin], vk = ss && ss.key ? ss.key() : '', key = stage.id + ':' + px + (vk ? '@' + vk : '');
+    if (!cache[key] && vk) for (const k in cache) if (k.startsWith(stage.id + ':' + px + '@')) delete cache[k]; // drop stale palette variants
     if (!cache[key]) cache[key] = [null].concat(stage.palette.map((col, i) => draw(stage.skin, col, i + 1, px)));
     return cache[key];
   }

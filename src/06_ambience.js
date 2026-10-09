@@ -12,7 +12,7 @@ const Amb = (() => {
     late: { sky: ['#020208', '#080a1c', '#101630'], grade: [50, 60, 140, 0.24], dark: 0.5, sun: -1, lights: 0.75, stars: 1, label: 'Last orders' },
   };
   const ORDER = {
-    sushi: ['dusk', 'night', 'late', 'dawn'], mikes: ['morning', 'noon', 'afternoon', 'dusk'], speakeasy: ['dusk', 'night', 'late', 'dawn'],
+    sushi: ['noon', 'afternoon', 'dusk', 'night', 'night', 'late', 'dawn', 'morning'], mikes: ['morning', 'noon', 'afternoon', 'dusk'], speakeasy: ['dusk', 'night', 'late', 'dawn'],
     dimsum: ['morning', 'noon', 'afternoon'], gelato: ['noon', 'afternoon', 'dusk', 'night'], fishhouse: ['dusk', 'night', 'late'],
     pizzeria: ['afternoon', 'dusk', 'night', 'late'], fastfood: ['morning', 'noon', 'afternoon', 'dusk', 'night'], oden: ['night', 'late', 'dawn'],
     ocean: ['noon', 'dusk', 'night', 'dawn'], desert: ['afternoon', 'dusk', 'night', 'dawn'], neon: ['dusk', 'night', 'late'], aurora: ['dusk', 'night', 'late', 'dawn'], cosmic: ['night', 'late', 'night'],

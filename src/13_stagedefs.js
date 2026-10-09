@@ -2,8 +2,8 @@
 const E16 = (s) => s.split('').map((c) => (c === 'x' ? 1 : c === 'o' ? 2 : 0));
 const STAGES = [
   {
-    id: 'sushi', name: 'Kaiten Sushi', sub: 'Conveyor-belt izakaya at dusk',
-    desc: 'Lanterns, a busy itamae, sake shelves and a belt of hand-drawn sushi — koto, shakuhachi and taiko.',
+    id: 'sushi', name: 'Kaiten Sushi', sub: 'Conveyor-belt sushi, lunch to late night',
+    desc: 'Flat mid-century geometry: paper lanterns, a busy itamae, regulars coming and going and a belt of true-colour sushi — koto, shakuhachi and taiko.',
     accent: '#ffb35c', accent2: '#e8c04a', skin: 'sushi', particle: 'petal',
     boardBg: 'rgba(16,7,4,0.82)', grid: 'rgba(255,190,120,0.06)',
     palette: ['#a9bccf', '#f5c842', '#f0561a', '#7cc254', '#c8203a', '#ff8c5a', '#f57a3d'],

@@ -65,3 +65,11 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 - iOS: viewport-fit=cover, no user zoom, touch-action none, no callouts/selection/double-tap zoom/rubber-band; `AudioEngine.unlock()` (silent buffer + resume) on first touch/click. A2HS meta + icon-180/192/512 + manifest.webmanifest.
 - Sushi painted stage covers by height on portrait/squarish screens.
 - Test: `node tools/devices.js [url]` (iPhone 14 portrait/landscape, iPad Pro 11 landscape, 1920×1080) → screenshot-<device>.png + JSON of gesture/button checks.
+
+## Oct 9 2026 — Kaiten Sushi: GEOMETRIC art direction (flat mid-century, procedural Canvas 2D)
+- The old painted path is gone: 12b_stage_sushi_art.js removed, assets/sushi removed, manifest emptied, art/sushi/sheets.json → sheets.json.disabled. No fallback.
+- New files: 12c_sushi_geo_pal.js (named palette slots: morning / lunch / dusk / night / snow, blended by the in-game clock 12:00 → 08:00),
+  10b_geo_sushi.js (flat true-colour sushi + plates), 12d_sushi_geo_fig.js (articulated faceless figures, 2-bone IK), 12e_stage_sushi_geo.js (scene + life sim).
+- 14 customer types, 17 party types weighted by time of day; chef + waitress AI; belt never stops; special orders; tea refills; plate stacks; bills; line-clear reactions.
+- Blocks: 14a_skin_sushi.js now draws flat nigiri/maki/gunkan on palette tiles (cache keyed by palette via SKINSETS.key()).
+- Debug: window.__sushiGeo.{setHour, lapse(rate, from), timeScale, weather, spawn}. Tools: tools/geo.js (screenshots), tools/record_geo.js (demo video).
