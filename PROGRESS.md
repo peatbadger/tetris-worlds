@@ -16,7 +16,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 9 | Golden Arches | fastfood | live |
 | 10 | Taiwanese Night Market | nightmarket | live (screenshot-nightmarket.png) |
 | 11 | Boba Milk Tea Shop | boba | live (screenshot-boba.png) |
-| 12 | Yakitori | yakitori | TODO |
+| 12 | Yakitori | yakitori | live (geo; skewers grill raw→lacquered, trains overhead, flare-ups; screenshot-yakitori.png) |
 | 13 | Curry House | curry | TODO |
 | 14 | Lawson-style Konbini | lawson | TODO |
 | 15 | Japanese Tea House | teahouse | TODO |
@@ -412,3 +412,12 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Events: premiere (night: searchlights, red carpet, flashbulbs, everyone looks) · popcorn overflow (any time).
 - Blocks: I hot dog · O popcorn · T nachos · S blue slushie · Z pretzel · J malt balls · L mint pastilles. Values L125/199/175/114/94/48/227, 0 close pairs.
 - Debug: window.__geoEv.cinema(n) triggers event n; tools/gw.js accepts GW_EVAL / GW_WAIT env.
+- d1cb3da new world cinema (Cinema Lobby)
+
+## Yakitori (new world 12)
+- Files: src/28_27_yakitori.js (scene + def + music), src/28_27a_yakitori_food.js (FoodMass, premium default).
+- Scene: tachinomi bar under the railway arches. Konro grill on the counter (moved left of the master so it stays visible, stationX 96): five skewers that really cook — colour ramps raw pink → opaque → golden → lacquered (RAMP/ramp()) — and an order lays a fresh raw skewer, fans it (embers flare, sparks, smoke), dips it in the tare pot, then plates it. Okami pours draft beer/highball at the tap.
+- Wall of wooden menu tags (ねぎま つくね 皮 手羽先 レバー ししとう 焼おにぎり), isshōbin shelf, a beckoning cat, akachōchin lanterns that swing when trains pass. Window: split noren 焼鳥, steel viaduct with trains (lit windows at night), brick arches with other stalls, weather.
+- Events: train (rattle, everyone "Kanpai!") · flare-up (flames + smoke). Debug: window.__geoEv.yakitori(n).
+- Blocks: I negima · O uzura · T tebasaki · S shishito · Z kawa · J tsukune · L reba — each on one bamboo skewer through the piece. Values 123/205/100/91/149/60/42, 0 close pairs.
+- Fixed on the way: customer body `skirt` must be a colour name (skirt:1 crashed the stage when the OL spawned). HUD "WORLD n / N" no longer wraps on iPhone (nowrap).
