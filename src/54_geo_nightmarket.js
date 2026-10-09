@@ -154,9 +154,9 @@ function makeGeoNightMarketStage() {
     a.think = custThink; return a;
   }
   function spawnStroller() {
-    const n = custs().length; if (n >= 4 || custs().filter((q) => !q.buyer).length >= 2) return;
+    const n = custs().length; if (n >= 3 || custs().filter((q) => !q.buyer).length >= 1) return; // calm: at most one stroller
     const fromL = Math.random() < 0.5, a = mkCust(pick(Object.keys(TYPES)), fromL ? -70 : 1340, fromL ? 1 : -1);
-    a.phase = 'stroll'; a.walkTo = fromL ? 1350 : -80; const side = fromL ? 'L' : 'R'; a.stopAt = Math.random() < 0.5 && !(side === 'L' ? buyL : buyR) ? (side === 'L' ? SPOT_L - 8 : SPOT_R + 8) : null; // only browse a stall nobody is buying at
+    a.phase = 'stroll'; a.walkTo = fromL ? 1350 : -80; const side = fromL ? 'L' : 'R'; a.stopAt = Math.random() < 0.5 && !buyL && !buyR ? (side === 'L' ? SPOT_L - 8 : SPOT_R + 8) : null; // only browse a stall nobody is buying at
     if (a.stopAt != null) a.walkTo = a.stopAt;
   }
   function spawnBuyer() {

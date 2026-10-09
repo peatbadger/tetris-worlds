@@ -324,3 +324,14 @@ Concept / look-alike leaks (to fix in each world's turn)
   the pink shake are gone (no Boba echo). Breakfast menu now lists Hotcakes.
 - Rejected on the way: pie slits as red capsules (read as peppers), round nugget lumps (read as bubbles).
 - Compare: /workspace/shots/cmp-fastfood.png (v1–v5). Shot: shots/fastfood-1280.png.
+
+## Step 5 — Night Market blocks v2
+- 56_food_nightmarket v2 (shape/diag, piece-space, smooth blobs, matte): I one long grilled sausage, O XXL cutlet with
+  pale sweet-potato-starch flakes + chili dust (distinct from Golden Arches nuggets), T stinky tofu = porous fried
+  crust + pickled cabbage/chili heaped on the top cells (no longer an ambiguous flat tile), S scallion pancake
+  (laminated spiral), Z oyster omelette with continuous sweet-red-sauce ribbons, J mango shaved ice (replaces milk
+  tea, which duplicated Boba), L pepper bun. Tanghulu's glossy balls-in-cells removed.
+- Rejected on the way: grilled squid (crosshatch read as a waffle/lattice pie), zigzag sauce (read as decoration).
+- Scene calmer: at most one stroller, strollers only stop to browse when neither stall is serving (fewer people
+  stacked near the HUD edges). wip/nm is stale — src/54 is canonical.
+- Compare: /workspace/shots/cmp-nightmarket.png (v1–v3). Shot: shots/nightmarket-1280.png.
