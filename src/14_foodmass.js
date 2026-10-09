@@ -50,14 +50,14 @@ function FoodMass(spec) {
       if (!(mask & N)) { x.moveTo(mask & W ? l - 2 : l + d + ra, t + d); x.lineTo(mask & E ? r + 2 : r - Math.max(rd[1], d), t + d); }
       if (!(mask & W)) { x.moveTo(l + d, mask & S ? b + 2 : b - Math.max(rd[3], d)); x.lineTo(l + d, mask & N ? t - 2 : t + d + ra); }
       if (!(mask & N) && !(mask & W)) { if (ra) { x.moveTo(l + d, t + d + ra); x.arcTo(l + d, t + d, l + d + ra, t + d, ra); } }
-      x.strokeStyle = PO.rim || 'rgba(255,248,232,0.42)'; x.lineWidth = Math.max(1, P * 0.028); x.lineCap = 'round'; x.stroke(); }
+      x.strokeStyle = PO.rim || 'rgba(255,248,232,0.48)'; x.lineWidth = Math.max(1, P * 0.028); x.lineCap = 'round'; x.stroke(); }
     // thin dark low-contrast edge on exposed sides only (continuous masses keep no seams)
     x.beginPath(); const [a0, a1, a2, a3] = rd;
     if (!(mask & N)) { x.moveTo(l + a0, t); x.lineTo(r - a1, t); } if (!(mask & E)) { x.moveTo(r, t + a1); x.lineTo(r, b - a2); }
     if (!(mask & S)) { x.moveTo(r - a2, b); x.lineTo(l + a3, b); } if (!(mask & W)) { x.moveTo(l, b - a3); x.lineTo(l, t + a0); }
     if (a0) { x.moveTo(l, t + a0); x.arcTo(l, t, l + a0, t, a0); } if (a1) { x.moveTo(r - a1, t); x.arcTo(r, t, r, t + a1, a1); }
     if (a2) { x.moveTo(r, b - a2); x.arcTo(r, b, r - a2, b, a2); } if (a3) { x.moveTo(l + a3, b); x.arcTo(l, b, l, b - a3, a3); }
-    x.strokeStyle = PO.edge || 'rgba(28,14,8,0.5)'; x.lineWidth = Math.max(1, P * 0.045); x.stroke();
+    x.strokeStyle = PO.edge || 'rgba(28,14,8,0.22)'; x.lineWidth = Math.max(0.75, P * 0.02); x.stroke(); // hairline, low contrast: separation comes from rim light + AO
   }
   function massBox(P, pad, mask, g) { const ov = Math.max(1, Math.round(P * 0.025)); return [mask & W ? pad - ov : pad + g, mask & N ? pad - ov : pad + g, mask & E ? pad + P + ov : pad + P - g, mask & S ? pad + P + ov : pad + P - g]; }
   function radii(mask, cut, R) { const ex = (b) => !(mask & b), rc = (a, b) => (ex(a) && ex(b) && !(cut & a) && !(cut & b) ? R : 0); return [rc(N, W), rc(N, E), rc(S, E), rc(S, W)]; }
