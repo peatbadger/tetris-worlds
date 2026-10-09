@@ -274,3 +274,13 @@ Concept / look-alike leaks (to fix in each world's turn)
   queue 1108/1220. Remaining gutter hits are walkers crossing behind the board (transient). Trattoria and Gelato
   (work stations inside the zone) are fixed in their own remake turns.
 - tools/cmp.js <world>: 4x stack vs 4x Kaiten stack → /workspace/shots/cmp-<world>.png.
+
+## Step 1 — Speakeasy blocks v3 (cocktail-photo glass)
+- FoodMass engine: optional `depth` (row-from-top / rows per piece, from a per-frame pid span scan; falling piece and
+  minis from their cells) and optional `diag` mask bits (NE16/SE32/SW64/NW128) — opt-in, other worlds unchanged.
+- 43_food_cocktail v3: one fill level per vessel (surface/meniscus/air only on the top row, glass shoulder below),
+  depth-graded liquid (bright at the surface → saturated dark at depth), light shaft, thick lit wall + one long
+  specular streak, darker far wall with rim light, heavy base with caustic, mitred concave corners (gap square cut),
+  refracting clear ice, world-space bead streams (irregular), slosh kept inside the walls. Removed: mint-leaf
+  clip-art, champagne/honey sparkle dots, tilde twist, chevron fracture; negroni re-toned ruby; martini silver-clear.
+- Compare: /workspace/shots/cmp-speakeasy.png (before: cmp-speakeasy-before.png). tools/cmp.js resets the board first.
