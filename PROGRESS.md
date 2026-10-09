@@ -391,3 +391,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - bc26959 premium fishhouse: generic premium pass; L 43/88/108/124/157/182/200, 0 close — shots/premium/fishhouse.png
 - 3219dfd premium pizzeria: generic premium pass; focaccia/risotto lifts re-tuned to keep separation; 0 close — shots/premium/pizzeria.png
 - 1aea0cb premium fastfood: generic premium pass + per-food value lifts; fixed 4 pre-existing close pairs (burger/nugget/hotcake, pie/cola): L 28/53/78/106/149/183/225, 0 close — shots/premium/fastfood.png
+- 2901d2d premium nightmarket: generic premium pass; cutlet value re-tuned; L 77/114/128/149/165/193/216, 0 close — shots/premium/nightmarket.png
