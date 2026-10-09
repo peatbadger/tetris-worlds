@@ -25,7 +25,7 @@ const PizPal = GeoKit.palette({
 function makeGeoPizzeriaStage() {
   const OVEN = { x: 104, mouthY: 452, top: 252, base: 478 }, BENCH = { x0: 150, x1: 456, top: 512 }, WORK = 318, READY = 420, TRAY = 200, SF = 606, SSC = 0.86, FL = 712, SC = 0.84;
   const TB = { x: 1128, top: 566, seats: [{ x: 1052, f: 1, occ: null }, { x: 1204, f: -1, occ: null }] };
-  const WIN = { x0: 330, y0: 100, x1: 950, y1: 468 }, RACK = { x: 1000 }, LHOME = 972;
+  const WIN = { x0: 330, y0: 100, x1: 950, y1: 468 }, RACK = { x: 1000 }, LHOME = 1012;
   const PIES = [{ n: 'Margherita', top: ['#fbf4e2'], basil: 1 }, { n: 'Diavola', top: ['#fbf4e2', '#a8201a'] }, { n: 'Marinara', top: [], basil: 0, garlic: 1 }, { n: 'Capricciosa', top: ['#fbf4e2', '#e8909a', '#3a2a2a'] }, { n: 'Quattro formaggi', top: ['#fbf4e2', '#f2d070', '#f8f0d8'] }];
   let K, sal, luca, pz = null, oven = { heat: 0.5, flare: 0, door: 0 }, orders = [], ready = null, flour = 0, dough = 6, table = { pie: null, glasses: [{ lv: 0 }, { lv: 0 }], candle: 0, menu: 0, dessert: null, folder: 0, stream: null, stretch: null }, ape = null, nextApe = 50, cat = null, nextCat = 30, busker = null, nextBusker = 30, nextArrive = 2, nextTake = 25, sign = 1;
   const L = (h) => K.L(h), B = GeoKit.body;
@@ -192,7 +192,7 @@ function makeGeoPizzeriaStage() {
     const p = per(); if (p === 4) return;
     if (!table.party && !table.pie && !table.dessert && !table.glasses.some((g) => g.lv > 0)) { const list = TPARTIES.filter((q) => q.w[p] > 0 && !guests().some((g) => q.m.includes(g.type))); if (list.length) { let tot = list.reduce((t, q) => t + q.w[p], 0), r = Math.random() * tot, pt = list[0]; for (const q of list) { r -= q.w[p]; if (r <= 0) { pt = q; break; } } const party = { members: [], stage: 'arrive', t: 0, bday: Math.random() < 0.35 }; table.party = party; pt.m.forEach((type, j) => { const st = TB.seats[j]; const a = mkGuest(type, 1320 + j * 50); a.party = party; a.seat = st; st.occ = a; a.walkTo = st.x; party.members.push(a); a.phase = 'toTable'; }); if (party.bday) party.bdayWho = party.members[pt.m[0] === 'nonno' ? 1 : 0]; } }
   }
-  function takeaway() { if (per() === 4 || busker || guests().some((g) => g.take)) return; const type = pick(['student', 'worker']); const a = mkGuest(type, 1330); a.take = 1; a.walkTo = 880; a.phase = 'toCounter'; }
+  function takeaway() { if (per() === 4 || busker || guests().some((g) => g.take)) return; const type = pick(['student', 'worker']); const a = mkGuest(type, 1330); a.take = 1; a.walkTo = 1296; a.phase = 'toCounter'; }
   function mkGuest(type, x) {
     const T0 = TYPES[type]; const a = K.mk(Object.assign({}, T0.body), { type, T0, cust: 1, hx: x, f: x < 640 ? 1 : -1, floorY: FL - 6, sc: SC, alpha: 0, fade: 1.5, speed: rand(0.95, 1.08) });
     if (cool('snow') || cool('rain')) if (Math.random() < 0.6) a.scarf = pick(['coral', 'cream', 'mustard', 'teal']);
@@ -201,7 +201,7 @@ function makeGeoPizzeriaStage() {
   function guestThink(a) {
     const P = a.party, mate = P && P.members.find((m) => m !== a);
     if (a.phase === 'toTable') { if (a.walking || a.walkTo != null) return; K.sitDown(a, a.seat.x, 600, a.seat.f); a.floorY = 704; a.tableY = TB.top - 6; a.faceDir = a.seat.f * 0.85; a.phase = 'table'; if (P.members.every((m) => m.phase === 'table')) P.stage = 'seated'; return; }
-    if (a.phase === 'toCounter') { if (a.walking || a.walkTo != null) return; a.f = 1; a.phase = 'waitPizza'; K.say(a, pick(['Una margherita da asporto!', 'Una diavola, da portare via']), 1.5); orders.push({ kind: PIES[Math.random() < 0.6 ? 0 : 1], take: 1, a }); return; }
+    if (a.phase === 'toCounter') { if (a.walking || a.walkTo != null) return; a.f = -1; a.phase = 'waitPizza'; K.say(a, pick(['Una margherita da asporto!', 'Una diavola, da portare via']), 1.5); orders.push({ kind: PIES[Math.random() < 0.6 ? 0 : 1], take: 1, a }); return; }
     if (a.phase === 'waitPizza' || a.phase === 'gettingBox') return K.start(a, 'wait', [K.ph(rand(1, 2), (s) => { s.f = 1; s.look = { x: () => (Math.sin(K.simT * 0.7) > 0 ? 1100 : 1240), until: K.simT + 0.3 }; })]);
     if (a.state === 'sit' || a.state === 'rise') return;
     if (a.phase === 'table') {
@@ -225,11 +225,11 @@ function makeGeoPizzeriaStage() {
   /* ---------- the accordionist (night) ---------- */
   function startBusker() {
     const a = K.mk(B({ T: 240, hw: 62, headR: 28, pattern: 'vest', top: 'dark', shirt: 'white', pants: 'dark', hat: 'fedora', hatCol: 'dark', hair: 'hairGrey' }), { role: 'busker', hx: 1330, f: -1, floorY: FL - 6, sc: SC, alpha: 0, fade: 1.5, speed: 0.9 });
-    busker = { a, playing: 0 }; a.walkTo = 860;
+    busker = { a, playing: 0 }; a.walkTo = 1292;
     a.think = (s) => {
       if (s.done) { if (!s.leaving) { s.leaving = 1; s.walkTo = 1330; } else if (!s.walking || s.hx > 1260) s.fade = -1.5; return; }
       if (s.walking || s.walkTo != null) return;
-      K.start(s, 'play', [K.ph(12, (q, u, t) => { busker.playing = 1; q.f = 1; const sq = Math.sin(t * 3); q.tgN = [q.hx + 40 + sq * 12, q.hy - 78]; q.tgF = [q.hx - 6 - sq * 6, q.hy - 78]; q.bel = sq; q.headDy = Math.abs(Math.sin(t * 6)) * 1.5; if (Math.random() < 0.012) K.say(q, 'icon:note', 0.8); }, { enter: () => K.say(s, 'Funiculì, funiculà!', 1.4), exit: (q) => { busker.playing = 0; q.headDy = 0; q.bel = null; } }),
+      K.start(s, 'play', [K.ph(12, (q, u, t) => { busker.playing = 1; q.f = -1; const sq = Math.sin(t * 3); q.tgN = [q.hx - 40 - sq * 12, q.hy - 78]; q.tgF = [q.hx + 6 + sq * 6, q.hy - 78]; q.bel = sq; q.headDy = Math.abs(Math.sin(t * 6)) * 1.5; if (Math.random() < 0.012) K.say(q, 'icon:note', 0.8); }, { enter: () => K.say(s, 'Funiculì, funiculà!', 1.4), exit: (q) => { busker.playing = 0; q.headDy = 0; q.bel = null; } }),
         K.ph(0.6, null, { exit: () => { const g = guests().find((m) => m.state === 'seated'); if (g) { K.start(g, 'tip', [K.ph(0.8, (q) => { q.hold.N = H.coin(); q.tgN = [q.hx - q.f * 10, q.R.cy + 30]; }, { exit: (q) => { q.hold.N = null; } })]); K.say(s, 'Grazie!', 1); } } })],
         { onEnd: (q) => { q.done = 1; q.bel = null; }, onAbort: (q) => { q.done = 1; q.bel = null; busker.playing = 0; } });
     };

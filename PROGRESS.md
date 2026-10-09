@@ -196,3 +196,9 @@ Shared engine (new):
 - Behind the board: zone tint raised (rgba(18,22,28,0.62)) + near-opaque well (rgba(22,24,28,0.9)) so the sea/boats no longer read through.
 - Bug fix: Ana's shucking "shake" was set to 1 (radians!) → she folded over sideways at the bar. Now a small ±0.025 oscillation; she also stands at x 104 so the oyster tray is within reach.
 - Shots: screenshot-geo-fishhouse-day.png (13:00), -night.png (21:30 rain).
+
+## Trattoria / Pizzeria redo (QA step 7a) — `src/50_geo_pizzeria.js` + `src/51_food_pizza.js`
+- Wiring verified on the live site: stage id 'pizzeria' (display name "Trattoria") resolves to the GeoKit factory (`window.__geo.id === 'pizzeria'`). The QA run saw the old "Trattoria da Nonna Rosa" venue with 3D mannequins — a stale deploy/cache; that venue is only the fallback factory, overridden by `registerStage('pizzeria', makeGeoPizzeriaStage)`. All figures are GeoKit adult rigs.
+- Blocks in whole-piece coordinates, no tiles/plates: O = one margherita across the 2×2 (torn mozzarella, basil, leopard-spotted crust on the exposed rim); I spaghetti strands running the full length + ladled sauce; T fior di latte milky mass with an olive-oil thread + cracked pepper; S glossy pesto with leaf flecks + pine nuts; Z prosciutto folded ribbons flowing across; J melanzane parmigiana layers (aubergine / tomato / mozzarella) with browned top; L arancini crumb crust. Steam hooks → soft puffs; clip-art garnishes removed.
+- Nobody behind the HUD: Luca's home 972 → 1012; takeaway customer and accordionist wait at the right edge (x ≈ 1295, facing in) instead of x 860–880.
+- Shots: screenshot-geo-pizzeria-day.png (13:30), -night.png (20:30 snow), -mobile.png.
