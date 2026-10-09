@@ -177,3 +177,10 @@ Shared engine (new):
 - Removed: pea-pod leaf spots, square tile insets, sprinkle dots, per-cell stripe highlight.
 - Calmer backdrop: speakeasy board zone tint raised (rgba(16,10,8,0.58)) on top of the global blur.
 - Shots: screenshot-geo-speakeasy-day.png (19:30 rain), -night.png (01:00 snow). Weak spot: left bar group still layers 3–4 figures closely (doorman behind seated guests).
+
+## Gelato redo (QA step 4) — `src/46_geo_gelato.js` + `src/47_food_gelato.js`
+- Board: dark pink-grey tint gone → bright warm stone well (boardBg rgba(226,212,204,0.88)), light zone tint.
+- Behind the board: arched chalk menu with prices replaced by a plain tiled arch niche; the menu now sits in the left strip as a small "Gelato · Artigianale" sign; the lamp whose cord crossed the board (x 330) removed, left lamp moved to x 262.
+- Blocks: flat body (no per-cell gradients → no seams), one soft spatula swipe per cell, sparse real inclusions (stracciatella shards, chopped pistachio, berry ripples), scooped crest on exposed tops, form shading; real melt drips (tongue + heavy bulb, drawn unclipped via new FoodMass `post` hook, padK 0.3) instead of pins. Garnish 1.45× larger. Strawberry "eye" ellipses removed.
+- Kid's striped shirt → knit (same in Dim Sum).
+- Shots: screenshot-geo-gelato-day.png (15:00), -night.png (21:30 rain).

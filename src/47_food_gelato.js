@@ -10,33 +10,55 @@ const GelatoFood = (() => {
     MAIN: [null, '#b8d070', '#f47a96', '#f8e46a', '#6a3a22', '#ffa63a', '#7a5ac8', '#f8f2e4'],
     soft: { pistachio: 1.5, fragola: 1.6, limone: 1.5, cioccolato: 1.4, mango: 1.6, mirtillo: 1.5, stracciatella: 1.5 },
     glisten: { cioccolato: 0.45, fragola: 0.3, mango: 0.3, mirtillo: 0.35 },
+    padK: 0.3,
     paint(x, food, Q) {
-      const { P, mask, vr, small, l, t, r, b, C, band, hash, poly, N, E, S, W } = Q;
+      const { P, mask, vr, small, l, t, r, b, C, hash, poly, N, E, S, W } = Q;
       const [c0, c1, c2] = C3[food];
-      x.fillStyle = linear(x, 0, t, 0, b, [[0, c1], [0.45, c0], [1, c2]]); x.fillRect(l - 2, t - 2, r - l + 4, b - t + 4);
-      // spatula waves: two curved ridges per cell, highlight above and shadow below
-      for (let i = 0; i < 2; i++) { const y0 = C(0.3 + i * 0.42) + (hash(vr, i) - 0.5) * P * 0.08, ph = hash(i, vr, 3) * 6;
-        x.strokeStyle = 'rgba(255,255,255,0.38)'; x.lineWidth = Math.max(1, P * 0.06); x.beginPath(); for (let k = 0; k <= 8; k++) { const xx = lerp(C(-0.05), C(1.05), k / 8), yy = y0 + Math.sin(ph + k * 0.9) * P * 0.07; k ? x.lineTo(xx, yy) : x.moveTo(xx, yy); } x.stroke();
-        x.strokeStyle = shade(c2, food === 'cioccolato' ? -0.2 : -0.05) + '88'; x.lineWidth = Math.max(1, P * 0.05); x.beginPath(); for (let k = 0; k <= 8; k++) { const xx = lerp(C(-0.05), C(1.05), k / 8), yy = y0 + P * 0.07 + Math.sin(ph + k * 0.9) * P * 0.07; k ? x.lineTo(xx, yy) : x.moveTo(xx, yy); } x.stroke(); }
-      // inclusions
-      if (food === 'stracciatella') { x.fillStyle = '#3a2214'; for (let i = 0; i < (small ? 5 : 14); i++) { const cx = C(0.05 + hash(vr, i, 5) * 0.9), cy = C(0.05 + hash(vr, i, 6) * 0.9); poly(x, [cx, cy, cx + P * 0.07, cy + P * 0.02, cx + P * 0.03, cy + P * 0.06]); x.fill(); } }
-      if (food === 'pistachio') { x.fillStyle = '#6a8a2a'; for (let i = 0; i < (small ? 3 : 8); i++) x.fillRect(C(0.05 + hash(vr, i, 7) * 0.9), C(0.05 + hash(vr, i, 8) * 0.9), Math.max(1, P * 0.05), Math.max(1, P * 0.04)); }
-      if (food === 'fragola') { x.fillStyle = 'rgba(200,30,60,0.5)'; for (let i = 0; i < (small ? 3 : 9); i++) { ellipse(x, C(0.05 + hash(vr, i, 9) * 0.9), C(0.05 + hash(vr, i, 10) * 0.9), P * 0.04, P * 0.025, 0.4); x.fill(); } }
-      if (food === 'mirtillo') { x.fillStyle = 'rgba(40,20,80,0.55)'; for (let i = 0; i < (small ? 3 : 8); i++) { x.beginPath(); x.arc(C(0.05 + hash(vr, i, 11) * 0.9), C(0.05 + hash(vr, i, 12) * 0.9), P * 0.035, 0, TAU); x.fill(); } }
-      if (food === 'cioccolato') { x.fillStyle = 'rgba(255,220,190,0.18)'; ellipse(x, C(0.35), C(0.25), P * 0.25, P * 0.08, -0.2); x.fill(); }
-      // scooped mound top: scallops rising above the line, bright crest
-      if (!(mask & N)) {
-        x.fillStyle = c1; x.beginPath(); x.moveTo(l - 2, t + P * 0.24); for (let k = 0; k < 3; k++) { const a = lerp(C(0), C(1), k / 3), bb = lerp(C(0), C(1), (k + 1) / 3); x.quadraticCurveTo((a + bb) / 2, t - P * 0.06 + hash(vr, k, 13) * P * 0.06, bb, t + P * 0.2); } x.lineTo(r + 2, t + P * 0.3); x.lineTo(l - 2, t + P * 0.3); x.fill();
-        x.strokeStyle = 'rgba(255,255,255,0.6)'; x.lineWidth = Math.max(1, P * 0.04); x.beginPath(); x.moveTo(C(0.12), t + P * 0.12); x.quadraticCurveTo(C(0.3), t + P * 0.02, C(0.48), t + P * 0.1); x.stroke();
+      x.fillStyle = c0; x.fillRect(l - 2, t - 2, r - l + 4, b - t + 4); // flat body: no per-cell gradient, so no seams
+      // soft spatula swipes kept inside the cell (low contrast, different in every cell)
+      for (let i = 0; i < (small ? 0 : 1); i++) {
+        const cx = C(0.3 + hash(vr, i, 1) * 0.4), cy = C(0.28 + hash(vr, i, 2) * 0.44), w = P * (0.22 + hash(vr, i, 3) * 0.1), a = (hash(vr, i, 4) - 0.5) * 0.6;
+        x.save(); x.translate(cx, cy); x.rotate(a);
+        x.strokeStyle = rgba(c1, 0.32); x.lineWidth = Math.max(1, P * 0.07); x.lineCap = 'round'; x.beginPath(); x.moveTo(-w * 1.3, P * 0.02); x.quadraticCurveTo(0, -P * 0.04, w * 1.3, P * 0.02); x.stroke();
+        x.strokeStyle = rgba(c2, 0.16); x.lineWidth = Math.max(1, P * 0.04); x.beginPath(); x.moveTo(-w * 1.1, P * 0.08); x.quadraticCurveTo(0, P * 0.02, w * 1.1, P * 0.08); x.stroke();
+        x.restore();
       }
-      if (!(mask & S)) { x.fillStyle = 'rgba(0,0,0,0.14)'; x.fillRect(l - 2, b - P * 0.1, r - l + 4, P * 0.1 + 2); x.fillStyle = c1; for (let i = 0; i < 2; i++) { const dx = C(0.25 + hash(vr, i, 14) * 0.5), h = P * (0.08 + hash(i, vr, 15) * 0.1); x.beginPath(); x.moveTo(dx - P * 0.05, b - P * 0.12); x.lineTo(dx + P * 0.05, b - P * 0.12); x.lineTo(dx + P * 0.03, b - P * 0.12 + h); x.arc(dx, b - P * 0.12 + h, P * 0.03, 0, Math.PI); x.fill(); } }
-      if (!(mask & W)) { x.fillStyle = 'rgba(255,255,255,0.16)'; x.fillRect(l - 2, t - 2, P * 0.08, b - t + 4); }
-      if (!(mask & E)) { x.fillStyle = 'rgba(0,0,0,0.1)'; x.fillRect(r - P * 0.08, t - 2, P * 0.08 + 2, b - t + 4); }
+      // inclusions, sparse and real-looking
+      const inner = (i, k) => [C(0.14 + hash(vr, i, k) * 0.72), C(0.14 + hash(vr, i, k + 1) * 0.72)];
+      if (food === 'stracciatella') { x.fillStyle = '#3a2214'; for (let i = 0; i < (small ? 3 : 7); i++) { const [cx, cy] = inner(i, 5), q = P * (0.03 + hash(i, vr, 6) * 0.04); poly(x, [cx, cy, cx + q * 1.6, cy + q * 0.3, cx + q * 0.5, cy + q]); x.fill(); } }
+      if (food === 'pistachio' && !small) { for (let i = 0; i < 4; i++) { const [cx, cy] = inner(i, 7); x.fillStyle = i % 2 ? '#7c9a3a' : '#9ab856'; poly(x, [cx, cy, cx + P * 0.05, cy + P * 0.01, cx + P * 0.03, cy + P * 0.045]); x.fill(); } }
+      if (food === 'fragola' && !small) { const [cx, cy] = inner(0, 9); x.strokeStyle = 'rgba(190,36,66,0.45)'; x.lineWidth = Math.max(1, P * 0.05); x.lineCap = 'round'; x.beginPath(); x.moveTo(cx - P * 0.15, cy + P * 0.02); x.bezierCurveTo(cx - P * 0.05, cy - P * 0.08, cx + P * 0.06, cy + P * 0.08, cx + P * 0.15, cy - P * 0.03); x.stroke(); }
+      if (food === 'mirtillo' && !small) { const [cx, cy] = inner(0, 11); x.strokeStyle = 'rgba(52,30,104,0.55)'; x.lineWidth = Math.max(1, P * 0.05); x.lineCap = 'round'; x.beginPath(); x.moveTo(cx - P * 0.16, cy); x.bezierCurveTo(cx - P * 0.05, cy - P * 0.1, cx + P * 0.05, cy + P * 0.1, cx + P * 0.16, cy - P * 0.02); x.stroke(); }
+      if (food === 'mango' && !small) { const [cx, cy] = inner(0, 13); x.strokeStyle = 'rgba(255,214,140,0.5)'; x.lineWidth = Math.max(1, P * 0.04); x.lineCap = 'round'; x.beginPath(); x.moveTo(cx - P * 0.14, cy); x.quadraticCurveTo(cx, cy - P * 0.08, cx + P * 0.14, cy); x.stroke(); }
+      // scooped crest on an exposed top: the mound rises in soft scallops with a creamy highlight
+      if (!(mask & N)) {
+        x.fillStyle = linear(x, 0, t, 0, t + P * 0.3, [[0, c1], [1, c0]]);
+        x.beginPath(); x.moveTo(l - 2, t + P * 0.3); x.lineTo(l - 2, t + P * 0.16);
+        for (let k = 0; k < 2; k++) { const a = lerp(l - 2, r + 2, k / 2), bb = lerp(l - 2, r + 2, (k + 1) / 2); x.quadraticCurveTo((a + bb) / 2, t - P * 0.1 + hash(vr, k, 13) * P * 0.08, bb, t + P * 0.14 + hash(vr, k, 14) * P * 0.04); }
+        x.lineTo(r + 2, t + P * 0.3); x.closePath(); x.fill();
+        x.strokeStyle = 'rgba(255,255,255,0.55)'; x.lineWidth = Math.max(1, P * 0.035); x.lineCap = 'round'; x.beginPath(); x.moveTo(C(0.16), t + P * 0.12); x.quadraticCurveTo(C(0.3), t + P * 0.04, C(0.44), t + P * 0.1); x.stroke();
+      }
+      // soft form shading: lit left, shaded right, darker underside
+      if (!(mask & W)) { x.fillStyle = linear(x, l, 0, l + P * 0.18, 0, [[0, 'rgba(255,255,255,0.22)'], [1, 'rgba(255,255,255,0)']]); x.fillRect(l - 2, t - 2, P * 0.2, b - t + 4); }
+      if (!(mask & E)) { x.fillStyle = linear(x, r - P * 0.2, 0, r, 0, [[0, rgba(c2, 0)], [1, rgba(c2, 0.4)]]); x.fillRect(r - P * 0.2, t - 2, P * 0.2 + 2, b - t + 4); }
+      if (!(mask & S)) { x.fillStyle = linear(x, 0, b - P * 0.24, 0, b, [[0, rgba(c2, 0)], [1, rgba(c2, 0.5)]]); x.fillRect(l - 2, b - P * 0.24, r - l + 4, P * 0.24 + 2); }
+    },
+    post(x, food, Q) { // real melt drips hanging below an exposed underside: a tongue that narrows, then a heavy bulb
+      const { P, mask, vr, small, l, r, b, hash, S } = Q;
+      if ((mask & S) || small) return;
+      const [c0, c1, c2] = C3[food], n = hash(vr, 21) < 0.5 ? 0 : 1;
+      for (let i = 0; i < n; i++) {
+        const cx = lerp(l + P * 0.2, r - P * 0.2, n === 1 ? 0.25 + hash(vr, i, 23) * 0.5 : (i + 0.25 + hash(vr, i, 23) * 0.5) / 2), w = P * (0.06 + hash(vr, i, 24) * 0.03), len = P * (0.14 + hash(vr, i, 25) * 0.1), y0 = b - P * 0.04;
+        x.fillStyle = linear(x, cx - w, 0, cx + w, 0, [[0, c1], [0.45, c0], [1, c2]]);
+        x.beginPath(); x.moveTo(cx - w * 1.6, y0); x.quadraticCurveTo(cx - w * 0.7, y0 + P * 0.01, cx - w * 0.55, y0 + len);
+        x.arc(cx, y0 + len, w * 0.62, Math.PI, 0, true); x.quadraticCurveTo(cx + w * 0.7, y0 + P * 0.01, cx + w * 1.6, y0); x.closePath(); x.fill();
+        x.fillStyle = 'rgba(255,255,255,0.55)'; ellipse(x, cx - w * 0.25, y0 + len + w * 0.05, w * 0.16, w * 0.24); x.fill();
+      }
     },
     live(c, food, o) {
       const { s, mask, seed, T, wob, small } = o;
       if (!(mask & FM_N) && !(mask & FM_W)) { // the garnish on the crown of the tin
-        const bob = Math.sin(T * 2 + seed) * s * wob * 0.05; c.save(); c.translate(-s * 0.05, -s * 0.42 + bob); const k = small ? 0.8 : 1;
+        const bob = Math.sin(T * 2 + seed) * s * wob * 0.05; c.save(); c.translate(-s * 0.05, -s * 0.4 + bob); const k = small ? 0.8 : 1; c.scale(1.45, 1.45);
         switch (food) {
           case 'pistachio': c.fillStyle = '#7a9a32'; for (let i = 0; i < 5; i++) { c.save(); c.rotate(i * 1.3); c.fillRect(s * 0.04 * k, -s * 0.03, s * 0.09 * k, s * 0.06 * k); c.restore(); } c.fillStyle = '#c8a070'; c.fillRect(-s * 0.02, -s * 0.02, s * 0.05, s * 0.04); break;
           case 'fragola': c.fillStyle = '#e8304a'; c.beginPath(); c.moveTo(0, s * 0.12 * k); c.quadraticCurveTo(-s * 0.16 * k, -s * 0.02, 0, -s * 0.1 * k); c.quadraticCurveTo(s * 0.16 * k, -s * 0.02, 0, s * 0.12 * k); c.fill(); c.fillStyle = '#ffd0d8'; c.fillRect(-s * 0.02, -s * 0.04, s * 0.04, s * 0.1); c.fillStyle = '#3a8a2a'; c.fillRect(-s * 0.06, -s * 0.12 * k, s * 0.12, s * 0.03); break;
@@ -48,8 +70,6 @@ const GelatoFood = (() => {
         }
         c.restore();
       }
-      // a slow melt drop on an exposed bottom
-      if (!small && !(mask & FM_S)) { const u = (T * 0.25 + seed * 0.37) % 1; if (u < 0.6) { const [, c1] = C3[food]; c.fillStyle = c1; c.beginPath(); c.arc((((seed * 13) % 7) / 7 - 0.5) * s * 0.6, s * 0.42 + u * s * 0.1, s * 0.035 * (1 - u * 0.5), 0, TAU); c.fill(); } }
     },
     clear(food, q) {
       const { v, X, Y, s, r, vr, push, dir } = q, [c0, c1] = C3[food];
@@ -62,4 +82,4 @@ const GelatoFood = (() => {
   return M;
 })();
 SKINSETS.gelato = GelatoFood.skin();
-(() => { const st = STAGES.find((s) => s.id === 'gelato'); if (st) { st.palette = GelatoFood.MAIN.slice(1); st.desc = 'Flat geometric piazza gelateria: sculpted tins in a curved case, a waffle iron pressing cones, a Vespa outside and a dog who gets a tiny cup — light bossa with nylon guitar and vibes.'; } })();
+(() => { const st = STAGES.find((s) => s.id === 'gelato'); if (st) { st.palette = GelatoFood.MAIN.slice(1); st.boardBg = 'rgba(226,212,204,0.88)'; st.grid = 'rgba(150,110,96,0.12)'; st.desc = 'Flat geometric piazza gelateria: sculpted tins in a curved case, a waffle iron pressing cones, a Vespa outside and a dog who gets a tiny cup — light bossa with nylon guitar and vibes.'; } })();

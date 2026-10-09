@@ -118,7 +118,7 @@ function makeGeoGelatoStage() {
   /* ---------- customers ---------- */
   const TYPES = {
     nonna: { body: B({ T: 216, hw: 62, torso: 'round', pattern: 'cardigan', top: 'plum', top2: 'cream', hair: 'hairGrey', hairStyle: 'bun', skirt: 'navy' }), words: ['Che caldo!', 'Bellissimo'], with: 'kid' },
-    kid: { body: B({ T: 160, hw: 50, headR: 30, pattern: 'stripe', top: 'coral', top2: 'white', hairStyle: 'pony', pants: 'navy' }), words: ['Fragola!', 'icon:heart'], small: 1 },
+    kid: { body: B({ T: 160, hw: 50, headR: 30, pattern: 'knit', top: 'coral', top2: 'coral', hairStyle: 'pony', pants: 'navy' }), words: ['Fragola!', 'icon:heart'], small: 1 },
     couple: { body: B({ T: 234, hw: 56, headR: 28, pattern: 'dress', top: 'mustard', skirt: 'mustard', hairStyle: 'long' }), words: ['Amore, assaggia', 'icon:heart'], with: 'beau' },
     beau: { body: B({ pattern: 'polo', top: 'navy', pants: 'cream', hairStyle: 'short' }), words: ['Buonissimo', 'icon:heart'] },
     tourist: { body: B({ pattern: 'tee', top: 'teal', hat: 'bucket', hatCol: 'cream', camera: 1, pants: 'olive', backpack: 1, packCol: 'coral' }), words: ['Gelato!', 'icon:cam'] },
@@ -198,11 +198,12 @@ function makeGeoGelatoStage() {
     for (let j = 0; j < 8; j++) for (let i = 0; i < 54; i++) { c.fillStyle = (i + j) % 2 ? P.tile : P.tile2; c.fillRect(-60 + i * 26, 300 + j * 26, 26, 26); }
     c.fillStyle = P.trim; c.fillRect(-60, 296, 1400, 5);
     c.fillStyle = P.awn; c.fillRect(-60, 0, 1400, 40); for (let x = -60; x < 1340; x += 40) { c.fillStyle = ((x / 40) | 0) % 2 ? P.awn : P.awn2; c.fillRect(x, 0, 40, 40); c.beginPath(); c.arc(x + 20, 40, 20, 0, Math.PI); c.fill(); }
-    // centre: arched menu board (calm)
-    c.fillStyle = P.woodDk; c.beginPath(); c.moveTo(500, 280); c.lineTo(500, 150); c.arc(640, 150, 140, Math.PI, TAU); c.lineTo(780, 280); c.closePath(); c.fill();
-    c.fillStyle = L('#2e3a38'); c.beginPath(); c.moveTo(510, 272); c.lineTo(510, 152); c.arc(640, 152, 130, Math.PI, TAU); c.lineTo(770, 272); c.closePath(); c.fill();
-    c.fillStyle = L('#f4ecd8'); c.font = 'italic 700 26px Georgia, serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('Gelato', 640, 88); c.font = '600 11px Georgia, serif'; c.fillText('ARTIGIANALE', 640, 112);
-    FLAV.forEach((f, i) => { const y = 136 + i * 19; c.fillStyle = L(f.c); c.beginPath(); c.arc(560, y, 5, 0, TAU); c.fill(); c.fillStyle = L('#f4ecd8'); c.font = '600 12px Georgia, serif'; c.textAlign = 'left'; c.fillText(f.n, 574, y + 1); c.textAlign = 'right'; c.fillText('€ ' + (2.5 + (i % 3) * 0.5).toFixed(2), 724, y + 1); });
+    // centre (behind the board): a plain tiled arch niche — no text, no figures, nothing to read through the well
+    c.fillStyle = L(P.case2); c.beginPath(); c.moveTo(500, 280); c.lineTo(500, 150); c.arc(640, 150, 140, Math.PI, TAU); c.lineTo(780, 280); c.closePath(); c.fill();
+    c.fillStyle = L(P.wall); c.beginPath(); c.moveTo(512, 280); c.lineTo(512, 152); c.arc(640, 152, 128, Math.PI, TAU); c.lineTo(768, 280); c.closePath(); c.fill();
+    // the menu lives in the left strip: small arched chalk sign over the shelf (title only, readable, clear of the HUD)
+    c.fillStyle = P.woodDk; roundRect(c, 46, 58, 200, 92, 10); c.fill(); c.fillStyle = L('#2e3a38'); roundRect(c, 52, 64, 188, 80, 7); c.fill();
+    c.fillStyle = L('#f4ecd8'); c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = 'italic 700 24px Georgia, serif'; c.fillText('Gelato', 146, 92); c.font = '600 12px Georgia, serif'; c.fillText('ARTIGIANALE', 146, 122);
     // ceiling fan, turning slowly
     c.fillStyle = P.woodDk; c.fillRect(858, 40, 4, 30); c.save(); c.translate(860, 72); c.scale(1, 0.18); for (let i = 0; i < 3; i++) { c.rotate(TAU / 3); c.fillStyle = P.wood; c.save(); c.rotate(t * 1.2); ellipse(c, 70, 0, 66, 14); c.fill(); c.restore(); } c.restore(); c.fillStyle = P.woodDk; ellipse(c, 860, 72, 10, 5); c.fill();
     // back shelf on the left: cone boxes, jars of toppings
@@ -279,7 +280,7 @@ function makeGeoGelatoStage() {
     const P = K.P;
     drawRoom(c, t);
     // lamps
-    for (const x of [150, 330, 1038]) { c.strokeStyle = P.ink; c.lineWidth = 1.4; c.beginPath(); c.moveTo(x, 40); c.lineTo(x, 120); c.stroke(); c.fillStyle = P.trim; K.poly(c, [x - 16, 120, x + 16, 120, x + 24, 140, x - 24, 140]); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 141, 10, 3); c.fill(); K.glow(c, x, 150, 130, P.glow, P.glowA); }
+    for (const x of [262, 1038]) { c.strokeStyle = P.ink; c.lineWidth = 1.4; c.beginPath(); c.moveTo(x, 40); c.lineTo(x, 120); c.stroke(); c.fillStyle = P.trim; K.poly(c, [x - 16, 120, x + 16, 120, x + 24, 140, x - 24, 140]); c.fill(); c.fillStyle = P.lamp; ellipse(c, x, 141, 10, 3); c.fill(); K.glow(c, x, 150, 130, P.glow, P.glowA); }
     // floor
     c.fillStyle = P.floor; c.fillRect(-60, 640, 1400, 100 + K.extraB); for (let i = 0; i < 40; i++) for (let j = 0; j < 3; j++) if ((i + j) % 2) { c.fillStyle = P.floor2; c.fillRect(-60 + i * 36, 650 + j * 26, 36, 26); }
     // staff behind the case / at the iron
@@ -298,7 +299,7 @@ function makeGeoGelatoStage() {
     return false;
   }
   function onGone(Kk, a) { if (a.spot) a.spot.occ = null; if (a.ledge) a.ledge.occ = null; if (a.dog) a.dog.gone = true; }
-  return GeoKit.stage({ id: 'gelato', pal: GelPal, startHour: 10, span: 13.5, build, sim, draw, onClear, onGone, icon, font: 'italic 700 15px Georgia, serif', vign: 'rgba(40,20,20,0.28)',
+  return GeoKit.stage({ id: 'gelato', pal: GelPal, startHour: 10, span: 13.5, build, sim, draw, onClear, onGone, icon, font: 'italic 700 15px Georgia, serif', vign: 'rgba(40,20,20,0.28)', zone: 'rgba(255,246,238,0.3)',
     debug: () => ({ tins: TINS.map((t) => t.f.k.slice(0, 3) + t.lvl.toFixed(1)).join(' '), stand: STAND.n, rack, coins, custs: custs().map((a) => a.type + ':' + a.phase).join(' ') }) });
 }
 registerStage('gelato', makeGeoGelatoStage);

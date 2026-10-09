@@ -172,7 +172,7 @@ function makeGeoDimsumStage() {
     tourist: { body: B({ pattern: 'tee', top: 'mustard', hat: 'bucket', hatCol: 'cream', camera: 1, pants: 'olive' }), vary: { top: ['mustard', 'coral', 'teal'] }, words: ['What is this one?', 'Amazing!', 'icon:cam'] },
     student: { body: B({ pattern: 'hoodie', top: 'olive', hood: 1, pants: 'navy' }), vary: { top: ['olive', 'plum', 'grey'] }, words: ['Cheap and good', 'icon:laugh'] },
     mum: { body: B({ T: 230, hw: 56, headR: 28, pattern: 'dress', top: 'coral', skirt: 'coral', hairStyle: 'pony' }), vary: { top: ['coral', 'teal'] }, words: ['Blow on it first', 'Careful, hot!'] },
-    kid: { body: B({ T: 168, hw: 52, headR: 30, pattern: 'stripe', top: 'mustard', top2: 'white', hairStyle: 'short', pants: 'navy' }), words: ['Sesame ball!', 'icon:heart', 'Again!'] },
+    kid: { body: B({ T: 168, hw: 52, headR: 30, pattern: 'knit', top: 'mustard', top2: 'mustard', hairStyle: 'short', pants: 'navy' }), words: ['Sesame ball!', 'icon:heart', 'Again!'] },
   };
   const PARTIES = [{ m: ['popo', 'gonggong'], w: [4, 2, 2, 1, 0] }, { m: ['gonggong'], w: [3, 1, 2, 0, 0] }, { m: ['office'], w: [0.5, 4, 0.5, 1, 0] }, { m: ['lover', 'lover2'], w: [1, 1, 2, 3, 0] }, { m: ['tourist'], w: [1, 2, 2, 1, 0] }, { m: ['student'], w: [0.5, 1, 2, 1, 0] }, { m: ['mum', 'kid'], w: [2, 1, 1, 1, 0] }];
   function arrive(tb) {

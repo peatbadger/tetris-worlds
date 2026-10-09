@@ -37,6 +37,7 @@ function FoodMass(spec) {
     if (cut) { x.fillStyle = spec.cutCol || 'rgba(255,240,225,0.35)'; const k = Math.max(1, P * 0.035); if (cut & N) x.fillRect(l, t, r - l, k); if (cut & S) x.fillRect(l, b - k, r - l, k); }
     if (!spec.noPlanes) { if (!(mask & W)) { x.fillStyle = 'rgba(255,255,255,0.1)'; x.fillRect(l, t, P * 0.06, b - t); } if (!(mask & E)) { x.fillStyle = 'rgba(0,0,0,0.1)'; x.fillRect(r - P * 0.06, t, P * 0.06, b - t); } }
     x.restore();
+    if (spec.post) spec.post(x, food, { P, pad, mask, cut, vr, small, l, t, r, b, C, hash, N, E, S, W, v }); // unclipped extras (drips hanging below the mass)
   }
   const caches = new Map();
   const vkOf = spec.vkey || ((food, vr) => vr % 4);
@@ -44,7 +45,7 @@ function FoodMass(spec) {
     let m = caches.get(P); if (!m) { if (caches.size > 8) caches.delete(caches.keys().next().value); m = new Map(); caches.set(P, m); }
     const vk = vkOf(FOOD[v], vr), key = v + ':' + mask + ':' + cut + ':' + vk + (small ? 's' : '');
     let c = m.get(key); if (c) return c;
-    const pad = Math.max(2, Math.ceil(P * 0.08)); c = makeCanvas(P + 2 * pad, P + 2 * pad); c.pad = pad;
+    const pad = Math.max(2, Math.ceil(P * (spec.padK || 0.08))); c = makeCanvas(P + 2 * pad, P + 2 * pad); c.pad = pad;
     paint(c.getContext('2d'), v, P, pad, mask, cut, spec.vpaint ? spec.vpaint(FOOD[v], vk) : vk * 13 + 1, !!small); m.set(key, c); return c;
   }
   const isSmall = (s) => s < 18;
