@@ -11,6 +11,42 @@ function FoodMass(spec) {
   const FOOD = spec.FOOD, MAIN = spec.MAIN;
   const hash = (a, b = 0, c = 0) => { const v = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return v - Math.floor(v); };
   const gapK = spec.gap ?? 0.055, RK = spec.R ?? 0.3;
+  /* PREMIUM material pass (spec.premium:true; window.__fmPremium overrides for A/B and rollback): one top-left light, soft drop
+     shadow onto the board, thin dark low-contrast edges instead of bevel planes, soft AO along exposed edges, seeded micro-grain,
+     slightly lower saturation. Food-specific materials read Q.premium inside spec.paint. */
+  const PREM = () => (typeof window !== 'undefined' && window.__fmPremium !== undefined ? !!window.__fmPremium : !!spec.premium);
+  const noiseC = new Map();
+  function noiseTex(P) {
+    let c = noiseC.get(P); if (c) return c; const n = Math.ceil(P * 2.4); c = makeCanvas(n, n); const X = c.getContext('2d'), im = X.createImageData(n, n), d = im.data; let sd = 1234567 + P;
+    const rnd = () => { sd = (sd * 1103515245 + 12345) & 0x7fffffff; return sd / 0x7fffffff; };
+    const cs = Math.max(2, Math.round(P * 0.06)), gw = Math.ceil(n / cs) + 1, coarse = []; for (let i = 0; i < gw * gw; i++) coarse.push(rnd());
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const cv = coarse[Math.floor(y / cs) * gw + Math.floor(x / cs)], v = Math.round(128 + (rnd() - 0.5) * 70 + (cv - 0.5) * 60), i = (y * n + x) * 4; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+    X.putImageData(im, 0, 0); noiseC.set(P, c); return c;
+  }
+  function premiumFinish(x, food, P, pad, mask, cut, vr, small, l, t, r, b, rd) {
+    const PO = spec.premiumOpts || {}, gr = (PO.grain && PO.grain[food]) ?? PO.grainAll ?? 0.16;
+    if (!small && gr > 0) { const nz = noiseTex(P), ox = hash(vr, 1.3) * (nz.width - (r - l) - 2), oy = hash(2.7, vr) * (nz.height - (b - t) - 2); x.save(); x.globalCompositeOperation = 'overlay'; x.globalAlpha = gr; x.drawImage(nz, ox, oy, r - l + 2, b - t + 2, l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
+    const ds = (PO.desat && PO.desat[food]) ?? PO.desatAll ?? 0.12; if (ds > 0) { x.save(); x.globalCompositeOperation = 'saturation'; x.globalAlpha = ds; x.fillStyle = '#808080'; x.fillRect(l - 1, t - 1, r - l + 2, b - t + 2); x.restore(); }
+    // form light: one light from the top-left. Exposed N/W edges catch a soft lift, exposed S/E edges roll into shade (AO where masses meet)
+    const strip = (x0, y0, x1, y1, c0) => { x.fillStyle = linear(x, x0, y0, x1, y1, [[0, c0], [1, c0.replace(/[\d.]+\)$/, '0)')]]); x.fillRect(Math.min(x0, x1) - (x0 === x1 ? P : 0), Math.min(y0, y1) - (y0 === y1 ? P : 0), Math.abs(x1 - x0) || P * 3, Math.abs(y1 - y0) || P * 3); };
+    const hiA = PO.hi ?? 0.13, shA = PO.sh ?? 0.3, aoW = P * 0.24;
+    x.save(); x.globalCompositeOperation = 'multiply';
+    if (!(mask & S)) { x.fillStyle = linear(x, 0, b, 0, b - aoW, [[0, `rgba(40,20,12,${shA})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(l - 1, b - aoW, r - l + 2, aoW + 1); }
+    if (!(mask & E)) { x.fillStyle = linear(x, r, 0, r - aoW * 0.8, 0, [[0, `rgba(40,20,12,${shA * 0.8})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(r - aoW * 0.8, t - 1, aoW * 0.8 + 1, b - t + 2); }
+    if (!(mask & W)) { x.fillStyle = linear(x, l, 0, l + aoW * 0.5, 0, [[0, `rgba(40,20,12,${shA * 0.35})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(l - 1, t - 1, aoW * 0.5 + 1, b - t + 2); }
+    if (cut & N) { x.fillStyle = linear(x, 0, t, 0, t + aoW * 0.6, [[0, `rgba(40,20,12,${shA * 0.5})`], [1, 'rgba(255,255,255,0)']]); x.fillRect(l - 1, t, r - l + 2, aoW * 0.6); }
+    x.globalCompositeOperation = 'screen';
+    if (!(mask & N)) { x.fillStyle = linear(x, 0, t, 0, t + P * 0.16, [[0, `rgba(255,246,230,${hiA})`], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 1, t - 1, r - l + 2, P * 0.16 + 1); }
+    if (!(mask & W)) { x.fillStyle = linear(x, l, 0, l + P * 0.12, 0, [[0, `rgba(255,246,230,${hiA * 0.7})`], [1, 'rgba(0,0,0,0)']]); x.fillRect(l - 1, t - 1, P * 0.12 + 1, b - t + 2); }
+    x.restore(); void strip;
+    // thin dark low-contrast edge on exposed sides only (continuous masses keep no seams)
+    x.beginPath(); const [a0, a1, a2, a3] = rd;
+    if (!(mask & N)) { x.moveTo(l + a0, t); x.lineTo(r - a1, t); } if (!(mask & E)) { x.moveTo(r, t + a1); x.lineTo(r, b - a2); }
+    if (!(mask & S)) { x.moveTo(r - a2, b); x.lineTo(l + a3, b); } if (!(mask & W)) { x.moveTo(l, b - a3); x.lineTo(l, t + a0); }
+    if (a0) { x.moveTo(l, t + a0); x.arcTo(l, t, l + a0, t, a0); } if (a1) { x.moveTo(r - a1, t); x.arcTo(r, t, r, t + a1, a1); }
+    if (a2) { x.moveTo(r, b - a2); x.arcTo(r, b, r - a2, b, a2); } if (a3) { x.moveTo(l + a3, b); x.arcTo(l, b, l, b - a3, a3); }
+    x.strokeStyle = PO.edge || 'rgba(28,14,8,0.5)'; x.lineWidth = Math.max(1, P * 0.045); x.stroke();
+  }
   function massBox(P, pad, mask, g) { const ov = Math.max(1, Math.round(P * 0.025)); return [mask & W ? pad - ov : pad + g, mask & N ? pad - ov : pad + g, mask & E ? pad + P + ov : pad + P - g, mask & S ? pad + P + ov : pad + P - g]; }
   function radii(mask, cut, R) { const ex = (b) => !(mask & b), rc = (a, b) => (ex(a) && ex(b) && !(cut & a) && !(cut & b) ? R : 0); return [rc(N, W), rc(N, E), rc(S, E), rc(S, W)]; }
   function rrect(x, l, t, r, b, rd) {
@@ -21,21 +57,24 @@ function FoodMass(spec) {
   const poly = (x, pts) => { x.beginPath(); x.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) x.lineTo(pts[i], pts[i + 1]); x.closePath(); };
   const spr = new Map();
   function sprites(P) {
-    let o = spr.get(P); if (o) return o; o = spec.sprites ? spec.sprites(P, { hash, poly }) : {};
+    const pm = PREM(), sk = P + (pm ? 'p' : ''); let o = spr.get(sk); if (o) return o; o = spec.sprites ? spec.sprites(P, { hash, poly, premium: pm }) : {};
     { const n = Math.ceil(P * 1.2), c = makeCanvas(n, n), X = c.getContext('2d');
       X.fillStyle = radial(X, n / 2, n / 2, n / 2, [[0, 'rgba(255,255,255,0.85)'], [0.3, 'rgba(255,255,255,0.3)'], [1, 'rgba(255,255,255,0)']]);
       X.translate(n / 2, n / 2); X.scale(1, 0.35); X.translate(-n / 2, -n / 2); X.fillRect(0, 0, n, n); o.glint = c; }
-    spr.set(P, o); return o;
+    spr.set(sk, o); return o;
   }
   function paint(x, v, P, pad, mask, cut, vr, small, dk = -1, rot = 0) {
-    const food = FOOD[v], g = Math.max(1, Math.round(P * gapK)), R = P * (spec.radius ? spec.radius(food) : RK);
+    const pm = PREM(), food = FOOD[v], g = Math.max(1, Math.round(P * gapK)), R = P * (pm ? ((spec.premiumOpts || {}).R ?? 0.17) : spec.radius ? spec.radius(food) : RK);
     const [l, t, r, b] = massBox(P, pad, mask, g), rd = radii(mask, cut, R), C = (u) => pad + u * P;
-    if (!(mask & S) && !spec.noShadow) { rrect(x, l + 1, t + P * 0.05, r - 1, b + P * 0.05, rd); x.fillStyle = 'rgba(0,0,0,0.35)'; x.fill(); }
+    if (pm && !spec.noShadow) { if (!(mask & S) || !(mask & E)) { const e = P + 2 * pad; x.save(); x.beginPath(); x.rect(mask & W ? pad : 0, mask & N ? pad : 0, (mask & E ? pad + P : e) - (mask & W ? pad : 0), (mask & S ? pad + P : e) - (mask & N ? pad : 0)); x.clip();
+      rrect(x, l, t, r, b, rd); x.shadowColor = 'rgba(0,0,0,0.55)'; x.shadowBlur = P * 0.13; x.shadowOffsetX = P * 0.03; x.shadowOffsetY = P * 0.075; x.fillStyle = 'rgba(10,6,4,1)'; x.fill(); x.restore(); } }
+    else if (!(mask & S) && !spec.noShadow) { rrect(x, l + 1, t + P * 0.05, r - 1, b + P * 0.05, rd); x.fillStyle = 'rgba(0,0,0,0.35)'; x.fill(); }
     rrect(x, l, t, r, b, rd); x.save(); x.clip();
     const band = (y0, h, col) => { x.fillStyle = col; x.fillRect(l - 2, y0, r - l + 4, h); };
-    spec.paint(x, food, { rot, shape: CELLS[TYPES[v - 1]] ? CELLS[TYPES[v - 1]][rot] : null, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, P, pad, mask, cut, vr, small, l, t, r, b, rd, C, band, hash, poly, rrect, radii, sprites: () => sprites(P), N, E, S, W, v });
+    spec.paint(x, food, { rot, shape: CELLS[TYPES[v - 1]] ? CELLS[TYPES[v - 1]][rot] : null, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, P, pad, mask, cut, vr, small, l, t, r, b, rd, C, band, hash, poly, rrect, radii, sprites: () => sprites(P), N, E, S, W, v, premium: pm });
     if (cut) { x.fillStyle = spec.cutCol || 'rgba(255,240,225,0.35)'; const k = Math.max(1, P * 0.035); if (cut & N) x.fillRect(l, t, r - l, k); if (cut & S) x.fillRect(l, b - k, r - l, k); }
-    if (!spec.noPlanes) { if (!(mask & W)) { x.fillStyle = 'rgba(255,255,255,0.1)'; x.fillRect(l, t, P * 0.06, b - t); } if (!(mask & E)) { x.fillStyle = 'rgba(0,0,0,0.1)'; x.fillRect(r - P * 0.06, t, P * 0.06, b - t); } }
+    if (pm) premiumFinish(x, food, P, pad, mask, cut, vr, small, l, t, r, b, rd);
+    else if (!spec.noPlanes) { if (!(mask & W)) { x.fillStyle = 'rgba(255,255,255,0.1)'; x.fillRect(l, t, P * 0.06, b - t); } if (!(mask & E)) { x.fillStyle = 'rgba(0,0,0,0.1)'; x.fillRect(r - P * 0.06, t, P * 0.06, b - t); } }
     x.restore();
     if (spec.diag) { // concave corners: cut the gap square that the two overlapping neighbours would otherwise leave filled
       const q0 = pad + g, q1 = pad + P - g, e = P + 2 * pad, cutR = (x0, y0, x1, y1) => { x.save(); x.globalCompositeOperation = 'destination-out'; x.fillStyle = '#000'; x.fillRect(x0, y0, x1 - x0, y1 - y0); x.restore(); };
@@ -44,16 +83,16 @@ function FoodMass(spec) {
       if ((mask & S) && (mask & W) && !(mask & 64)) cutR(0, q1, q0, e);
       if ((mask & S) && (mask & E) && !(mask & 32)) cutR(q1, q1, e, e);
     }
-    if (spec.post) spec.post(x, food, { P, pad, mask, cut, vr, small, l, t, r, b, C, hash, N, E, S, W, v }); // unclipped extras (drips hanging below the mass)
+    if (spec.post) spec.post(x, food, { P, pad, mask, cut, vr, small, l, t, r, b, C, hash, N, E, S, W, v, premium: pm }); // unclipped extras (drips hanging below the mass)
   }
   const caches = new Map();
   const vkOf = spec.vkey || ((food, vr) => vr % 4);
   function pre(v, P, mask, cut, vr, small, dk = -1, rot = 0) {
     let m = caches.get(P); if (!m) { if (caches.size > 8) caches.delete(caches.keys().next().value); m = new Map(); caches.set(P, m); }
-    const vk = vkOf(FOOD[v], vr), key = v + ':' + mask + ':' + cut + ':' + vk + (small ? 's' : '') + (spec.depth ? ':' + dk : '') + (spec.shape ? ':r' + rot : '');
+    const pm = PREM(), vk = pm && spec.premiumVkey ? spec.premiumVkey(FOOD[v], vr) : vkOf(FOOD[v], vr), key = v + ':' + mask + ':' + cut + ':' + vk + (small ? 's' : '') + (spec.depth ? ':' + dk : '') + (spec.shape ? ':r' + rot : '') + (pm ? ':p' : '');
     let c = m.get(key); if (c) return c;
-    const pad = Math.max(2, Math.ceil(P * (spec.padK || 0.08))); c = makeCanvas(P + 2 * pad, P + 2 * pad); c.pad = pad;
-    paint(c.getContext('2d'), v, P, pad, mask, cut, spec.vpaint ? spec.vpaint(FOOD[v], vk) : vk * 13 + 1, !!small, spec.depth ? dk : -1, spec.shape ? rot : 0); m.set(key, c); return c;
+    const pad = Math.max(2, Math.ceil(P * (pm ? Math.max(0.2, spec.padK || 0) : spec.padK || 0.08))); c = makeCanvas(P + 2 * pad, P + 2 * pad); c.pad = pad;
+    paint(c.getContext('2d'), v, P, pad, mask, cut, pm && spec.premiumVkey ? vk * 13 + 1 : spec.vpaint ? spec.vpaint(FOOD[v], vk) : vk * 13 + 1, !!small, spec.depth ? dk : -1, spec.shape ? rot : 0); m.set(key, c); return c;
   }
   const isSmall = (s) => s < 18;
   const GL = spec.glisten || {};
@@ -61,7 +100,7 @@ function FoodMass(spec) {
     const P = Math.max(4, Math.round(s * d)), cv = pre(v, P, mask, cut, vr, isSmall(s), dk, rot), k = s / P, pad = cv.pad * k;
     c.drawImage(cv, -s / 2 - pad, -s / 2 - pad, s + 2 * pad, s + 2 * pad);
     const food = FOOD[v];
-    if (spec.live) spec.live(c, food, { rot, shape: CELLS[TYPES[v - 1]] ? CELLS[TYPES[v - 1]][rot] : null, dk, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, s, P, k, mask, cut, vr, seed, T, wob, alpha: alpha ?? 1, spr: sprites(P), small: isSmall(s), hash, gx, gy, v });
+    if (spec.live) spec.live(c, food, { rot, shape: CELLS[TYPES[v - 1]] ? CELLS[TYPES[v - 1]][rot] : null, dk, dr: dk >= 0 ? dk >> 2 : 0, dn: dk >= 0 ? (dk & 3) + 1 : 1, s, P, k, mask, cut, vr, seed, T, wob, alpha: alpha ?? 1, spr: sprites(P), small: isSmall(s), hash, gx, gy, v, premium: PREM() });
     if (isSmall(s)) return;
     const gs = GL[food];
     if (gs) { const ph = (T * 0.3 + seed * 0.137) % 2.4; if (ph < 1) { const g = sprites(P).glint, a = Math.sin(ph * Math.PI); c.globalAlpha = (alpha ?? 1) * a * gs; c.globalCompositeOperation = 'lighter'; c.drawImage(g, (ph - 0.5) * s * 0.7 - s * 0.36, -s * 0.42 + ph * s * 0.15, s * 0.72, s * 0.72); c.globalCompositeOperation = 'source-over'; c.globalAlpha = alpha ?? 1; } }
@@ -125,8 +164,8 @@ function FoodMass(spec) {
       const pf = FXm.piece(); let mx = 0, my = 0; cells.forEach(([a, b]) => { mx += a; my += b; }); mx = (p.x + mx / 4 + 0.5) * s; my = (p.y + my / 4 + 0.5) * s;
       const wob = Math.min(1, Math.abs(pf.rot) * 2 + Math.abs(pf.sx - 1) * 10);
       c.save(); c.translate(mx + pf.ox * s, my + pf.oy * s + (1 - pf.sy) * s); c.rotate(pf.rot + Math.sin(T * 38) * Math.abs(pf.rot) * 0.15); c.scale(pf.sx, pf.sy); c.translate(-mx, -my);
-      c.shadowColor = rgba(col, 0.45); c.shadowBlur = s * 0.45;
-      for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); cell(c, v, s, d, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), (p.x + qx) * 1.7 + qy * 3.1 + 50, T, wob, 1, p.x + qx, p.y + qy, dkCells(cells, qy), p.rot); c.restore(); if (c.shadowBlur) c.shadowBlur = 0; }
+      if (PREM()) { c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = s * 0.25; c.shadowOffsetY = s * 0.08; } else { c.shadowColor = rgba(col, 0.45); c.shadowBlur = s * 0.45; }
+      for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); cell(c, v, s, d, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), (p.x + qx) * 1.7 + qy * 3.1 + 50, T, wob, 1, p.x + qx, p.y + qy, dkCells(cells, qy), p.rot); c.restore(); if (c.shadowBlur) { c.shadowBlur = 0; c.shadowOffsetY = 0; } }
       if (g.grounded()) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = (g.lockTimer / LOCK_DELAY) * 0.35; for (const [qx, qy] of cells) { c.save(); c.translate((p.x + qx) * s + s / 2, (p.y + qy) * s + s / 2); const P = Math.round(s * d), cv = pre(v, P, maskIn(cells, qx, qy), 0, (qx & 3) + 4 * (qy & 3), isSmall(s), dkCells(cells, qy), p.rot), kk = s / P, pad = cv.pad * kk; c.drawImage(cv, -s / 2 - pad, -s / 2 - pad, s + 2 * pad, s + 2 * pad); c.restore(); } }
       c.restore();
     }

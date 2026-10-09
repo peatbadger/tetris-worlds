@@ -48,14 +48,171 @@ const SushiFood = (() => {
     return [[0.3, 0.5, Math.PI / 2 + 0.2 + a0], [0.72, 0.5, Math.PI / 2 - 0.25 - a0 * 0.4]];
   }
   function grains(x, l, t, r, b, P, key, n) { for (let i = 0; i < n; i++) { const gx = l + hash(key, i, 1) * (r - l), gy = t + hash(key, i, 2) * (b - t); ellipse(x, gx, gy, P * 0.045, P * 0.024, hash(key, i, 3) * 3); x.fillStyle = i % 3 ? '#fffaf0' : '#ddd2bd'; x.fill(); } }
+  /* ---------- PREMIUM materials (FoodMass premium:true) ----------
+     High-end menu photo translated into geometry: lower saturation, rich darks, one top-left light. Everything that crosses a
+     cell edge uses functions periodic in the cell size (period P in x and y) so masses stay continuous without piece space. */
+  const packC = new Map();
+  function packFor(mask, key) { // ikura: dart-thrown spheres of varied size; overhang into joined neighbours keeps the mass continuous
+    const ck = mask + ':' + key; let out = packC.get(ck); if (out) return out; out = [];
+    for (let i = 0; i < 700 && out.length < 14; i++) {
+      const sc = 0.48 + Math.pow(hash(key, i, 9), 0.7) * 0.5, rr = 0.25 * sc, lo = (b) => (mask & b ? -rr * 0.15 : 0.055 + rr * 0.92);
+      const bx = lo(W) + hash(key, i, 1) * (1 - lo(E) - lo(W)), by = lo(N) + hash(key, i, 2) * (1 - lo(S) - lo(N));
+      if (out.every((q) => Math.hypot(q[0] - bx, q[1] - by) > (0.25 * q[3] + rr) * 0.86)) out.push([bx, by, out.length, sc]);
+    }
+    out.sort((a, b) => a[1] - b[1]); packC.set(ck, out); return out;
+  }
+  function podsPrem(mask, key) { const v = hash(key, 7) < 0.5, a0 = (hash(key, 3) - 0.5) * 0.6, s0 = 0.86 + hash(key, 5) * 0.14, s1 = 0.8 + hash(key, 6) * 0.18;
+    if (v) return [[0.48 + (hash(key, 8) - 0.5) * 0.08, 0.3, 0.14 + a0, s0], [0.52, 0.72, -0.22 - a0 * 0.5, s1]];
+    return [[0.3, 0.5 + (hash(key, 8) - 0.5) * 0.08, Math.PI / 2 + 0.2 + a0, s0], [0.72, 0.48, Math.PI / 2 - 0.28 - a0 * 0.4, s1]]; }
+  function riceGrains(x, l, t, r, b, P, key, n, edgeY) { // individual grains with their own shade; denser and bumpier along the exposed bottom edge
+    for (let i = 0; i < n; i++) { const gx = l + hash(key, i, 1) * (r - l), gy = edgeY !== undefined && i % 3 === 0 ? edgeY - hash(key, i, 4) * P * 0.06 : t + hash(key, i, 2) * (b - t), a = hash(key, i, 3) * 3, w = P * (0.04 + hash(i, key, 5) * 0.012), h = w * 0.5;
+      ellipse(x, gx + P * 0.008, gy + P * 0.012, w, h, a); x.fillStyle = 'rgba(110,92,66,0.3)'; x.fill();
+      ellipse(x, gx, gy, w, h, a); x.fillStyle = i % 4 ? '#f1ebdf' : '#e2d9c6'; x.fill();
+      ellipse(x, gx - w * 0.25, gy - h * 0.35, w * 0.45, h * 0.3, a); x.fillStyle = 'rgba(255,255,255,0.75)'; x.fill(); }
+  }
+  // a line family x = x0 + k*sp - slope*y (+ periodic wobble); slope*P must be a multiple of sp so rows meet
+  // displacement field periodic in P on both axes: every line bends differently yet rows and columns still meet
+  const dField = (P, u, v, A) => (Math.sin(TAU * (u / P + 2 * v / P) + 0.7) * 0.6 + Math.sin(TAU * (2 * u / P - v / P) + 2.1) * 0.4) * A;
+  function family(x, P, C, sp, slope, draw, A = 0.06) { for (let k = -Math.ceil(2 / sp) - 2; k < Math.ceil(2 / sp) + 2; k++) draw(k, (yy) => { const u = C(k * sp) - slope * (yy - C(0)) - C(0), v = yy - C(0); return C(0) + u + dField(P, u, v, P * A); }); }
+  function vein(x, P, C, X, w0, col, wk) { // variable-width vein, width periodic in both axes (P)
+    const pts = [], n = 18; for (let i = 0; i <= n; i++) { const yy = C(-0.1 + i * 1.2 / n), xx = X(yy), w = w0 * (0.5 + 0.6 * Math.sin((yy - C(0)) / P * TAU * 2 + (xx - C(0)) / P * TAU) * Math.sin((xx - C(0)) / P * TAU * 2 + 1.1) + 0.3 * Math.sin((xx - C(0)) / P * TAU * 3 - (yy - C(0)) / P * TAU)); pts.push([xx, yy, Math.max(w0 * 0.05, w)]); }
+    x.beginPath(); pts.forEach(([a, b, w], i) => (i ? x.lineTo(a - w, b) : x.moveTo(a - w, b))); for (let i = pts.length - 1; i >= 0; i--) x.lineTo(pts[i][0] + pts[i][2], pts[i][1]); x.closePath(); x.fillStyle = col; x.fill();
+  }
+  function sheen(x, cx, cy, rx, ry, a, rot = -0.35) { x.save(); x.globalCompositeOperation = 'screen'; x.translate(cx, cy); x.rotate(rot); x.scale(1, ry / rx); x.fillStyle = radial(x, 0, 0, rx, [[0, `rgba(255,250,240,${a})`], [0.45, `rgba(255,245,230,${a * 0.35})`], [1, 'rgba(255,240,220,0)']]); x.fillRect(-rx, -rx, rx * 2, rx * 2); x.restore(); }
+  function premiumSprites(P) { const o = {};
+    { // ikura: translucent sphere — dark rim, light transmitted to the lower right, darker core, thin rim light, specular dot
+      const r = Math.max(2, P * 0.25), n = Math.ceil(r * 2 + 2), c = makeCanvas(n, n), X = c.getContext('2d'), m = n / 2;
+      X.beginPath(); X.arc(m, m, r, 0, TAU); X.fillStyle = radial(X, m + r * 0.2, m + r * 0.25, r * 1.15, [[0, '#f08a40'], [0.35, '#d8561c'], [0.75, '#a8300e'], [1, '#6a1606']]); X.fill();
+      X.beginPath(); X.arc(m + r * 0.2, m + r * 0.24, r * 0.5, 0, TAU); X.fillStyle = radial(X, m + r * 0.2, m + r * 0.24, r * 0.5, [[0, 'rgba(255,170,90,0.75)'], [1, 'rgba(255,140,60,0)']]); X.fill();
+      X.beginPath(); X.arc(m + r * 0.12, m + r * 0.1, r * 0.2, 0, TAU); X.fillStyle = radial(X, m + r * 0.12, m + r * 0.1, r * 0.2, [[0, 'rgba(110,26,6,0.85)'], [1, 'rgba(150,40,10,0)']]); X.fill();
+      X.beginPath(); X.arc(m, m, r * 0.9, Math.PI * 0.95, Math.PI * 1.55); X.strokeStyle = 'rgba(255,214,180,0.45)'; X.lineWidth = Math.max(0.6, r * 0.07); X.stroke();
+      X.save(); X.translate(m - r * 0.4, m - r * 0.42); X.rotate(-0.6); X.beginPath(); X.ellipse(0, 0, r * 0.2, r * 0.11, 0, 0, TAU); X.fillStyle = 'rgba(255,252,244,0.95)'; X.fill(); X.restore();
+      X.beginPath(); X.arc(m + r * 0.48, m + r * 0.46, r * 0.06, 0, TAU); X.fillStyle = 'rgba(255,220,180,0.5)'; X.fill();
+      o.bead = c; o.beadR = r;
+      const n2 = Math.ceil(r * 3), c2 = makeCanvas(n2, n2), Y = c2.getContext('2d'); Y.fillStyle = radial(Y, n2 / 2, n2 / 2, n2 / 2, [[0, 'rgba(20,0,0,0.6)'], [0.6, 'rgba(20,0,0,0.3)'], [1, 'rgba(20,0,0,0)']]); Y.fillRect(0, 0, n2, n2); o.beadSh = c2;
+    }
+    { // edamame pod: bumpy silhouette from three beans, matte skin with fine fuzz, seam line, stem; lit from the top-left
+      const L = P * 0.84, Hh = P * 0.34, w = Math.ceil(L + 6), h = Math.ceil(Hh + 6), cy = h / 2, x0 = (w - L) / 2;
+      const shape = (X, grow) => { X.beginPath(); for (let i = 0; i < 3; i++) { const bx = x0 + L * (0.2 + i * 0.3), rr = Hh * (0.5 - (i === 1 ? 0 : 0.04)) + grow; X.moveTo(bx + rr, cy); X.arc(bx, cy, rr, 0, TAU); } X.moveTo(x0 + L * 0.2, cy - Hh * 0.46 - grow); X.lineTo(x0 + L * 0.8, cy - Hh * 0.46 - grow); X.lineTo(x0 + L * 0.8, cy + Hh * 0.47 + grow); X.lineTo(x0 + L * 0.2, cy + Hh * 0.47 + grow); X.closePath(); X.moveTo(x0 + L * 0.06, cy); X.ellipse(x0 + L * 0.08, cy, L * 0.08 + grow, Hh * 0.34 + grow, 0, 0, TAU); X.moveTo(x0 + L * 0.98, cy); X.ellipse(x0 + L * 0.92, cy - Hh * 0.04, L * 0.08 + grow, Hh * 0.3 + grow, 0, 0, TAU); };
+      const c = makeCanvas(w, h), X = c.getContext('2d');
+      shape(X, Math.max(0.7, P * 0.014)); X.fillStyle = 'rgba(20,40,10,0.6)'; X.fill('nonzero');
+      shape(X, 0); X.fillStyle = linear(X, 0, cy - Hh / 2, 0, cy + Hh / 2, [[0, '#8aa660'], [0.45, '#668a42'], [1, '#3c5e28']]); X.fill('nonzero');
+      X.save(); shape(X, 0); X.clip('nonzero');
+      for (let i = 0; i < 3; i++) { const bx = x0 + L * (0.2 + i * 0.3); X.fillStyle = radial(X, bx - Hh * 0.15, cy - Hh * 0.18, Hh * 0.55, [[0, 'rgba(200,225,150,0.4)'], [1, 'rgba(200,225,150,0)']]); X.fillRect(bx - Hh, cy - Hh, Hh * 2, Hh * 2); X.fillStyle = 'rgba(30,60,16,0.25)'; X.fillRect(bx + L * 0.14, cy - Hh, Math.max(0.6, P * 0.012), Hh * 2); }
+      X.fillStyle = 'rgba(235,245,215,0.28)'; for (let i = 0; i < 70; i++) { const z = Math.max(0.5, P * 0.008); X.fillRect(x0 + hash(i, P, 1) * L, cy - Hh / 2 + hash(P, i, 2) * Hh, z, z); }
+      X.strokeStyle = 'rgba(40,70,20,0.45)'; X.lineWidth = Math.max(0.6, P * 0.01); X.beginPath(); X.moveTo(x0 + L * 0.04, cy + Hh * 0.05); X.quadraticCurveTo(x0 + L * 0.5, cy + Hh * 0.18, x0 + L * 0.96, cy); X.stroke();
+      X.restore();
+      X.fillStyle = '#4a5a2a'; X.fillRect(x0 + L * 0.99, cy - Hh * 0.08, Math.max(1, P * 0.035), Math.max(1, P * 0.025));
+      o.pod = c;
+      const c2 = makeCanvas(w, h), Y = c2.getContext('2d'); Y.filter = `blur(${Math.max(0.5, P * 0.03)}px)`; shape(Y, 0); Y.fillStyle = 'rgba(0,0,0,0.5)'; Y.fill('nonzero'); o.podSh = c2;
+    }
+    return o; }
+  function premiumPaint(x, food, Q) {
+    const { P, mask, vr, small, l, t, r, b, C, band, rrect, radii, cut } = Q, H = (i, j = 0) => hash(vr, i, j);
+    switch (food) {
+      case 'ikura': {
+        x.fillStyle = '#7a2008'; x.fillRect(l, t, r - l, b - t);
+        if (!(mask & S)) { band(b - P * 0.12, P * 0.12, '#141c16'); x.fillStyle = 'rgba(120,150,120,0.12)'; for (let i = 0; i < 6; i++) x.fillRect(C(i / 6), b - P * 0.12, Math.max(1, P * 0.01), P * 0.12); }
+        // packed background roe, darker and smaller, so the bed reads as depth rather than a flat colour
+        for (let i = 0; i < 14; i++) { const u = C(H(i, 1)), v = C(H(i, 2) * 0.9), rr = P * (0.06 + H(i, 3) * 0.05); x.fillStyle = radial(x, u - rr * 0.3, v - rr * 0.3, rr * 1.2, [[0, '#c84a16'], [1, '#8a2a0a']]); x.beginPath(); x.arc(u, v, rr, 0, TAU); x.fill(); }
+        if (small) { const o = sprites(P), d = o.beadR; for (const [bx, by, , sc] of packFor(mask, vr)) x.drawImage(o.bead, C(bx) - d * sc, C(by) - d * sc, d * 2 * sc, d * 2 * sc); }
+        break;
+      }
+      case 'edamame': {
+        x.fillStyle = '#1c3214'; x.fillRect(l, t, r - l, b - t);
+        for (let i = 0; i < 5; i++) { x.fillStyle = H(i, 9) < 0.5 ? 'rgba(70,104,44,0.55)' : 'rgba(40,66,26,0.6)'; ellipse(x, C(H(vr, i)), C(H(i, 4)), P * 0.2, P * 0.09, H(i, 5) * 3); x.fill(); }
+        x.fillStyle = 'rgba(240,240,225,0.5)'; for (let i = 0; i < 10; i++) { const z = Math.max(0.8, P * 0.012); x.fillRect(C(H(i, 11)), C(H(i, 12)), z, z); }
+        if (small) { const o = sprites(P); for (const [px, py, a, sc] of podsPrem(mask, vr)) { x.save(); x.translate(C(px), C(py)); x.rotate(a); x.scale(sc, sc); x.drawImage(o.pod, -o.pod.width / 2, -o.pod.height / 2); x.restore(); } }
+        break;
+      }
+      case 'tamago': {
+        x.fillStyle = '#e6b84a'; x.fillRect(l, t, r - l, b - t);
+        for (let i = 1; i < 5; i++) { const y = C(i / 5 + (i % 2 ? 0.02 : -0.015)); x.fillStyle = linear(x, 0, y - P * 0.05, 0, y + P * 0.03, [[0, 'rgba(255,230,150,0)'], [0.7, 'rgba(196,132,40,0.26)'], [1, 'rgba(255,226,140,0.22)']]); x.fillRect(l, y - P * 0.05, r - l, P * 0.08); }
+        if (!small) for (let i = 0; i < 16; i++) { const rr = P * (0.008 + H(i, 3) * 0.012); x.fillStyle = H(i, 4) < 0.6 ? 'rgba(255,240,190,0.6)' : 'rgba(170,110,30,0.35)'; x.beginPath(); x.arc(C(H(i, 1)), C(H(i, 2)), rr, 0, TAU); x.fill(); }
+        if (!(mask & N)) { x.fillStyle = linear(x, 0, t, 0, t + P * 0.14, [[0, '#a8681e'], [0.45, '#d29a38'], [1, 'rgba(230,184,74,0)']]); x.fillRect(l, t, r - l, P * 0.14); sheen(x, C(0.4 + H(5) * 0.2), t + P * 0.2, P * 0.32, P * 0.07, 0.22, 0); }
+        if (!(mask & S)) band(b - P * 0.08, P * 0.08, '#b88028');
+        const bx = ((vr - 1) / 13) & 1 ? C(0) : C(1), bw = P * 0.17;
+        x.fillStyle = '#121a14'; x.fillRect(bx - bw, t - 2, bw * 2, b - t + 4);
+        x.strokeStyle = 'rgba(110,140,110,0.14)'; x.lineWidth = Math.max(0.6, P * 0.008); x.beginPath(); for (let i = 0; i < 14; i++) { const y = C(i / 14 + H(i, 7) * 0.03); x.moveTo(bx - bw, y); x.lineTo(bx + bw, y + P * 0.04); } x.stroke();
+        x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(bx + bw, t, P * 0.025, b - t); x.fillStyle = 'rgba(140,170,140,0.16)'; x.fillRect(bx - bw * 0.9, t, P * 0.02, b - t);
+        break;
+      }
+      case 'salmon': {
+        x.fillStyle = '#e8e0d0'; x.fillRect(l, t, r - l, b - t);
+        const fb = mask & S ? b : b - P * 0.25;
+        if (!(mask & S)) riceGrains(x, l, fb, r, b, P, vr, small ? 4 : 22, b - P * 0.02);
+        const frd = radii(mask, cut, P * 0.2); frd[2] = frd[3] = 0;
+        if (!(mask & S)) { x.fillStyle = linear(x, 0, fb, 0, fb + P * 0.1, [[0, 'rgba(80,40,20,0.45)'], [1, 'rgba(80,40,20,0)']]); x.fillRect(l, fb, r - l, P * 0.1); }
+        rrect(x, l, t, r, fb, frd); x.save(); x.clip();
+        x.fillStyle = '#e0784c'; x.fillRect(l, t, r - l, fb - t);
+        for (let i = 0; i < 4; i++) { x.fillStyle = H(i, 21) < 0.5 ? 'rgba(200,90,50,0.35)' : 'rgba(240,140,100,0.3)'; ellipse(x, C(H(i, 22)), C(H(i, 23)), P * 0.3, P * 0.12, -0.6); x.fill(); }
+        // marbled fat: main veins (period 1/3, row shift 2/3) + fine branching veins (period 1/2, row shift 1/2)
+        family(x, P, C, 1 / 3, 2 / 3, (k, X) => { vein(x, P, C, X, P * 0.07, 'rgba(248,214,190,0.28)', 0); vein(x, P, C, X, P * 0.03, 'rgba(250,232,216,0.85)', 0); }, 0.09);
+        if (!small) family(x, P, C, 1 / 2, 1 / 2, (k, X) => vein(x, P, C, (yy) => X(yy) + P * 0.12, P * 0.012, 'rgba(250,222,200,0.45)', 2), 0.12);
+        x.fillStyle = 'rgba(150,50,20,0.18)'; for (let i = 0; i < 18; i++) { const z = Math.max(0.7, P * 0.01); x.fillRect(C(H(i, 31)), C(H(i, 32)), z, z * 2); }
+        if (!(mask & N)) sheen(x, C(0.32 + H(41) * 0.3), t + P * 0.16, P * 0.42, P * 0.1, 0.5);
+        else if (H(42) < 0.6) sheen(x, C(0.2 + H(43) * 0.6), C(0.2 + H(44) * 0.5), P * 0.22, P * 0.06, 0.28);
+        if (!(mask & S)) { x.fillStyle = linear(x, 0, fb - P * 0.1, 0, fb, [[0, 'rgba(160,60,30,0)'], [1, 'rgba(150,56,28,0.55)']]); x.fillRect(l, fb - P * 0.1, r - l, P * 0.1); }
+        x.restore(); break;
+      }
+      case 'maguro': {
+        x.fillStyle = '#8a1a30'; x.fillRect(l, t, r - l, b - t);
+        for (let i = 0; i < 5; i++) { x.fillStyle = H(i, 51) < 0.5 ? 'rgba(70,6,22,0.12)' : 'rgba(190,60,80,0.1)'; ellipse(x, C(H(i, 52)), C(H(i, 53)), P * 0.36, P * 0.22, H(i, 54) * 3); x.fill(); }
+        if (!small) family(x, P, C, 1 / 8, 1 / 4, (k, X) => { x.strokeStyle = k % 2 ? 'rgba(255,170,180,0.07)' : 'rgba(60,0,14,0.12)'; x.lineWidth = Math.max(0.6, P * 0.012); x.beginPath(); for (let i = 0; i <= 12; i++) { const yy = C(-0.1 + i * 0.1); i ? x.lineTo(X(yy), yy) : x.moveTo(X(yy), yy); } x.stroke(); });
+        family(x, P, C, 1 / 2, 1 / 2, (k, X) => { // soft slice edges: a dark cut line and a lit bevel fading away from it
+          for (let j = 0; j < 4; j++) { x.strokeStyle = j === 0 ? 'rgba(52,0,14,0.55)' : `rgba(230,110,130,${0.16 - j * 0.04})`; x.lineWidth = j === 0 ? Math.max(1, P * 0.022) : P * 0.04; x.beginPath(); for (let i = 0; i <= 12; i++) { const yy = C(-0.1 + i * 0.1), xx = X(yy) + (j === 0 ? 0 : P * (0.01 + j * 0.035)); i ? x.lineTo(xx, yy) : x.moveTo(xx, yy); } x.stroke(); } }, 0.08);
+        if (!(mask & N)) sheen(x, C(0.35 + H(61) * 0.3), t + P * 0.15, P * 0.4, P * 0.09, 0.32);
+        else if (H(62) < 0.5) sheen(x, C(0.3 + H(63) * 0.4), C(0.3 + H(64) * 0.4), P * 0.2, P * 0.05, 0.18);
+        if (!(mask & S)) band(b - P * 0.07, P * 0.07, '#5e0e1e');
+        break;
+      }
+      case 'saba': {
+        x.fillStyle = linear(x, 0, C(0.5), 0, C(1), [[0, '#c4ccd4'], [0.4, '#d8dce0'], [0.7, '#cdd2d8'], [1, '#b4bcc6']]); x.fillRect(l, t, r - l, b - t);
+        x.fillStyle = linear(x, 0, C(0), 0, C(0.56), [[0, '#3c536c'], [1, '#5e7890']]); x.fillRect(l, t, r - l, C(0.56) - t);
+        x.fillStyle = linear(x, 0, C(0.5), 0, C(0.64), [[0, 'rgba(150,175,195,0.9)'], [0.5, 'rgba(210,180,200,0.35)'], [1, 'rgba(200,220,210,0)']]); x.fillRect(l, C(0.5), r - l, P * 0.14);
+        for (let k = 0; k < 3; k++) { const x0 = C(k / 3 + 0.03 + (H(k, 71) - 0.5) * 0.04), wv = P * (0.07 + H(k, 72) * 0.03); x.fillStyle = 'rgba(18,32,50,0.62)'; x.beginPath(); x.moveTo(x0, C(0.04)); x.quadraticCurveTo(x0 + wv * 2.2, C(0.2), x0 + wv * 0.9, C(0.48)); x.lineTo(x0 + wv * 0.3, C(0.48)); x.quadraticCurveTo(x0 + wv * 1.4, C(0.22), x0 - wv * 0.4, C(0.04)); x.closePath(); x.fill(); }
+        x.save(); x.globalCompositeOperation = 'multiply'; for (let i = 0; i < 3; i++) { x.fillStyle = ['rgba(225,205,225,0.5)', 'rgba(205,225,220,0.5)', 'rgba(230,222,200,0.5)'][i]; x.fillRect(l, C(0.66 + i * 0.1 + (H(i, 77) - 0.5) * 0.03), r - l, P * 0.05); } x.restore();
+        if (!small) { x.fillStyle = 'rgba(255,255,255,0.4)'; for (let i = 0; i < 14; i++) { const z = Math.max(0.6, P * 0.01); x.fillRect(C(H(i, 73)), C(0.6 + H(i, 74) * 0.35), z * 4, z); } }
+        if (!(mask & N)) sheen(x, C(0.35 + H(75) * 0.25), t + P * 0.12, P * 0.42, P * 0.07, 0.4, -0.15);
+        sheen(x, C(0.3 + H(76) * 0.4), C(0.74), P * 0.3, P * 0.05, 0.3, 0);
+        if (!(mask & S)) band(b - P * 0.07, P * 0.07, '#8a96a4');
+        break;
+      }
+      case 'maki': {
+        x.fillStyle = '#0b110d'; x.fillRect(l, t, r - l, b - t);
+        const cx = C(0.5) + (H(81) - 0.5) * P * 0.03, cy = C(0.5) + (H(82) - 0.5) * P * 0.03;
+        x.beginPath(); x.arc(cx, cy, P * 0.45, 0, TAU); x.fillStyle = '#16211a'; x.fill();
+        if (!small) { x.strokeStyle = 'rgba(120,150,120,0.12)'; x.lineWidth = Math.max(0.5, P * 0.006); for (let i = 0; i < 10; i++) { const a = H(i, 83) * TAU; x.beginPath(); x.arc(cx, cy, P * (0.38 + H(i, 84) * 0.06), a, a + 0.6); x.stroke(); } }
+        x.beginPath(); x.arc(cx, cy, P * 0.45, -2.5, -0.9); x.strokeStyle = 'rgba(150,180,150,0.22)'; x.lineWidth = Math.max(1, P * 0.02); x.stroke();
+        x.beginPath(); x.arc(cx, cy, P * 0.37, 0, TAU); x.fillStyle = '#e6decf'; x.fill();
+        x.save(); x.beginPath(); x.arc(cx, cy, P * 0.37, 0, TAU); x.clip();
+        x.fillStyle = 'rgba(150,130,100,0.22)'; x.beginPath(); x.arc(cx + P * 0.05, cy + P * 0.07, P * 0.37, 0, TAU); x.arc(cx, cy, P * 0.37, 0, TAU, true); x.fill();
+        riceGrains(x, cx - P * 0.36, cy - P * 0.36, cx + P * 0.36, cy + P * 0.36, P, vr + 5, small ? 3 : 18);
+        x.restore();
+        if (!small) for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + H(i, 85) * 0.3, rr = P * 0.37; ellipse(x, cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, P * 0.04, P * 0.021, a + Math.PI / 2); x.fillStyle = i % 3 ? '#efe8dc' : '#ddd3c0'; x.fill(); }
+        // filling: cucumber cut face (skin, pale flesh, seed bed) beside a slice of avocado
+        const fa = H(86) * 0.8 - 0.4; x.save(); x.translate(cx, cy); x.rotate(fa);
+        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.15, 0, TAU); x.fillStyle = '#2c4e1e'; x.fill();
+        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.125, 0, TAU); x.fillStyle = '#b4cc86'; x.fill();
+        x.beginPath(); x.arc(-P * 0.07, 0, P * 0.07, 0, TAU); x.fillStyle = '#d4e0a8'; x.fill();
+        if (!small) { x.fillStyle = 'rgba(244,240,214,0.9)'; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + 0.3; ellipse(x, -P * 0.07 + Math.cos(a) * P * 0.04, Math.sin(a) * P * 0.04, P * 0.016, P * 0.008, a); x.fill(); } }
+        x.beginPath(); x.moveTo(P * 0.04, P * 0.15); x.quadraticCurveTo(P * 0.02, -P * 0.14, P * 0.13, -P * 0.17); x.quadraticCurveTo(P * 0.24, -P * 0.02, P * 0.15, P * 0.16); x.closePath(); x.fillStyle = linear(x, P * 0.04, 0, P * 0.2, 0, [[0, '#cfd88a'], [0.65, '#9eb44c'], [1, '#56782a']]); x.fill();
+        x.restore();
+        break;
+      }
+    }
+  }
   const M = FoodMass({
     FOOD: [null, 'ikura', 'tamago', 'salmon', 'maguro', 'edamame', 'saba', 'maki'],
     MAIN: [null, '#f0561e', '#f5c842', '#f7905a', '#c8203a', '#7cc254', '#8fa8c4', '#eae4d4'],
     soft: { tamago: 1.6, ikura: 1.2, maki: 0.8 },
+    premium: true,
+    premiumVkey: (food, vr) => (food === 'tamago' ? vr & 1 : vr),
+    premiumOpts: { R: 0.16, grain: { maki: 0.1, ikura: 0.08, edamame: 0.14, tamago: 0.12, salmon: 0.14, maguro: 0.2, saba: 0.12 }, desatAll: 0.1, edge: 'rgba(24,12,8,0.55)' },
     glisten: { salmon: 0.55, maguro: 0.55, saba: 0.55, tamago: 0.3 },
     vkey: (food, vr) => (food === 'tamago' ? vr & 1 : vr % 4),
     vpaint: (food, vk) => (food === 'tamago' ? vk : vk * 13 + 1),
-    sprites(P) { const o = {};
+    sprites(P, opt) { const o = {}; if (opt && opt.premium) return premiumSprites(P);
     { // ikura bead: translucent orange sphere with a hot core and a specular dot
       const r = Math.max(2, P * 0.25), n = Math.ceil(r * 2 + 2), [c, x] = [makeCanvas(n, n), null]; const X = c.getContext('2d'), m = n / 2;
       X.beginPath(); X.arc(m, m, r, 0, TAU); X.fillStyle = '#c8320e'; X.fill();
@@ -78,6 +235,7 @@ const SushiFood = (() => {
     }
       return o; },
     paint(x, food, Q) {
+      if (Q.premium) return premiumPaint(x, food, Q);
       const { P, mask, cut, vr, small, l, t, r, b, C, band, rrect, radii } = Q;
       switch (food) {
       case 'ikura': {
@@ -155,6 +313,16 @@ const SushiFood = (() => {
     },
     live(c, food, o) {
       if (o.small) return; const { s, k, mask, vr, seed, T, wob } = o;
+      if (o.premium) {
+        const sp = o.spr;
+        if (food === 'ikura') { const bs = sp.bead.width * k, sh = sp.beadSh.width * k, list = packFor(mask, vr * 13 + 1);
+          for (const [bx, by, i, sc] of list) { c.drawImage(sp.beadSh, (bx - 0.5) * s + s * 0.03 - sh * sc / 2, (by - 0.5) * s + s * 0.05 - sh * sc / 2, sh * sc, sh * sc); }
+          for (const [bx, by, i, sc] of list) { const ph = seed * 1.3 + i * 2.1, j = 0.012 + wob * 0.045, dx = Math.sin(T * 3.1 + ph) * j * s, dy = Math.cos(T * 3.7 + ph * 1.4) * j * s * 0.8; c.drawImage(sp.bead, (bx - 0.5) * s + dx - bs * sc / 2, (by - 0.5) * s + dy - bs * sc / 2, bs * sc, bs * sc); }
+        } else if (food === 'edamame') { const pw = sp.pod.width * k, ph0 = sp.pod.height * k;
+          for (const [px, py, a, sc] of podsPrem(mask, vr * 13 + 1)) { const ph = seed * 0.9 + px * 5 + py * 3, shk = 0.01 + wob * 0.035; c.save(); c.translate((px - 0.5) * s + Math.sin(T * 1.7 + ph) * shk * s, (py - 0.5) * s + Math.cos(T * 2.1 + ph) * shk * s * 0.6); c.rotate(a + Math.sin(T * 1.3 + ph) * (0.03 + wob * 0.12)); c.scale(sc, sc);
+            c.drawImage(sp.podSh, -pw / 2 + s * 0.02, -ph0 / 2 + s * 0.05, pw, ph0); c.drawImage(sp.pod, -pw / 2, -ph0 / 2, pw, ph0); c.restore(); } }
+        return;
+      }
       if (food === 'ikura') {
         const sp = o.spr, bs = sp.bead.width * k;
         for (const [bx, by, i] of beadsFor(mask, (vr % 4) * 13 + 1)) {
