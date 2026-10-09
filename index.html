@@ -12314,7 +12314,7 @@ registerStage('mikes', makeGeoMikesStage);
    · L rainbow cookie (almond sponge green / white / red, chocolate). One continuous mass per piece, no marks. */
 const PastryFood = FoodMass({
   FOOD: [null, 'cannoli', 'boston', 'cheesecake', 'pistachio', 'tiramisu', 'ganache', 'rainbow'],
-  MAIN: [null, '#c98a45', '#e6c46e', '#efe4cc', '#b9cc8c', '#9a6a44', '#3e2218', '#6e9a5a'],
+  MAIN: [null, '#c98a45', '#f2d47a', '#f6eedc', '#96b65c', '#6e4224', '#3e2218', '#6e9a5a'],
   soft: { boston: 1.4, cheesecake: 1.5, pistachio: 1.3, tiramisu: 1.2, ganache: 1.0, rainbow: 0.8, cannoli: 0.6 },
   shape: true, diag: true, R: 0.22,
   vkey: (food, vr) => vr, vpaint: (food, vk) => vk,
@@ -12356,7 +12356,7 @@ const PastryFood = FoodMass({
         botShade(0.18); return;
       }
       case 'boston': { // sponge / custard / sponge across the whole piece, ganache glaze on the real top with drips
-        fill('#e9c878');
+        fill('#f2d47a');
         piece(() => { const yc = Y0 + BH * 0.5; band(yc - P * 0.08, yc + P * 0.08, '#f7e3a4'); band(yc - P * 0.08, yc - P * 0.08 + lw(0.02), 'rgba(160,110,40,0.35)'); band(yc + P * 0.08, yc + P * 0.08 + lw(0.02), 'rgba(160,110,40,0.35)');
           specksP(small ? 6 : A * 12, 'rgba(176,128,56,0.5)', 0.022, 11);
           glazeTop('#3a1e12', 0.24, 3, 5); for (const [a, c] of tops) { x.fillStyle = 'rgba(255,236,210,0.4)'; x.beginPath(); x.ellipse(a * P + P * 0.5, c * P + P * 0.07, P * 0.3, P * 0.02, -0.04, 0, TAU); x.fill(); } });
@@ -12373,18 +12373,18 @@ const PastryFood = FoodMass({
         topLight(0.08); botShade(0.15); return;
       }
       case 'pistachio': { // pistachio ricotta: soft folds running across the piece, chopped nuts scattered through it
-        fill(lin(0, t, 0, b, [[0, '#cfdcaa'], [1, '#b2c486']]));
+        fill(lin(0, t, 0, b, [[0, '#a8c46c'], [1, '#86a64c']]));
         piece(() => { x.strokeStyle = 'rgba(255,255,240,0.32)'; x.lineWidth = lw(0.05); x.lineCap = 'round'; const ph = H(A + bx1, 1) * 6;
           for (let yk = Y0 + P * 0.35, k = 0; yk < Y0 + BH; yk += P * 0.5, k++) { x.beginPath(); for (let i = 0; i <= 16; i++) { const u = X0 - P * 0.2 + (BW + P * 0.4) * i / 16, v = yk + Math.sin(u / P * 1.8 + ph + k) * P * 0.07; i ? x.lineTo(u, v) : x.moveTo(u, v); } x.stroke(); }
           const g = ['#5e7a2a', '#86a442', '#a8bc5c', '#7a5a4a']; for (let i = 0; i < (small ? 8 : A * 16); i++) { x.fillStyle = g[i % 4]; const px = X0 + H(i, 4) * BW, py = Y0 + H(i, 5) * BH, q = P * (0.03 + H(i, 6) * 0.03); x.beginPath(); x.moveTo(px - q, py); x.lineTo(px, py - q * 0.8); x.lineTo(px + q, py + q * 0.2); x.lineTo(px - q * 0.2, py + q * 0.6); x.closePath(); x.fill(); } });
         topLight(0.18); botShade(0.18); return;
       }
       case 'tiramisu': { // mascarpone with two espresso-soaked ladyfinger layers spanning the piece; cocoa on the real top
-        fill('#efe2c6');
-        piece(() => { const nL = 2, lh = Math.min(P * 0.24, BH / 5);
-          for (let k = 0; k < nL; k++) { const y = Y0 + BH * (k + 0.55) / (nL + 0.4) - lh / 2; band(y, y + lh, '#8e5e36'); band(y, y + lw(0.03), 'rgba(255,230,190,0.2)');
+        fill('#dcc49a');
+        piece(() => { const nL = 3, lh = Math.min(P * 0.32, BH / 5.4);
+          for (let k = 0; k < nL; k++) { const y = Y0 + BH * (k + 0.55) / (nL + 0.4) - lh / 2; band(y, y + lh, '#7a4a28'); band(y, y + lw(0.03), 'rgba(255,230,190,0.2)');
             x.fillStyle = 'rgba(60,30,10,0.3)'; for (let u = X0 + P * (0.25 + H(k, 40) * 0.4); u < X0 + BW; u += P * (0.7 + H(Math.round(u), k) * 0.3)) x.fillRect(u, y, lw(0.015), lh); }
-          for (const [a, c] of tops) { x.fillStyle = '#5a3622'; x.fillRect(a * P - 1, c * P - 2, P + 2, P * 0.13); x.fillStyle = '#3a2014'; for (let i = 0; i < 12; i++) x.fillRect(a * P + H(a * 3 + c, i) * P, c * P + H(a + c * 5, i + 20) * P * 0.16, lw(0.02), lw(0.02)); } });
+          for (const [a, c] of tops) { x.fillStyle = '#5a3622'; x.fillRect(a * P - 1, c * P - 2, P + 2, P * 0.3); x.fillStyle = '#3a2014'; for (let i = 0; i < 22; i++) x.fillRect(a * P + H(a * 3 + c, i) * P, c * P + H(a + c * 5, i + 20) * P * 0.3, lw(0.02), lw(0.02)); } });
         topLight(0.06); botShade(0.2); return;
       }
       case 'ganache': { // chocolate torte: deep gradient over the whole piece, one soft sheen on the top, no per-cell lines
