@@ -17023,6 +17023,7 @@ SKINSETS.boba = BobaFood.skin();
    v2 replaces milk tea (Boba owns it) and tanghulu (glossy balls in cells). */
 const NightFood = (() => {
   const M = FoodMass({
+    premium: true, premiumOpts: { lift: { cutlet: 'brightness(0.86) contrast(1.12) saturate(1.15)' } },
     FOOD: [null, 'sausage', 'cutlet', 'tofu', 'scallion', 'omelette', 'shaveice', 'pepperbun'],
     MAIN: [null, '#d6503e', '#d09440', '#7a4618', '#ecd08a', '#dc5a68', '#f2eee4', '#a86c30'],
     soft: { sausage: 0.9, cutlet: 1.0, tofu: 1.1, scallion: 1.1, omelette: 1.5, shaveice: 1.5, pepperbun: 1.1 },
