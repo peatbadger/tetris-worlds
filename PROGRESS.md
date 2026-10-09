@@ -370,3 +370,7 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Night Market (158e443): values pass — tofu 79 / sausage 110 / pepper bun 123 / oyster omelette 152 / cutlet 169 / scallion pancake 193 / shaved ice 216; 0 close pairs.
 - Mike's (7a4c381 ): tiramisu now espresso/cocoa-forward (was ≈ cheesecake), pistachio clearly green (was ≈ Boston), Boston brighter custard. L: 33/97/122/145/168/212/230; 0 close pairs.
 - Fish House (ef8dc9b ): scallop shells sand-ivory (were salmon, ≈ prawn), prawns coral, crab legs deeper red-orange, branzino mid olive. L: 51/88/106/119/146/183/201; 0 close pairs. Dim Sum re-audited: 0 close pairs (hargow 218 vs bao 231 differ by hue/translucency).
+
+## Round 4 — geometric remakes of the originals (after TAIL, originals untouched)
+- Shared engine src/28_19_geo_cafe.js (GeoCafe stage + MassKit/remakeFood helpers); defs in 28_20_remakes.js; TAIL extended in 29_order.js. Tools now freeze gravity (late worlds topped out during captures).
+- Tiki Beach Shack (741400d , Ocean remake): thatched fruit bar, blender that spins/fills, sea window with sailboat, sunset conch, dolphins event. Blocks acai 60 / dragon 98 / watermelon 121 / kiwi 140 / papaya 156 / pineapple 173 / coconut 230.
