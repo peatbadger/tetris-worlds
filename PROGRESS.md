@@ -441,3 +441,5 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Kaiten board: measured the empty-well colour on the pre-/post-premium captures — identical (26,15,9), so neither premium nor the ZoneMask flatten dims it (the flatten sits under an 82%-opaque board). The board was simply very dark: boardBg rgba(16,7,4,.82) → rgba(34,21,14,.8), grid .06→.07. shots/premium/kaiten-board-before-after.png
 - 76f300c kaiten board
 - Tiki (QA r3): palette muted (desatAll .12, watermelon #e8424a→#b23e46 with soft flesh gradient, dragon magenta → dusty rose), papaya moved to salmon-coral #de7250 (pink seed channel) and pineapple to pale lemon #e8cc5a with fibrous grain, so the two no longer read as mango/papaya twins. Luma 54/193/111/150/140/181/233, 0 close. shots/cmp-tiki.png
+- dc71c60 tiki
+- Aurora Lodge (QA r3): rye rebuilt as a real dense rye slice (fine even crumb, rye kernels, caraway, dark crust on exposed sides) instead of muddy blotches; gravlax dill clip-art removed (soft curved fat lines + sparse pepper); lingon desat .16; gravlax/cloudberry spread. Luma 45/83/87/128/160/197/227, 0 close. shots/cmp-lodge.png
