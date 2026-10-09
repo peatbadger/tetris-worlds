@@ -1,7 +1,7 @@
 // node tools/premium.js [world=sushi] [out=/workspace/shots/premium-<world>-before-after.png]  -> out.png, out-grey.png, out-small.png
 // Same hand-built stack rendered with FoodMass premium OFF (before) and ON (after): bottom 8 rows at 4x, and the whole well at iPhone size.
 const { chromium } = require('/usr/local/lib/pnpm/5/.pnpm/playwright-core@1.59.1/node_modules/playwright-core');
-const path = require('path'); const { execFileSync } = require('child_process'); const TMP = '/workspace/tmp_prem'; require('fs').mkdirSync(TMP, { recursive: true });
+const path = require('path'); const { execFileSync } = require('child_process'); const TMP = '/workspace/tmp_prem/run_' + process.pid + '_' + Date.now(); require('fs').mkdirSync(TMP, { recursive: true });
 const [world = 'sushi', outArg] = process.argv.slice(2); const out = outArg || `/workspace/shots/premium-${world === 'sushi' ? 'kaiten' : world}-before-after.png`;
 async function grab(b, prem, file, phone) {
   const opt = phone ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } : { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 4 };
@@ -34,6 +34,8 @@ im.paste(a,(0,60)); im.paste(b,(a.width+30,60)); dr.text((10,20),'${world}: BEFO
 im.paste(c,(0,y)); im.paste(d,(c.width+30,y)); dr.text((10,y-30),'BEFORE (iPhone 390pt, 3x)',fill=(255,255,255)); dr.text((c.width+40,y-30),'AFTER (iPhone 390pt, 3x)',fill=(255,255,255))
 im.save('${out}'); im.resize((im.width//3,im.height//3)).save('${out}'.replace('.png','-small.png'))
 g=im.convert('L').convert('RGB'); g.resize((g.width//2,g.height//2)).save('${out}'.replace('.png','-grey.png'))
+for im2,n in ((a,'before-4x'),(b,'after-4x'),(c,'before-iphone'),(d,'after-iphone')): im2.save('${out}'.replace('.png','-'+n+'.png'))
+import shutil; shutil.rmtree(T)
 `]);
   console.log('ok', out, JSON.stringify(E));
 })().catch((e) => { console.error(e); process.exitCode = 1; });
