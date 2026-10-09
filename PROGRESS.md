@@ -388,3 +388,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - 36d7c6b premium speakeasy: generic premium pass (glass masses keep own highlights); L 58/92/125/149/196/207/220, 0 close — shots/premium/speakeasy.png
 - ee857e0 premium dimsum: generic premium pass; chive lift toned so it separates from har gow; 0 close — shots/premium/dimsum.png
 - cfc0ab6 premium gelato: generic premium pass, keeps soft scoop radius 0.26; 0 close — shots/premium/gelato.png
+- bc26959 premium fishhouse: generic premium pass; L 43/88/108/124/157/182/200, 0 close — shots/premium/fishhouse.png

@@ -15882,6 +15882,7 @@ registerStage('pizzeria', makeGeoPizzeriaStage);
 const PizzaFood = (() => {
   const C3 = { spaghetti: ['#f0c860', '#ffe090', '#b8301c'], margherita: ['#d8402a', '#f7f1e3', '#c98a3e'], risotto: ['#f0c44a', '#fae08a', '#c8901e'], gnocchi: ['#f2e0b0', '#fff2cc', '#b87a2a'], penne: ['#4e8a2a', '#e4bc62', '#2a5a14'], lasagne: ['#e8c068', '#a83a22', '#f4ead0'], focaccia: ['#d8a048', '#f0c878', '#8a5a1a'] };
   const M = FoodMass({
+    premium: true, premiumOpts: { lift: { focaccia: 'brightness(0.9) contrast(1.12) saturate(1.05)', risotto: 'brightness(0.93) contrast(1.1) saturate(1.2)', gnocchi: 'contrast(1.04) brightness(1.02)' } },
     FOOD: [null, 'spaghetti', 'margherita', 'risotto', 'gnocchi', 'penne', 'lasagne', 'focaccia'],
     MAIN: [null, '#e0743a', '#c8361e', '#f4c628', '#f2e2b8', '#4e8a2a', '#8a3220', '#cf9640'],
     soft: { spaghetti: 1.4, margherita: 1.2, risotto: 1.6, gnocchi: 1.4, penne: 1.2, lasagne: 1.2, focaccia: 1.0 },
