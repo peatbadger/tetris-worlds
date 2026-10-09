@@ -19,7 +19,7 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 | 12 | Yakitori | yakitori | live (geo; skewers grill raw→lacquered, trains overhead, flare-ups; screenshot-yakitori.png) |
 | 13 | Curry House | curry | live (geo; spice ladder, level-10 challenge, rice jar; screenshot-curry.png) |
 | 14 | Konbini (Lawson-style, fan tribute) | lawson | live (geo; fluorescent 24h store, hot-snack warmer, nikuman steamer, microwave countdown "chin", delivery truck, fresh-karaage event) |
-| 15 | Japanese Tea House | teahouse | TODO |
+| 15 | Japanese Tea House | teahouse | live (geo; Kyoto tea room, matcha whisked the slow way, shishi-odoshi, ceremony) |
 | 16 | Fukuoka Oden Yatai | oden | TODO |
 | 17 | Taiwanese Hotpot | hotpot | TODO |
 | 18 | Ramen Yokocho | ramen | TODO |
@@ -458,3 +458,10 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Blocks src/28_29a_lawson_food.js: onigiri (alternating rice triangles on nori, nori band each), roll cake (cream-heavy slices, golden sponge spiral), karaage (craggy golden nuggets), melon pan (domed crust diamonds + sugar), sakura mochi (pink domyōji grain), matcha warabi (jade cubes + powder), chocolate (glossy ganache squares, cocoa dust, a gold fleck). Luma 187/225/132/172/149/115/56, 0 close.
 - Review notes: onigiri v1 read as dominoes/dice → dark nori base + gapped triangles; melon pan v1 read as waffle cone → domed crust tiles; karaage crease strokes made smiley faces → removed. Weak spot: like every GeoCafe world, the queue stands in front of the counter at 1440 and hides part of the hot-snack line.
 - Images: shots/cmp-lawson.png, screenshot-lawson.png (09:00), lawson-night.png (23:30 rain), lawson-event-{delivery,karaage}.png, iphone-lawson.png.
+- ec14381 konbini
+
+## Tea House (teahouse) — new world
+- Scene src/28_30_teahouse.js: plaster walls, dark posts + nageshi beam, lattice ranma; tokonoma with the scroll 一期一会 and a camellia; vertical wooden menu plaques (お品書き 抹茶/煎茶/ほうじ茶/和菓子 in kanji numerals); shoji screens behind the board; tatami floor. Counter: brazier + iron kama with steam, matcha bowl that foams while whisked, chasen stand, wagashi glass case, hand bell; lacquer front with 一服. Master Sen (grey kimono, moss obi) does scoop → ladle → M-stroke whisk → turn bowl; idle = folding the purple fukusa. Hana (indigo kimono) bows. New 'kimono' figure pattern in 12d (crossed collar, obi, obijime). Window: half-open shoji + sudare blind onto a moss garden — bamboo grove, tsuiji wall, star-leaf red maple shedding leaves, stone lantern lit from dusk, raked gravel, koi pond, a shishi-odoshi that fills and knocks every ~14 s. Events: shishi-odoshi (knock, room looks out), ceremony ("Otemae chōdai itashimasu", bowl turned, room bows). Koto/flute in miyako-bushi scale, 70 bpm.
+- Blocks src/28_30a_teahouse_food.js: hanami dango, yōkan (translucent ruby slab + chestnuts), matcha (micro-foam), dorayaki, nerikiri (violet bellflowers), warabi kinako, ichigo daifuku (strawberry blush through mochi). Luma 202/57/132/97/155/189/225, 0 close.
+- Review notes: matcha whisk strokes read as ECG lines → foam drifts; kuromitsu pools read as olives, then as a twig → removed; cut daifuku read as an eyeball → whole ichigo daifuku with soft blush; dorayaki read as amber jelly → darker mahogany centre; garden v1: lantern hidden behind the shoji, maple a red cloud → moved + star leaves.
+- Images: shots/cmp-teahouse.png, screenshot-teahouse.png, teahouse-night.png, teahouse-event-{shishi,ceremony}.png, iphone-teahouse.png.

@@ -95,6 +95,11 @@ const SushiFig = (() => {
       case 'patch': { polyL(c, R, [[-0.2, -0.1], [-1.4, 0.5], [0.05, 0.55]]); c.fillStyle = c2; c.fill(); polyL(c, R, [[0.05, 0.55], [1.4, 0.48], [1.4, 1.2], [0.1, 1.2]]); c.fillStyle = c3; c.fill(); break; }
       case 'apron': { polyL(c, R, [[-0.55, 0.42], [0.65, 0.42], [0.8, 1.2], [-0.7, 1.2]]); c.fillStyle = c2; c.fill(); c.fillStyle = col(P, d.top3 || 'coral'); polyL(c, R, [[-0.6, 0.4], [0.7, 0.4], [0.72, 0.47], [-0.62, 0.47]]); c.fill(); break; }
       case 'cardigan': { polyL(c, R, [[f * 0.0, 0], [f * 0.42, 0], [f * 0.22, 1.2], [f * 0.12, 1.2]]); c.fillStyle = c2; c.fill(); break; }
+      case 'kimono': { // crossed collar (left over right) + obi band + obijime cord; top2 = obi, top3 = cord, shirt = juban collar
+        c.fillStyle = col(P, d.shirt || 'white'); polyL(c, R, [[-0.3, -0.1], [-0.08, -0.1], [0.42, 0.56], [0.24, 0.56]]); c.fill(); polyL(c, R, [[0.3, -0.1], [0.08, -0.1], [-0.2, 0.36], [-0.34, 0.3]]); c.fill();
+        c.fillStyle = 'rgba(0,0,0,0.16)'; polyL(c, R, [[0.24, 0.56], [0.42, 0.56], [-0.04, -0.06], [-0.12, -0.06]]); c.fill();
+        c.fillStyle = c2; polyL(c, R, [[-1.5, 0.56], [1.5, 0.56], [1.5, 0.8], [-1.5, 0.8]]); c.fill();
+        c.fillStyle = c3; polyL(c, R, [[-1.5, 0.66], [1.5, 0.66], [1.5, 0.7], [-1.5, 0.7]]); c.fill(); break; }
       case 'pin': { c.fillStyle = c2; for (let i = 0; i < 11; i++) { const px = -1.4 + i * 0.28; polyL(c, R, [[px, -0.1], [px + 0.09, -0.1], [px + 0.09, 1.2], [px, 1.2]]); c.fill(); } break; } // fine vertical pinstripe (konbini uniform)
       case 'stripe': { c.fillStyle = c2; for (let i = 0; i < 3; i++) { polyL(c, R, [[-1.5, 0.35 + i * 0.2], [1.5, 0.35 + i * 0.2], [1.5, 0.43 + i * 0.2], [-1.5, 0.43 + i * 0.2]]); c.fill(); } break; }
       case 'hivis': { c.fillStyle = col(P, '#e8e070'); for (const v of [0.55, 0.75]) { polyL(c, R, [[-1.5, v], [1.5, v], [1.5, v + 0.05], [-1.5, v + 0.05]]); c.fill(); } break; }
