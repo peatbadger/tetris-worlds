@@ -428,3 +428,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - Scene: yellow/brown counter; spice ladder 1–10 board and toppings board; giant rice jar (steam), simmering roux pot (bubbles), katsu fryer (oil spits) — an order is really built: rice scoop → ladle of roux → fried cutlet for katsu → plate (held plate fills in stages). Window: covered shōtengai arcade with awnings, shop signs, bicycles, a passer-by (umbrella in rain).
 - Guests: salaryman, student, builder, the level-10 challenger (headband), mum+kid, tourist. Events: level-10 challenge (steam off the eater's head, "辛っ!!", water jug, cheers) · rice jar steam. Debug: window.__geoEv.curry(n).
 - Blocks: I pork katsu (sliced) · O rice · T roux · S fukujinzuke (lotus rings) · Z melted cheese · J fried eggplant · L spinach. Values 148/213/64/102/163/40/82, 0 close pairs.
+- 5cbab2f new world curry
