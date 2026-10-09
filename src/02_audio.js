@@ -26,6 +26,22 @@ const AudioEngine = (() => {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
     ac = new AC();
+    // clamp every oscillator/filter frequency below Nyquist and ~20 kHz (avoids out-of-range warnings)
+    (function clampFreqs() {
+      const fmax = Math.min(ac.sampleRate * 0.45, 20000);
+      const cl = (v) => (typeof v === 'number' && isFinite(v)) ? Math.max(1, Math.min(fmax, v)) : v;
+      const wrap = (node) => {
+        const p = node.frequency; if (!p || p.__cl) return node; p.__cl = 1;
+        ['setValueAtTime', 'linearRampToValueAtTime', 'exponentialRampToValueAtTime', 'setTargetAtTime'].forEach((m) => {
+          const f = p[m]; if (f) p[m] = function (v, ...a) { return f.call(this, cl(v), ...a); };
+        });
+        const sv = p.setValueCurveAtTime; if (sv) p.setValueCurveAtTime = function (arr, ...a) { return sv.call(this, Float32Array.from(arr, cl), ...a); };
+        const d = Object.getOwnPropertyDescriptor(AudioParam.prototype, 'value');
+        if (d && d.set) Object.defineProperty(p, 'value', { get() { return d.get.call(this); }, set(v) { d.set.call(this, cl(v)); }, configurable: true });
+        return node;
+      };
+      ['createOscillator', 'createBiquadFilter'].forEach((m) => { const f = ac[m]; if (f) ac[m] = function () { return wrap(f.call(ac)); }; });
+    })();
     master = ac.createGain(); master.gain.value = muted ? 0 : volume;
     comp = ac.createDynamicsCompressor();
     comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;

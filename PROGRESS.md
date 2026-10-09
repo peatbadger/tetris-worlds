@@ -165,3 +165,8 @@ Shared engine (new):
 - Blocks v3: I = short fat blistered cannoli, one cannoli per cell pair with ricotta+chip ends meeting mid-piece; O Boston cream, T cheesecake, S pistachio, Z tiramisu, J ganache, L rainbow cookie — continuous masses, no faces/marks.
 - Global: ZoneMask (shared blurred/darkened board-zone layer in every world, incl. originals) — runs in BG draw after any stage.
 - Shots: screenshot-geo-mikes-day.png (15:00), -night.png (21:30 snow), -mobile.png; before/after: /workspace/shots/mikes-before-after.png (before: mikes-before-day/night.png).
+
+## Global fixes (QA step 2)
+- a) ZoneMask: shared board-zone layer for every world (geo + originals): blur (2-step downscale) + tint inside the HOLD/board/NEXT rects, so no readable text or figures ghost through. Verified in sushi, speakeasy, ocean, mikes.
+- b) Web Audio: every OscillatorNode/BiquadFilterNode frequency (setValueAtTime/ramps/setTarget/curves/.value) is clamped to min(0.45·sampleRate, 20 kHz). `node tools/audiotest.js` plays all 15 worlds + fires every sfx: 0 values ≥ 20 kHz (max 19845 Hz = the clamp), 0 warnings.
+- c) Speakeasy spawn: probed 64 samples at 200 ms after hard drops (/tmp/spawnprobe.js): a piece exists and is drawn in the first visible row immediately on every lock (spawn is synchronous; no ARE gap). The only piece-less windows are the intentional 2 s game-start intro and the 2.7 s world transition — most likely what the QA frame caught. No change needed.
