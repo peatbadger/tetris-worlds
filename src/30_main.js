@@ -163,6 +163,9 @@
     for (let y = 3; y < 22; y++) { c.moveTo(0, y * s + 0.5); c.lineTo(10 * s, y * s + 0.5); }
     c.stroke();
     if (!g.board) return;
+    const fm = SKINSETS[st.skin] && SKINSETS[st.skin].mass;
+    if (fm) fm.board(c, g, s, d, T, st, BlockFX); // food-mass skins (Kaiten Sushi) draw the stack, ghost and piece themselves
+    else {
     const clearing = g.state === 'clearing', ct = clearing ? g.clearT / CLEAR_TIME : 0;
     const over = g.state === 'over';
     const live = Skins.live(st), st0 = cellState, ssk = SKINSETS[st.skin], faces = !!ssk && Mood.enabled, drawFace = faces && !ssk.noFace, faceOK = (v) => drawFace && (!ssk.faceTypes || ssk.faceTypes.includes(v)), faceOf = (v) => (ssk && ssk.faces && ssk.faces[v]) || Mood.autoFace(st.skin, v, skin[v]);
@@ -216,6 +219,7 @@
       }
       c.restore();
     }
+    }
     if (g.state === 'transition') {
       const k = g.transT / TRANSITION_TIME, a = Math.sin(k * Math.PI);
       c.fillStyle = `rgba(0,0,0,${0.35 * a})`; c.fillRect(0, 2 * s, 10 * s, 20 * s);
@@ -235,6 +239,7 @@
     const cells = CELLS[type][0]; const xs = cells.map((c) => c[0]), ys = cells.map((c) => c[1]);
     const w = Math.max(...xs) - Math.min(...xs) + 1, h = Math.max(...ys) - Math.min(...ys) + 1;
     const ox = cx - (w * cs) / 2 - Math.min(...xs) * cs, oy = cy - (h * cs) / 2 - Math.min(...ys) * cs;
+    const fm = SKINSETS[stage().skin] && SKINSETS[stage().skin].mass; if (fm) return fm.mini(ctx, type, cx, cy, cs, alpha, T, DPR());
     const skin = Skins.get(stage(), cs, DPR()); const v = TYPES.indexOf(type) + 1;
     ctx.globalAlpha = alpha;
     const live = Skins.live(stage());

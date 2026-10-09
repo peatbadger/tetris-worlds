@@ -6,7 +6,7 @@ const STAGES = [
     desc: 'Flat mid-century geometry: paper lanterns, a busy itamae, regulars coming and going and a belt of true-colour sushi — koto, shakuhachi and taiko.',
     accent: '#ffb35c', accent2: '#e8c04a', skin: 'sushi', particle: 'petal',
     boardBg: 'rgba(16,7,4,0.82)', grid: 'rgba(255,190,120,0.06)',
-    palette: ['#a9bccf', '#f5c842', '#f0561a', '#7cc254', '#c8203a', '#ff8c5a', '#f57a3d'],
+    palette: ['#f0561e', '#f5c842', '#f7905a', '#c8203a', '#7cc254', '#8fa8c4', '#eae4d4'], // I ikura · O tamago · T salmon · S maguro · Z edamame · J saba · L avocado maki
     music: {
       bpm: 88, root: 62, scale: [0, 2, 5, 7, 9], prog: [0, 3, 1, 4], barsPerChord: 1,
       pad: { wave: 'sawtooth', cutoff: 950, gain: 0.05, detune: 6, voices: 3, oct: -1 },

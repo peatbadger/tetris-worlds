@@ -73,3 +73,13 @@ Shared helpers for new worlds: src/18_kit.js (Kit.*). Speed ramp eased in 20_gam
 - 14 customer types, 17 party types weighted by time of day; chef + waitress AI; belt never stops; special orders; tea refills; plate stacks; bills; line-clear reactions.
 - Blocks: 14a_skin_sushi.js now draws flat nigiri/maki/gunkan on palette tiles (cache keyed by palette via SKINSETS.key()).
 - Debug: window.__sushiGeo.{setHour, lapse(rate, from), timeScale, weather, spawn}. Tools: tools/geo.js (screenshots), tools/record_geo.js (demo video).
+
+## Oct 9 2026 — Kaiten Sushi: blocks MADE OF FOOD (14a_skin_sushi.js → SushiFood)
+- Mapping: I ikura · O tamago · T salmon nigiri · S maguro · Z edamame · J saba (silver-blue, tiger stripes) · L avocado maki.
+- Cells fill edge-to-edge; same-piece cells form one mass via per-cell connectivity (g.meta[y][x] = {pid,lx,ly,pcx,pby,born,cut}, recorded in Game.lock, fragments re-id'd + cut faces in Game.splitFragments). Different pieces separated by an inset dark gap + contact shadow.
+- Textures pre-rendered per pixel size (cache key v:mask:cut:variant); periodic patterns (salmon stripe 1/3, maguro grain 0.5) keep masses continuous. s<18px bakes beads/pods into the base (small-iPhone mode).
+- Live: ikura beads jiggle individually (bead sprite), edamame pods shift, glint sweep; per-piece affine wobble (landing squash + idle jiggle, about piece base so seams never open); rotate shake on the active piece; ghost = faint food-coloured outline. HOLD/NEXT via SushiFood.mini.
+- Line clear: food-specific particles (beads scatter, pods/beans pop, maki roll, tamago squish+crumbs, nigiri/sashimi slide off, sparks) outliving CLEAR_TIME.
+- 30_main.js: drawBoard/drawMini delegate to SKINSETS[skin].mass when present (generic hook other worlds can adopt).
+- Tools: tools/foodstack.js (mixed stack + fps), tools/foodclip.js (landing + Tetris clip). Outputs: screenshot-sushi-food-{stack,closeup,iphone,16px}.png, sushi-food-clip.webm.
+- Fallback: git tag `fallback-original-art` (= fe70099) in peatbadger/tetris-worlds holds the full pre-restyle game (all original world art). Restore: `git checkout fallback-original-art`.

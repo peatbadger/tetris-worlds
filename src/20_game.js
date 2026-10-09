@@ -40,6 +40,7 @@ class Game {
   constructor(hooks) { this.h = hooks; this.state = 'idle'; }
   start(stageIdx) {
     this.board = Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+    this.meta = Array.from({ length: ROWS }, () => new Array(COLS).fill(null)); this.pidN = 0; // per-cell piece id + local coords (food skins join cells of one piece)
     this.bag = []; this.queue = []; this.refill();
     this.hold = null; this.canHold = true;
     this.score = 0; this.lines = 0; this.combo = -1; this.b2b = false;
@@ -153,7 +154,9 @@ class Game {
     const ts = this.tspinCheck();
     const cells = this.cellsOf(p);
     let above = true;
-    for (const [x, y] of cells) { if (y >= 0) this.board[y][x] = tIdx; if (y >= HIDDEN) above = false; }
+    const pid = ++this.pidN, loc = CELLS[p.type][p.rot]; let pcx = 0, pby = 0; cells.forEach(([x, y]) => { pcx += x + 0.5; pby = Math.max(pby, y + 1); }); pcx /= 4;
+    const born = typeof performance !== 'undefined' ? performance.now() / 1000 : 0;
+    for (let i = 0; i < cells.length; i++) { const [x, y] = cells[i]; if (y >= 0) { this.board[y][x] = tIdx; if (this.meta) this.meta[y][x] = { pid, lx: loc[i][0], ly: loc[i][1], pcx, pby, born, cut: 0 }; } if (y >= HIDDEN) above = false; }
     this.piece = null; this.canHold = true;
     if (above) return this.gameOver();
     const full = [];
@@ -191,8 +194,10 @@ class Game {
   }
   finishClear() {
     const rows = this.clearRows;
+    if (this.meta) this.splitFragments(rows);
     this.board = this.board.filter((_, y) => !rows.includes(y));
     while (this.board.length < ROWS) this.board.unshift(new Array(COLS).fill(0));
+    if (this.meta) { this.meta = this.meta.filter((_, y) => !rows.includes(y)); while (this.meta.length < ROWS) this.meta.unshift(new Array(COLS).fill(null)); }
     this.lines += rows.length; this.linesInStage += rows.length; this.clearRows = [];
     if (this.linesInStage >= LINES_PER_STAGE) {
       this.linesInStage -= LINES_PER_STAGE;
@@ -206,6 +211,22 @@ class Game {
     this.updateLevel();
     this.state = 'playing';
     this.spawn();
+  }
+  // a clear can cut a piece in two: give each surviving fragment its own id and mark the sliced faces
+  splitFragments(rows) {
+    const M = this.meta, gone = (y) => rows.includes(y), seen = new Set(), used = new Set();
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const m = M[y][x]; if (!m || gone(y) || !this.board[y][x]) { if (m && !this.board[y][x]) M[y][x] = null; continue; }
+      if (y > 0 && gone(y - 1) && M[y - 1][x] && M[y - 1][x].pid === m.pid) m.cut |= 1;
+      if (y < ROWS - 1 && gone(y + 1) && M[y + 1][x] && M[y + 1][x].pid === m.pid) m.cut |= 4;
+    }
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const m = M[y][x]; if (!m || gone(y) || seen.has(y * COLS + x)) continue;
+      const old = m.pid, nid = used.has(old) ? ++this.pidN : old; used.add(old);
+      const st = [[x, y]]; seen.add(y * COLS + x);
+      while (st.length) { const [cx, cy] = st.pop(); M[cy][cx] = Object.assign({}, M[cy][cx], { pid: nid });
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = cx + dx, ny = cy + dy; if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS || gone(ny) || seen.has(ny * COLS + nx)) continue; const q = M[ny][nx]; if (q && q.pid === old) { seen.add(ny * COLS + nx); st.push([nx, ny]); } } }
+    }
   }
   gameOver() {
     this.state = 'over';
