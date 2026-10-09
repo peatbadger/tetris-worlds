@@ -108,3 +108,15 @@ Shared engine (new):
   mum+kid (kid presses hands on the glass → smudge), date couple. Eat-in: bites shrink the pastry, sips empty the cup, chat lines, leave; Sal clears.
 - Blocks: I cannoli · O Boston cream pie · T strawberry cheesecake · S pistachio · Z chocolate fudge · J lavender macarons · L napoleon.
 - Shots: screenshot-geo-mikes-day.png / -night.png.
+
+### World 3 · The Speakeasy (DONE) — `src/42_geo_speakeasy.js` + `src/43_food_cocktail.js`
+- Clock 19:00 → 05:00 (Doors open / Night / Last call / Dawn) + rain/snow on the street grate (legs + car passing).
+- Scene: hidden door with peephole slot + raid bulb (Moe the doorman: knock → slot → "Password?" → answer → door opens),
+  bar with back bar (3 shelves of bottles, mirror), sunburst mirror behind the board (calm), stage on the right with curtain and footlights.
+- Band = small trio at the side (clarinet, upright bass in front of the bassist, upright piano). The singer only appears for her
+  spotlight: lights dim, cone, she walks to the ribbon mic and holds it, sings ~14 s, applause, walks off.
+- Eddie makes real drinks: glass from rack → bottle from shelf → pour/shake/strain (champagne cork pop) → level rises → garnish → served;
+  patrons sip (level drops), Eddie collects empties, polishes glasses. Patrons (≤4, unique types): flapper, gent, reporter, heiress, sailor, cop.
+- Rare raid: back bar flips to books, glasses hide, pianist plays a hymn, "All clear!".
+- Blocks (liquids, live bubbles + slosh): I beer w/ foam · O old fashioned (ice cube + peel) · T negroni · S red wine · Z mojito (mint) · J martini (olive) · L champagne.
+- Shots: screenshot-geo-speakeasy-day.png (19:36) / -night.png (23:30 snow, spotlight).
