@@ -106,5 +106,6 @@ const Skins = (() => {
     return cache[key];
   }
   function live(stage) { const ss = SKINSETS[stage.skin]; return ss && ss.live ? ss.live : null; }
-  return { get, live };
+  function clear() { for (const k in cache) delete cache[k]; }
+  return { get, live, clear };
 })();

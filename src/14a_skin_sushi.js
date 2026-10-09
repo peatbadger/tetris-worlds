@@ -32,7 +32,19 @@ SKINSETS.sushi = (() => {
     x.lineTo(r, b - P * 0.04); x.quadraticCurveTo(r - P * 0.02, b + P * 0.06, P * 0.5, b + P * 0.04); x.quadraticCurveTo(l + P * 0.02, b + P * 0.06, l, b - P * 0.04);
     x.lineTo(l, tp + P * 0.08); x.quadraticCurveTo(l, tp, l + P * 0.08, tp); x.closePath();
   }
+  const PHOTO = [null, 'food.saba', 'food.tamago', 'food.ikura', 'food.kappa', 'food.tuna', 'food.ebi', 'food.salmon'];
+  function photoBase(x, t, P, im) { // painted/photo-real piece on a dark lacquer tile (grid stays readable)
+    roundRect(x, P * 0.03, P * 0.03, P * 0.94, P * 0.94, P * 0.14);
+    x.fillStyle = radial(x, P * 0.45, P * 0.35, P * 0.75, [[0, '#3a1810'], [0.6, '#1c0a06'], [1, '#070202']]); x.fill();
+    x.lineWidth = Math.max(1, P * 0.025); x.strokeStyle = 'rgba(212,175,55,0.55)'; roundRect(x, P * 0.06, P * 0.06, P * 0.88, P * 0.88, P * 0.12); x.stroke();
+    x.fillStyle = 'rgba(255,220,180,0.06)'; roundRect(x, P * 0.1, P * 0.08, P * 0.8, P * 0.18, P * 0.08); x.fill();
+    const k = Math.min((P * 0.9) / im.width, (P * 0.8) / im.height), w = im.width * k, h = im.height * k, cx = P / 2, cy = P * 0.53;
+    x.save(); x.fillStyle = 'rgba(0,0,0,0.55)'; ellipse(x, cx, cy + h * 0.36, w * 0.42, h * 0.12); x.filter = 'blur(' + Math.max(1, P * 0.03) + 'px)'; x.fill(); x.restore();
+    x.imageSmoothingQuality = 'high'; x.drawImage(im, cx - w / 2, cy - h / 2, w, h);
+  }
   function base(x, t, P) {
+    const im = typeof Art !== 'undefined' && Art.isReady('sushi') && Art.img('sushi', PHOTO[t] || 'food.salmon');
+    if (im) return photoBase(x, t, P, im);
     const rnd = mulberry32(t * 97 + 11);
     K.tile(x, P, '#2a130a', '#090302');
     // lacquer rim
@@ -113,7 +125,8 @@ SKINSETS.sushi = (() => {
   function live(ctx, t, s, T, st) {
     const key = Math.round(s * 4);
     const gl = glints[key] || (glints[key] = K.glintSprite(s * 2));
-    if (t === 3) { // ikura orbs jiggle individually
+    const photo = typeof Art !== 'undefined' && Art.isReady('sushi');
+    if (t === 3 && !photo) { // ikura orbs jiggle individually
       const ob = orbs[key] || (orbs[key] = (() => { const c = makeCanvas(Math.ceil(s * 0.5 * 2), Math.ceil(s * 0.5 * 2)), x = c.getContext('2d'); const r = s * 0.5; SushiArt.sphere(x, r, r, r * 0.92, '#ffd08a', '#f2611a', '#8a2006'); x.fillStyle = 'rgba(255,170,60,0.35)'; ellipse(x, r * 1.1, r * 1.2, r * 0.25, r * 0.25); x.fill(); return c; })());
       const pts = [[-0.14, -0.13], [0.14, -0.13], [0, 0.02], [-0.15, 0.15], [0.15, 0.15], [0.0, -0.22], [0, 0.22]];
       for (let i = 0; i < pts.length; i++) {
@@ -124,7 +137,8 @@ SKINSETS.sushi = (() => {
     }
     // character without faces: the topping breathes and flutters (more when the stack is in danger), soy-glaze sparkle while falling
     const d = typeof Mood !== 'undefined' ? Mood.danger : 0;
-    if (t !== 3 && t !== 4) { const fl = Math.sin(T * (2 + d * 9) + st.ph) * (0.006 + d * 0.012) + st.k * 0.02; ctx.fillStyle = `rgba(255,255,255,${0.06 + Math.max(0, fl) * 4})`; ellipse(ctx, 0, -s * 0.12 + fl * s, s * 0.34, s * 0.05); ctx.fill(); }
+    if (photo && t === 3) { for (let i = 0; i < 4; i++) { const ph2 = (T * (1.3 + d * 3) + i * 1.7 + st.ph) % 3; if (ph2 < 0.5) { const a = Math.sin(ph2 / 0.5 * Math.PI); ctx.fillStyle = `rgba(255,240,210,${0.8 * a})`; ellipse(ctx, s * (-0.16 + i * 0.1), -s * 0.12 + (i % 2) * s * 0.07, s * 0.022, s * 0.022); ctx.fill(); } } } // ikura pearls twinkle
+    if (t !== 3 && t !== 4 && !photo) { const fl = Math.sin(T * (2 + d * 9) + st.ph) * (0.006 + d * 0.012) + st.k * 0.02; ctx.fillStyle = `rgba(255,255,255,${0.06 + Math.max(0, fl) * 4})`; ellipse(ctx, 0, -s * 0.12 + fl * s, s * 0.34, s * 0.05); ctx.fill(); }
     if (st.active) { const sp = (T * 1.7 + st.ph) % 1; ctx.fillStyle = `rgba(255,255,240,${0.7 * Math.sin(sp * Math.PI)})`; ctx.save(); ctx.translate(-s * 0.25 + sp * s * 0.5, -s * 0.28); ctx.rotate(T * 3); ctx.fillRect(-s * 0.03, -s * 0.003, s * 0.06, s * 0.006); ctx.fillRect(-s * 0.003, -s * 0.03, s * 0.006, s * 0.06); ctx.restore(); }
     // travelling glisten
     const ph = (T * (0.32 + d * 0.4) + st.ph * 0.137) % 2.2;

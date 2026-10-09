@@ -485,7 +485,10 @@
   /* ---------- main loop ---------- */
   let last = performance.now();
   // wait (briefly) for the embedded brush font so cached scene layers use it; fall back after 2.5s
-  Promise.race([FontLoader.ready, new Promise((r) => setTimeout(r, 2500))]).then(() => {
+  // painted art (assets/) loads at runtime behind a loading screen; fonts in parallel. Fallback after 20s so the game always starts.
+  const artLoad = Art.loadAll((d, t) => { $('ld-bar').style.width = Math.round((d / t) * 100) + '%'; $('ld-s').textContent = `Setting the table… ${d}/${t}`; });
+  Promise.all([Promise.race([FontLoader.ready, new Promise((r) => setTimeout(r, 2500))]), Promise.race([artLoad, new Promise((r) => setTimeout(r, 20000))])]).then(() => {
+    Skins.clear(); $('loading').classList.add('done'); setTimeout(() => $('loading').classList.add('hidden'), 700);
     BG.size(); FX.size(); layout();
     applyStage(0, true); // the menu opens in World 1, Kaiten Sushi
     AudioEngine.setIntensity(1);
@@ -523,5 +526,5 @@
     env.pulse *= Math.pow(0.02, dt); env.flash *= Math.pow(0.03, dt);
     requestAnimationFrame(frame);
   }
-  window.__tw = { game, startGame, toMenu, setPause, applyStage, get stageIdx() { return stageIdx; } };
+  window.__tw = { game, startGame, toMenu, setPause, applyStage, event: (type, info) => sceneEvent(type, info || {}), get stageIdx() { return stageIdx; } };
 })();

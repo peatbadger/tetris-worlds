@@ -6,7 +6,7 @@ const STAGES = [
     desc: 'Lanterns, a busy itamae, sake shelves and a belt of hand-drawn sushi — koto, shakuhachi and taiko.',
     accent: '#ffb35c', accent2: '#e8c04a', skin: 'sushi', particle: 'petal',
     boardBg: 'rgba(16,7,4,0.82)', grid: 'rgba(255,190,120,0.06)',
-    palette: ['#a9bccf', '#f5c842', '#f0561a', '#7cc254', '#c8203a', '#b0447a', '#f57a3d'],
+    palette: ['#a9bccf', '#f5c842', '#f0561a', '#7cc254', '#c8203a', '#ff8c5a', '#f57a3d'],
     music: {
       bpm: 88, root: 62, scale: [0, 2, 5, 7, 9], prog: [0, 3, 1, 4], barsPerChord: 1,
       pad: { wave: 'sawtooth', cutoff: 950, gain: 0.05, detune: 6, voices: 3, oct: -1 },

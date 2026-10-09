@@ -1,0 +1,110 @@
+{
+ "bg": "bg-empty.jpg",
+ "sheets": {
+  "chef-poses-green.jpg": {
+   "names": [
+    "chef.slice",
+    "chef.shape",
+    "chef.nod",
+    "chef.present"
+   ]
+  },
+  "chef-poses2-green.jpg": {
+   "names": [
+    "taisho.laugh",
+    "taisho.hand",
+    "taisho.brush",
+    "taisho.torch",
+    "taisho.knife"
+   ]
+  },
+  "apprentice-poses-green.jpg": {
+   "names": [
+    "appr.roll",
+    "appr.glance",
+    "appr.bow",
+    "appr.wipe",
+    "appr.carry"
+   ]
+  },
+  "salaryman-poses-green.jpg": {
+   "names": [
+    "sal.sip",
+    "sal.lift",
+    "sal.chew",
+    "sal.tie"
+   ]
+  },
+  "woman-poses-green.jpg": {
+   "names": [
+    "woman.photo",
+    "woman.plate",
+    "woman.eat",
+    "woman.laugh"
+   ]
+  },
+  "salaryman-woman-poses2-green.jpg": {
+   "cuts": [
+    250,
+    465,
+    675,
+    865,
+    1056
+   ],
+   "names": [
+    "sal2.raise",
+    "sal2.phone",
+    "sal2.toast",
+    "woman.show",
+    "woman.point",
+    "woman.tablet"
+   ]
+  },
+  "grandpa-kid-poses-green.jpg": {
+   "names": [
+    "gpa.paper",
+    "gpa.chop",
+    "gpa.savor",
+    "kid.wave",
+    "kid.plate",
+    "kid.cheer"
+   ]
+  },
+  "couple-poses-green.jpg": {
+   "cuts": [
+    300,
+    540,
+    727,
+    887,
+    1081
+   ],
+   "names": [
+    "pair.feed",
+    "pair.whisper",
+    "man.pour",
+    "wife.wasabi",
+    "man.chew",
+    "wife.wave"
+   ],
+   "flip": [
+    "pair.whisper"
+   ]
+  },
+  "food-sheet-green.jpg": {
+   "names": [
+    "food.salmon",
+    "food.tuna",
+    "food.ikura",
+    "food.tamago",
+    "food.kappa",
+    "food.ebi",
+    "food.saba"
+   ],
+   "food": true,
+   "rows": [
+    4,
+    3
+   ]
+  }
+ }
+}
