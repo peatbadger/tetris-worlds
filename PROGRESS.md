@@ -393,3 +393,4 @@ Concept / look-alike leaks (to fix in each world's turn)
 - 1aea0cb premium fastfood: generic premium pass + per-food value lifts; fixed 4 pre-existing close pairs (burger/nugget/hotcake, pie/cola): L 28/53/78/106/149/183/225, 0 close — shots/premium/fastfood.png
 - 2901d2d premium nightmarket: generic premium pass; cutlet value re-tuned; L 77/114/128/149/165/193/216, 0 close — shots/premium/nightmarket.png
 - d2894d7 premium boba: generic premium pass; thai/mango values re-tuned (fixed 2 close pairs); L 70/118/135/144/163/189/212, 0 close — shots/premium/boba.png
+- d982fa2 premium tiki: premium pass + dragon fruit redone (white flesh, black seeds, magenta skin with green-tipped scales) + coconut redone (hairy brown shell, tan seed coat, fibrous meat); L 54/127/144/150/179/192/233, 0 close — shots/premium/tiki.png
