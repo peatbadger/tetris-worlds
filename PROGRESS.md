@@ -147,3 +147,13 @@ Shared engine (new):
 - Events: fishing boat crossing, gull landing on the sill, proposal "Yes!".
 - Blocks (src/49_food_seafood.js): I lobster, O oysters on ice, T seared scallops, S mussels, Z salmon, J seaweed salad, L octopus.
 - Shots: screenshot-geo-fishhouse-day.png (13:00 clear), -night.png (21:30 rain), -mobile.png.
+
+### World 7 · Trattoria / Pizzeria (DONE) — `src/50_geo_pizzeria.js` + `src/51_food_pizza.js`
+- Scene: Neapolitan trattoria. Tiled dome oven ("DA SALVATORE", breathing fire, flares on each pizza / wood / big clear, door closed at chiusura), marble bench with dough tray + sauce/mozzarella/basil bowls; calm arched window onto a Naples alley (ochre houses, shutters, laundry line, Vesuvius with snowcap in snow, string lights at night, Ape three-wheeler, cat on the street); one checkered table with a Chianti fiasco candle; wine rack.
+- Cycle: Pranzo / Pomeriggio / Aperitivo / Cena / Chiusura (12:00→23:30); lit windows + string lights at dusk; sign glows at night; APERTO/CHIUSO; candle lit/snuffed.
+- Cast: Salvatore makes every pizza on screen (ball → press → spinning TOSS ×2 → ladle spiral → toppings → basil → peel → oven, turn, pull → rocker cut; rare flop on his head with flour puff "Mamma mia!"); Luca: menus, order, fiasco pour (stream fills glasses), carries the pizza high, clears, tiramisu, bill; takeaway customer waits by the rack and gets a box.
+- Guests: nonni / couple / tourists (photo flash); slices pulled with stretching cheese; toast "Cin cin!".
+- Surprises: birthday tiramisu with candle — everyone sings, candle blown; accordionist at night (bellows animate, guest tips); dough flop.
+- Blocks: I spaghetti al pomodoro · O margherita · T fior di latte · S pesto · Z prosciutto · J melanzane · L arancini (steam, basil garnish, cheese drip).
+- Review fixes: waiter home moved off the diner (was clipping behind a seated guest), takeaway customer moved out of the board centre, toss height lowered so the dough stays near the hands, sign moved inside the frame.
+- Shots: screenshot-geo-pizzeria-day.png (13:30 clear), -night.png (21:30 snow), -mobile.png.
